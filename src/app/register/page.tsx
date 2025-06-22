@@ -9,7 +9,11 @@ export default function Register() {
         <SignupForm />
       </div>
       <div className="w-1/2" >
-        <img src={loginSection.src} alt="Wedding image" className="max-w-full h-full" />
+        <img
+          src={loginSection.src}
+          alt="Wedding image"
+          className="max-w-full h-full"
+        />
       </div>
     </div>
   );

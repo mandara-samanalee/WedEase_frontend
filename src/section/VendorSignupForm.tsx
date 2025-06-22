@@ -9,16 +9,9 @@ function VendorSignupForm() {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     return (
-        <div className="flex items-center justify-center bg-gradient-to-br from-purple-200 via-purple-100 to-white px-4">
-            <div className="bg-white rounded-lg shadow-l p-8 border-2 border-purple-300 w-full max-w-xl">
-                <h1 className="text-3xl font-bold text-purple-700 text-center mb-2">
-                    Become a WedEase Vendor
-                </h1>
-                <p className="text-center text-lg text-purple-500 mb-8">
-                    Join our trusted network and grow your business with dream weddings!
-                </p>
-
-                <form className="space-y-5">
+        <div className="flex items-center justify-center">
+            <div className="bg-white rounded-lg shadow-l p-8 border-2 border-purple-300 w-[450]">
+                <form className="space-y-2">
                     <div>
                         <label className="block text-purple-700 font-semibold mb-1">Full Name</label>
                         <input
@@ -57,12 +50,13 @@ function VendorSignupForm() {
                     <div>
                         <label className="block text-purple-700 font-semibold mb-1">Mobile Number</label>
                         <div className="flex space-x-2">
-                            <select className="px-2 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400">
-                                <option value="+91">+91</option>
-                                <option value="+1">+1</option>
-                                <option value="+44">+44</option>
-                                {/* Add more country codes as needed */}
-                            </select>
+                            <input
+                                type="text"
+                                className="w-20 px-2 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                                placeholder="+91"
+                                maxLength={5}
+                                required
+                            />
                             <input
                                 type="tel"
                                 className="flex-1 px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"

@@ -88,7 +88,7 @@ function SignupForm() {
       <div className="mt-5 flex justify-center">
         <span className="text-purple-700 font-bold text-[20px] flex items-center">Want to register as a vendor?</span>
         <a
-          href="/vendor-register"
+          href="/vendor/register"
           className="ml-2 text-purple-700 font-semibold underline hover:text-purple-900 transition text-[18px] align-baseline"
         >
           Register here

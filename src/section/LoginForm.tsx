@@ -40,13 +40,19 @@ function LoginForm() {
                 {showPassword ? <Visibility /> : <VisibilityOff />}
               </button>
             </div>
+
+            <div className="text-right mt-1">
+              <a href="/forgotPassword" className="text-sm text-purple-600 hover:underline">
+                Forgot password?
+              </a>
+            </div>
           </div>
 
           <DefaultButton btnLabel="Login" className="w-full mt-4" />
 
           <div className="mt-4 text-center">
-          <p>Don&apos;t you have an account? <a href="/register" className="text-purple-600 hover:font-bold">Signup</a></p>
-        </div>
+            <p>Don&apos;t you have an account? <a href="/register" className="text-purple-600 hover:font-bold">Signup</a></p>
+          </div>
 
         </form>
       </div>

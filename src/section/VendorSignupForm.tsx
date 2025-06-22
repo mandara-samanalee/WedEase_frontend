@@ -71,7 +71,6 @@ function VendorSignupForm() {
                             <input
                                 type={showPassword ? "text" : "password"}
                                 className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-                                placeholder="Password"
                                 required
                             />
                             <button
@@ -91,7 +90,6 @@ function VendorSignupForm() {
                             <input
                                 type={showConfirmPassword ? "text" : "password"}
                                 className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-                                placeholder="Confirm password"
                                 required
                                 style={{ height: 40 }}
                             />

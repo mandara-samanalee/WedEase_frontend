@@ -2,6 +2,7 @@ import home from "@/assets/images/home.png";
 import about from "@/assets/images/about.png";
 import about2 from "@/assets/images/about-2.png";
 import about3 from "@/assets/images/about-3.png";
+import vendorSection from "@/assets/images/vendor-section.jpg";
 import ServiceCards from "@/components/ServiceCards";
 import Footer from "@/section/Footer";
 
@@ -18,6 +19,7 @@ export default function Home() {
             <a href="#home" className="hover:text-purple-350">Home</a>
             <a href="#about" className="hover:text-purple-350">About</a>
             <a href="#services" className="hover:text-purple-350">Services</a>
+            <a href="#vendors" className="hover:text-purple-350">Vendors</a>
             <a href="#contact" className="hover:text-purple-350">Contacts</a>
           </div>
 
@@ -70,6 +72,53 @@ export default function Home() {
       {/* Services Section */}
       <div id="services">
         <ServiceCards/>
+      </div>
+
+      {/* Vendor Section */}
+      <div id="vendors" className="container mx-auto max-w-[1200px] mt-[100px] p-0">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+
+          <div className="flex justify-center">
+            <img 
+              src={vendorSection.src} 
+              alt="Wedding vendor services" 
+              className="w-full max-w-[400px] h-auto object-cover rounded-xl shadow-lg"
+            />
+          </div>
+
+          <div className="text-center md:text-left">
+            <h2 className="text-4xl font-bold text-purple-700 mb-6">
+              Are You a Wedding Vendor?
+            </h2>
+            <p className="text-lg text-purple-600 mb-8 leading-relaxed">
+              Join our network of trusted wedding professionals! Whether you&apos;re a photographer, 
+              caterer, florist, DJ, or any other wedding service provider, WedEase connects you 
+              with couples planning their perfect day. Grow your business and be part of creating 
+              magical moments.
+            </p>
+            
+            <div className="space-y-4 mb-8">
+              <div className="flex items-center justify-center md:justify-start">
+                <span className="text-purple-600">✓ Reach more couples planning their weddings</span>
+              </div>
+              <div className="flex items-center justify-center md:justify-start">
+                <span className="text-purple-600">✓ Showcase your services and portfolio</span>
+              </div>
+              <div className="flex items-center justify-center md:justify-start">
+                <span className="text-purple-600">✓ Manage bookings and client communications</span>
+              </div>
+              <div className="flex items-center justify-center md:justify-start">
+                <span className="text-purple-600">✓ Build your reputation with reviews</span>
+              </div>
+            </div>
+
+            <a href="/vendor/register">
+              <button className="bg-purple-700 text-white text-lg py-3 px-8 rounded-3xl shadow-lg active:scale-105 active:shadow-xl transition duration-300">
+                Join as a Vendor
+              </button>
+            </a>
+          </div>
+        </div>
       </div>
       
       {/* Contact Section */}

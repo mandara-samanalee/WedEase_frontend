@@ -35,7 +35,7 @@ const Footer = () => {
   
           {/* Bottom Section */}
           <div className="border-t border-gray-500 mt-8 pt-6 text-center text-gray-400 text-sm">
-            &copy; {new Date().getFullYear()} WedEase. All rights reserved.
+            &copy; {new Date().getFullYear()} WedEase.lk. All Rights Reserved
           </div>
         </div>
       </footer>

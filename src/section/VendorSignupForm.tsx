@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { VisibilityOff, Visibility } from '@mui/icons-material';
 import DefaultButton from "@/components/DefaultButton";
 
-function VendorSignupForm() {
+export default function VendorSignupForm() {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -121,4 +121,4 @@ function VendorSignupForm() {
     );
 };
 
-export default VendorSignupForm;  
+ 

@@ -17,7 +17,7 @@ function VerifyAccount() {
 
         // Move to next input if not last
         if (idx < 3 && value) {
-            (inputsRef[idx + 1].current as HTMLInputElement)?.focus();
+            ((inputsRef[idx + 1].current as unknown) as HTMLInputElement)?.focus();
         }
     };
 
@@ -27,7 +27,7 @@ function VerifyAccount() {
             const newOtp = [...otp];
             newOtp[idx - 1] = "";
             setOtp(newOtp);
-            (inputsRef[idx - 1].current as HTMLInputElement)?.focus();
+            ((inputsRef[idx - 1].current as unknown) as HTMLInputElement)?.focus();
         }
     };
 
@@ -36,7 +36,7 @@ function VerifyAccount() {
         const paste = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 4);
         if (paste.length === 4) {
             setOtp(paste.split(""));
-            (inputsRef[3].current as HTMLInputElement)?.focus();
+            ((inputsRef[3].current as unknown) as HTMLInputElement)?.focus();
         }
     };
 

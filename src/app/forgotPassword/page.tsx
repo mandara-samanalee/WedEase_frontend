@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 
-function ForgotPassword() {
+export default function ForgotPassword() {
     const [email, setEmail] = useState("");
     const [message, setMessage] = useState("");
 
@@ -45,5 +45,5 @@ function ForgotPassword() {
     );
 }
 
-export default ForgotPassword;
+
 

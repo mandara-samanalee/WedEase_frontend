@@ -1,28 +1,90 @@
-import { FaUser, FaLock } from "react-icons/fa";
+import { FaUser, FaLock, FaCalendar, FaCamera, FaMusic, FaChartBar } from "react-icons/fa";
 
-export default function Sidebar() {
+interface SidebarProps {
+  activeSection: string;
+}
+
+export default function Sidebar({ activeSection }: SidebarProps) {
+    const renderSidebarContent = () => {
+        switch (activeSection) {
+            case 'service':
+                return (
+                    <>
+                        <a
+                            href="#"
+                            className="flex items-center gap-3 px-4 py-3 rounded-lg bg-purple-600 text-white font-semibold text-m shadow-sm transition-all"
+                        >
+                            <FaCamera className="text-m" />
+                            Photography
+                        </a>
+                        
+                        <a
+                            href="#"
+                            className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 font-semibold text-m hover:bg-purple-50 hover:text-purple-700 transition-all"
+                        >
+                            <FaMusic className="text-m" />
+                            Music & DJ
+                        </a>
+                        
+                        <a
+                            href="#"
+                            className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 font-semibold text-m hover:bg-purple-50 hover:text-purple-700 transition-all"
+                        >
+                            <FaCalendar className="text-m" />
+                            Event Planning
+                        </a>
+                    </>
+                );
+             case 'dashboard':
+                return (
+                    <>
+                        <a
+                            href="#"
+                            className="flex items-center gap-3 px-4 py-3 rounded-lg bg-purple-600 text-white font-semibold text-m shadow-sm transition-all"
+                        >
+                            <FaChartBar className="text-m" />
+                            Overview
+                        </a>
+                        
+                        <a
+                            href="#"
+                            className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 font-semibold text-m hover:bg-purple-50 hover:text-purple-700 transition-all"
+                        >
+                            <FaCalendar className="text-m" />
+                            Recent Activities
+                        </a>
+                    </>
+                );
+                default: // profile
+                return (
+                    <>
+                        <a
+                            href="#"
+                            className="flex items-center gap-3 px-4 py-3 rounded-lg bg-purple-600 text-white font-semibold text-m shadow-sm transition-all"
+                        >
+                            <FaUser className="text-m" />
+                            Profile
+                        </a>
+                        
+                        <a
+                            href="#"
+                            className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 font-semibold text-m hover:bg-purple-50 hover:text-purple-700 transition-all"
+                        >
+                            <FaLock className="text-m" />
+                            Change password
+                        </a>
+                    </>
+                );
+        }
+    };
+
     return (
-        <div className="flex flex-col items-center justify-start min-h-screen bg-white border border-gray-200 rounded-xl py-12 mt-10">
-           {/*  <div className="bg-white border border-gray-200 rounded-xl shadow-xl w-80 p-8"> */}
-                <nav className="space-y-4">
-                    {/* Active Link */}
-                    <a
-                        href="#"
-                        className="flex items-center gap-4 px-6 py-4 rounded-lg bg-purple-600 text-white font-bold text-xl shadow transition-all"
-                    >
-                        <FaUser className="text-2xl" />
-                        Profile
-                    </a>
-                    {/* Inactive Link */}
-                    <a
-                        href="#"
-                        className="flex items-center gap-4 px-6 py-4 rounded-lg text-purple-900 font-semibold text-xl hover:bg-purple-100 hover:text-purple-700 transition-all"
-                    >
-                        <FaLock className="text-2xl" />
-                        Change password
-                    </a>
+        <div className="w-[280px] flex-shrink-0 bg-white border-2 border-gray-300 min-h-full mt-12 ml-8 mb-8 shadow-lg">
+            <div className="p-6">
+                <nav className="space-y-2">
+                    {renderSidebarContent()}
                 </nav>
             </div>
-       // </div>
+        </div>
     );
 }

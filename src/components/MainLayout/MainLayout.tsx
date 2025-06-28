@@ -1,14 +1,18 @@
+"use client"
+import React, { useState } from "react";
 import Navbar from "@/components/MainLayout/Navbar";
 import Sidebar from "@/components/MainLayout/Sidebar";
 import PageBottom from "@/components/MainLayout/PageBottom";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
+  const [activeSection, setActiveSection] = useState('profile');
+
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
-      <Navbar />
+    <div className="flex flex-col min-h-screen bg-white">
+      <Navbar activeSection={activeSection} setActiveSection={setActiveSection} />
       <div className="flex flex-1">
-        <Sidebar />
-        <main className="flex-1 p-8">{children}</main>
+        <Sidebar activeSection={activeSection} />
+        <main className="flex-1 ml-12 mt-12">{children}</main>
       </div>
       <PageBottom />
     </div>

@@ -31,7 +31,7 @@ export default function VendorSignupForm() {
                     </div>
 
                     <div>
-                        <label className="block text-purple-700 font-semibold mb-1">Address Line 1</label>
+                        <label className="block text-purple-700 font-semibold mb-1">Address</label>
                         <input
                             type="text"
                             className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
@@ -40,7 +40,7 @@ export default function VendorSignupForm() {
                     </div>
 
                     <div>
-                        <label className="block text-purple-700 font-semibold mb-1">Address Line 2</label>
+                        <label className="block text-purple-700 font-semibold mb-1">City/Region/Distric</label>
                         <input
                             type="text"
                             className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
@@ -53,7 +53,7 @@ export default function VendorSignupForm() {
                             <input
                                 type="text"
                                 className="w-20 px-2 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-                                placeholder="+91"
+                                placeholder="+94"
                                 maxLength={5}
                                 required
                             />

@@ -13,24 +13,18 @@ export default function Navbar({ activeSection, setActiveSection }: NavbarProps)
                 <div className="text-2xl font-bold text-purple-800 tracking-wide z-10">WedEase</div>
 
                 {/* Navigation Links */}
-                <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 flex gap-8">
-                <button 
-                        onClick={() => setActiveSection('dashboard')}
-                        className={`font-medium transition ${activeSection === 'dashboard' ? 'text-purple-700' : 'text-purple-900 hover:text-purple-700'}`}
-                    >
-                        Dashboard
-                    </button>
+                <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 flex gap-12">
 
                     <button 
                         onClick={() => setActiveSection('service')}
-                        className={`font-medium transition ${activeSection === 'service' ? 'text-purple-700' : 'text-purple-900 hover:text-purple-700'}`}
+                        className={`font-medium transition ${activeSection === 'service' ? 'text-purple-900' : 'text-purple-400 hover:text-purple-700'}`}
                     >
                         Service
                     </button>
 
                     <button 
                         onClick={() => setActiveSection('profile')}
-                        className={`font-medium transition ${activeSection === 'profile' ? 'text-purple-700' : 'text-purple-900 hover:text-purple-700'}`}
+                        className={`font-medium transition ${activeSection === 'profile' ? 'text-purple-900' : 'text-purple-400 hover:text-purple-700'}`}
                     >
                         Profile
                     </button>

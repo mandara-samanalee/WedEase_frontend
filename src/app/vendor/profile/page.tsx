@@ -1,10 +1,10 @@
 import MainLayout from "@/components/MainLayout/MainLayout";
+import ChangePasswordForm from "@/section/changepw";
 
 export default function ServicesPage() {
     return (
         <MainLayout>
-            <h1 className="text-3xl font-bold text-purple-700">Vendor Profile</h1>
-            <p className="mt-4 text-lg">Your main content goes here.</p>
+            <ChangePasswordForm/>
         </MainLayout>
     );
 }

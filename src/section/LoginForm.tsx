@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { VisibilityOff, Visibility } from '@mui/icons-material';
-import DefaultButton from '../components/DefaultButton';
+import GradientButton from '../components/GradientButton';
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -48,7 +48,7 @@ export default function LoginForm() {
             </div>
           </div>
 
-          <DefaultButton btnLabel="Login" className="w-full mt-4" />
+          <GradientButton btnLabel="Login" className="w-full mt-4" />
 
           <div className="mt-4 text-center">
             <p>Don&apos;t you have an account? <a href="/register" className="text-purple-600 hover:font-bold">Signup</a></p>

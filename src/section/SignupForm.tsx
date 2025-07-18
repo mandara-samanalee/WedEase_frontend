@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { VisibilityOff, Visibility } from '@mui/icons-material';
-import DefaultButton from "@/components/DefaultButton";
+import GradientButton from "@/components/GradientButton";
 
 export default function SignupForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -14,13 +14,24 @@ export default function SignupForm() {
         <h1 className="text-3xl font-bold text-purple-700 text-center mb-6">Create New Account</h1>
 
         <form className="space-y-5">
-          <div>
-            <label className="block text-purple-700 font-semibold mb-1">Full Name</label>
-            <input
-              type="text"
-              className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-              required
-            />
+          <div className="flex space-x-4">
+            <div className="flex-1">
+              <label className="block text-purple-700 font-semibold mb-1">First Name</label>
+              <input
+                type="text"
+                className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                required
+              />
+            </div>
+
+            <div className="flex-1">
+              <label className="block text-purple-700 font-semibold mb-1">Last Name</label>
+              <input
+                type="text"
+                className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                required
+              />
+            </div>
           </div>
 
           <div>
@@ -28,7 +39,6 @@ export default function SignupForm() {
             <input
               type="email"
               className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-              required
             />
           </div>
 
@@ -71,7 +81,7 @@ export default function SignupForm() {
             </div>
           </div>
 
-          <DefaultButton btnLabel="Signup" className="w-full mt-4" />
+          <GradientButton btnLabel="Signup" className="w-full mt-4" />
 
         </form>
 

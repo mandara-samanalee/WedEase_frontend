@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import GradientButton from "@/components/GradientButton";
 
 export default function ForgotPassword() {
     const [email, setEmail] = useState("");
@@ -14,7 +15,7 @@ export default function ForgotPassword() {
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-4">
-            <div className="bg-white rounded-lg shadow-lg p-8 border-2 border-purple-300 max-w-[400px] w-full">
+            <div className="bg-white rounded-lg shadow-lg p-8 border-2 border-purple-300 max-w-[450px] w-full">
                 <h2 className="text-2xl font-bold text-purple-700 mb-2 text-center">
                     Reset Password
                 </h2>
@@ -30,12 +31,9 @@ export default function ForgotPassword() {
                         onChange={(e) => setEmail(e.target.value)}
                         className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
                     />
-                    <button
-                        type="submit"
-                        className="w-full bg-purple-600 text-white py-2 rounded-lg font-semibold hover:bg-purple-700 transition"
-                    >
-                        Next
-                    </button>
+                    
+                    <GradientButton btnLabel="Next" className="w-full mt-4" />
+
                 </form>
                 {message && (
                     <div className="mt-4 text-green-600 text-center">{message}</div>

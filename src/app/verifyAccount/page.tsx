@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useRef, useState } from "react";
+import GradientButton from "@/components/GradientButton";
 
 function VerifyAccount() {
     const [otp, setOtp] = useState(["", "", "", ""]);
@@ -73,12 +74,9 @@ function VerifyAccount() {
                             />
                         ))}
                     </div>
-                    <button
-                        type="submit"
-                        className="w-full bg-purple-600 text-white py-2 rounded-lg font-semibold hover:bg-purple-700 transition"
-                    >
-                        Verify Email
-                    </button>
+
+                    <GradientButton btnLabel="Verify Email" className="w-full mt-4" />
+
                 </form>
                 {message && (
                     <div className="mt-4 text-green-600 text-center">{message}</div>

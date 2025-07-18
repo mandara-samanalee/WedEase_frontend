@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import Navbar from "@/components/MainLayout/Navbar";
 import Sidebar from "@/components/MainLayout/Sidebar";
-import PageBottom from "@/components/MainLayout/PageBottom";
+//import PageBottom from "@/components/MainLayout/PageBottom";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const [activeSection, setActiveSection] = useState('profile');
@@ -14,7 +14,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         <Sidebar activeSection={activeSection} />
         <main className="flex-1 ml-12 mt-12">{children}</main>
       </div>
-      <PageBottom />
+      {/* <PageBottom /> */}
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { VisibilityOff, Visibility } from '@mui/icons-material';
-import DefaultButton from "@/components/DefaultButton";
+import GradientButton from "@/components/GradientButton";
 
 export default function VendorSignupForm() {
     const [showPassword, setShowPassword] = useState(false);
@@ -10,24 +10,26 @@ export default function VendorSignupForm() {
 
     return (
         <div className="flex items-center justify-center">
-            <div className="bg-white rounded-lg shadow-l p-8 border-2 border-purple-300 w-[450]">
+            <div className="bg-white rounded-lg shadow-l p-8 border-2 border-purple-300 w-[600]">
                 <form className="space-y-2">
-                    <div>
-                        <label className="block text-purple-700 font-semibold mb-1">Full Name</label>
-                        <input
-                            type="text"
-                            className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-                            required
-                        />
-                    </div>
+                    <div className="flex space-x-4">
+                        <div className="flex-1">
+                            <label className="block text-purple-700 font-semibold mb-1">First Name</label>
+                            <input
+                                type="text"
+                                className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                                required
+                            />
+                        </div>
 
-                    <div>
-                        <label className="block text-purple-700 font-semibold mb-1">Email</label>
-                        <input
-                            type="email"
-                            className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-                            required
-                        />
+                        <div className="flex-1">
+                            <label className="block text-purple-700 font-semibold mb-1">Last Name</label>
+                            <input
+                                type="text"
+                                className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                                required
+                            />
+                        </div>
                     </div>
 
                     <div>
@@ -40,9 +42,17 @@ export default function VendorSignupForm() {
                     </div>
 
                     <div>
-                        <label className="block text-purple-700 font-semibold mb-1">City/Region/Distric</label>
+                        <label className="block text-purple-700 font-semibold mb-1">City/Region</label>
                         <input
                             type="text"
+                            className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-purple-700 font-semibold mb-1">Email</label>
+                        <input
+                            type="email"
                             className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
                         />
                     </div>
@@ -104,8 +114,9 @@ export default function VendorSignupForm() {
                         </div>
                     </div>
 
-                    <DefaultButton btnLabel="Signup as a Vendor" className="w-full mt-4" />
-
+                    <div className="pt-4">
+                        <GradientButton btnLabel="Signup as a Vendor" className="w-full" />
+                    </div>
                 </form>
 
                 <div className="text-center mt-4">
@@ -121,4 +132,3 @@ export default function VendorSignupForm() {
     );
 };
 
- 

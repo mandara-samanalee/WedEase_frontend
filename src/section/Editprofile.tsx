@@ -142,8 +142,8 @@ export default function EditProfile() {
                 </div>
 
                 <div className="flex gap-4">
-                    <DefaultButton btnLabel="Update profile" className="mt-4" />
-                    <DefaultButton btnLabel="Delete Account" className="px-4 py-2 border border-red-500 bg-white text-red-500 rounded-lg hover:bg-red-50 hover:text-red-600 transition-colors text-sm mt-4" />
+                    <DefaultButton btnLabel="Update profile" className="mt-2" />
+                    <DefaultButton btnLabel="Delete Account" className="px-4 py-2 border border-red-500 bg-white text-red-500 rounded-lg hover:bg-red-50 hover:text-red-600 transition-colors text-sm mt-2" />
                 </div>
                 <div>
                 </div>

@@ -5,7 +5,7 @@ import Sidebar from "@/components/MainLayout/Sidebar";
 //import PageBottom from "@/components/MainLayout/PageBottom";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
-  const [activeSection, setActiveSection] = useState('profile');
+  const [activeSection, setActiveSection] = useState('services');
 
   return (
     <div className="flex flex-col min-h-screen bg-white">

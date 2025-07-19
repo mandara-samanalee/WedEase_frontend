@@ -20,7 +20,7 @@ export default function Navbar({ activeSection, setActiveSection }: NavbarProps)
         setActiveSection(section);
         if (section === 'services') {
             router.push('/vendor/services/service-profile');
-        } if (section === 'profile') {
+        } else if (section === 'profile') {
             router.push('/vendor/profile/edit-profile');
         }
     };

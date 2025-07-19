@@ -1,25 +1,25 @@
 import { FaUser, FaLock, FaCalendar } from "react-icons/fa";
 import { MdAssignmentInd } from "react-icons/md";
 import { HiBookmark } from "react-icons/hi";
-import React, { useState } from "react";
+import React from "react";
+import { usePathname } from "next/navigation";
 
 interface SidebarProps {
     activeSection: string;
 }
 
 export default function Sidebar({ activeSection }: SidebarProps) {
-    const [activeSubSection, setActiveSubSection] = useState('');
+    const pathname = usePathname();
 
     const renderSidebarContent = () => {
         switch (activeSection) {
-            case 'service':
+            case 'services':
                 return (
                     <>
                         <a
-                            href="#"
-                            onClick={() => setActiveSubSection('photography')}
+                            href="/vendor/services/service-profile"
                             className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-m transition-all ${
-                                activeSubSection === 'photography' 
+                                pathname === '/vendor/services/service-profile' 
                                 ? 'bg-purple-600 text-white shadow-sm' 
                                 : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
                             }`}
@@ -29,10 +29,9 @@ export default function Sidebar({ activeSection }: SidebarProps) {
                         </a>
 
                         <a
-                            href="#"
-                            onClick={() => setActiveSubSection('music')}
+                            href="/vendor/services/booked-services"
                             className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-m transition-all ${
-                                activeSubSection === 'music' 
+                                pathname === '/vendor/services/booked-services' 
                                 ? 'bg-purple-600 text-white shadow-sm' 
                                 : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
                             }`}
@@ -42,10 +41,9 @@ export default function Sidebar({ activeSection }: SidebarProps) {
                         </a>
 
                         <a
-                            href="#"
-                            onClick={() => setActiveSubSection('event-planning')}
+                            href="/vendor/services/booking-requests"
                             className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-m transition-all ${
-                                activeSubSection === 'event-planning' 
+                                pathname === '/vendor/services/booking-requests' 
                                 ? 'bg-purple-600 text-white shadow-sm' 
                                 : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
                             }`}
@@ -59,10 +57,9 @@ export default function Sidebar({ activeSection }: SidebarProps) {
                 return (
                     <>
                         <a
-                            href="#"
-                            onClick={() => setActiveSubSection('profile')}
+                            href="/vendor/profile/edit-profile"
                             className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-m transition-all ${
-                                activeSubSection === 'profile' 
+                                pathname === '/vendor/profile/edit-profile' 
                                 ? 'bg-purple-600 text-white shadow-sm' 
                                 : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
                             }`}
@@ -72,10 +69,9 @@ export default function Sidebar({ activeSection }: SidebarProps) {
                         </a>
 
                         <a
-                            href="#"
-                            onClick={() => setActiveSubSection('change-password')}
+                            href="/vendor/profile/change-password"
                             className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-m transition-all ${
-                                activeSubSection === 'change-password' 
+                                pathname === '/vendor/profile/change-password' 
                                 ? 'bg-purple-600 text-white shadow-sm' 
                                 : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
                             }`}

@@ -3,22 +3,65 @@
 import React, { useState } from 'react';
 import { VisibilityOff, Visibility } from '@mui/icons-material';
 import GradientButton from '../components/GradientButton';
+import { toast } from 'react-toastify';
+
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+try {
+      const response = await fetch(`${BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+    const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Login failed');
+      }
+
+      // save token and user data to localstorage
+      localStorage.setItem('token', data.user.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+
+      toast.success('Login successful!');
+      setEmail('');
+      setPassword('');
+
+      // Handle successful login (e.g., store token, redirect, etc.)
+      console.log('Login successful:', data);
+
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : 'Something went wrong'
+      );
+    } 
+  };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
       <div className="w-[400] bg-white p-8 rounded-lg shadow-lg border-2 border-purple-300">
         <h1 className="text-3xl font-bold text-purple-700 text-center mb-8">Welcome</h1>
 
-        <form className="space-y-5">
+        <form className="space-y-5" onSubmit={handleSubmit}>
           <div>
             <label className="block text-purple-700 font-semibold mb-1">Email</label>
             <input
               type="email"
               className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
               required
+              onChange={(e) => setEmail(e.target.value)}
+              value={email}
             />
           </div>
 
@@ -30,6 +73,8 @@ export default function LoginForm() {
                 className="w-full px-4 py-2 mb-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
                 placeholder="Password"
                 required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
               <button
                 type="button"

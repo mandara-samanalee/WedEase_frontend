@@ -55,23 +55,6 @@ export default function EditProfile() {
                     onChange={handleImageUpload}
                     className="hidden"
                 />
-
-                <div className="flex gap-3 mt-4">
-                    <button
-                        onClick={triggerFileInput}
-                        className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm"
-                    >
-                        Upload New Picture
-                    </button>
-                    {profileImage && (
-                        <button
-                            onClick={() => setProfileImage(null)}
-                            className="px-4 py-2 border border-red-500 bg-white text-red-500 rounded-lg hover:bg-red-50 hover:text-red-600 transition-colors text-sm"
-                        >
-                            Delete
-                        </button>
-                    )}
-                </div>
             </div>
 
             <div className="space-y-6">
@@ -143,7 +126,9 @@ export default function EditProfile() {
 
                 <div className="flex gap-4">
                     <DefaultButton btnLabel="Update profile" className="mt-2" />
-                    <DefaultButton btnLabel="Delete Account" className="px-4 py-2 border border-red-500 bg-white text-red-500 rounded-lg hover:bg-red-50 hover:text-red-600 transition-colors text-sm mt-2" />
+                    <button className="w-[200px] py-2 border border-red-500 bg-white text-red-500 rounded-lg hover:bg-red-50 hover:text-red-600 transition-colors text-sm mt-2">
+                        Delete Account
+                    </button>
                 </div>
                 <div>
                 </div>

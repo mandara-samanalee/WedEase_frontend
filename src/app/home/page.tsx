@@ -75,14 +75,14 @@ export default function Home() {
       </div>
 
       {/* Vendor Section */}
-      <div id="vendors" className="container mx-auto max-w-[1200px] mt-[100px] p-0">
+      <div id="vendors" className="container mx-auto max-w-[1200px] mt-[60px]">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
 
           <div className="flex justify-center">
             <img 
               src={vendorSection.src} 
               alt="Wedding vendor services" 
-              className="w-full max-w-[400px] h-auto object-cover rounded-xl shadow-lg"
+              className="w-full max-w-[900px] h-[500px] object-cover rounded-xl shadow-lg"
             />
           </div>
 

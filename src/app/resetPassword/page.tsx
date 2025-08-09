@@ -8,7 +8,7 @@ export default function ResetPasswordPage() {
             <Toaster position="top-center"
                 toastOptions={{
                     style: {
-                        minWidth: "250px",
+                        minWidth: "300px",
                     }
                 }} />
             <div className="justify-center items-center">

@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { VisibilityOff, Visibility } from '@mui/icons-material';
 import GradientButton from '../components/GradientButton';
-import { toast } from 'react-toastify';
+import toast from 'react-hot-toast';
 
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -35,11 +35,6 @@ try {
       localStorage.setItem('user', JSON.stringify(data.user));
 
       toast.success('Login successful!');
-      setEmail('');
-      setPassword('');
-
-      // Handle successful login (e.g., store token, redirect, etc.)
-      console.log('Login successful:', data);
 
     } catch (err) {
       toast.error(

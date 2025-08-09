@@ -3,18 +3,27 @@
 import React, { useState } from "react";
 import GradientButton from "@/components/GradientButton";
 import { MdEmail } from "react-icons/md";
-import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { validateEmail } from "@/utils/validations";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export default function ForgotPassword() {
     const [email, setEmail] = useState("");
+    const [emailError, setEmailError] = useState<string | undefined>();
     const [message, setMessage] = useState("");
     const router = useRouter();
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        // Validate email before calling APIs
+        const eErr = validateEmail(email);
+        setEmailError(eErr);
+        if (eErr) {
+            console.error(eErr);
+            return;
+        }
 
         try {
             // check user exists
@@ -29,9 +38,9 @@ export default function ForgotPassword() {
             const otpRes = await fetch(`${BASE_URL}/otp/send`, {
                 method: "GET",
                 headers: {
-                "Content-Type": "application/json",
-                "recipient": email,
-            },
+                    "Content-Type": "application/json",
+                    "recipient": email,
+                },
             });
             const otpData = await otpRes.json();
 
@@ -44,12 +53,11 @@ export default function ForgotPassword() {
 
             setMessage("OTP has been sent to your email. Please check your inbox.");
             setEmail("");
-            toast.success("OTP sent successfully!");
 
+            await new Promise((r) => setTimeout(r, 3000));
             router.push('/verifyAccount');
-
         } catch (error) {
-            toast.error(error instanceof Error ? error.message : "Something went wrong");
+            setMessage(error instanceof Error ? error.message : "Something went wrong");
         }
     };
 
@@ -69,11 +77,16 @@ export default function ForgotPassword() {
                             required
                             placeholder="Email address"
                             value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                            onChange={(e) => {
+                                setEmail(e.target.value); if (emailError) setEmailError(undefined);
+                            }}
+                        className={`w-full px-4 py-2 pr-10 border rounded-lg focus:outline-none
+                        ${emailError ? "border-red-500 focus:ring-2 focus:ring-red-400" : "border-purple-300 focus:ring-2 focus:ring-purple-400"}`}
+                            aria-invalid={!!emailError}
                         />
                         <MdEmail className="absolute right-3 top-1/2 transform -translate-y-1/2 text-purple-400 text-2xl" />
                     </div>
+                    {emailError && <p className="mt-1 text-sm text-red-600">{emailError}</p>}
 
                     <GradientButton btnLabel="Next" className="w-full mt-4" />
                 </form>

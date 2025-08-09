@@ -62,10 +62,6 @@ function VerifyAccount() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!otpId) {
-            setMessage("OTP ID is missing.");
-            return;
-        }
 
         try {
             const res = await fetch(`${BASE_URL}/otp/verify`, {

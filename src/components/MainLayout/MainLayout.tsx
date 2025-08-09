@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import Navbar from "@/components/MainLayout/Navbar";
 import Sidebar from "@/components/MainLayout/Sidebar";
+import ToastProvider from "@/utils/toastMsgs";
 //import PageBottom from "@/components/MainLayout/PageBottom";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
@@ -12,7 +13,10 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       <Navbar activeSection={activeSection} setActiveSection={setActiveSection} />
       <div className="flex flex-1">
         <Sidebar activeSection={activeSection} />
-        <main className="flex-1 ml-12 mt-12">{children}</main>
+        <main className="flex-1 ml-12 mt-12">
+          <ToastProvider />
+        {children}
+        </main>
       </div>
       {/* <PageBottom /> */}
     </div>

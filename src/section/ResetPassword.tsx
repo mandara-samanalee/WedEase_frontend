@@ -5,7 +5,7 @@ import { VisibilityOff, Visibility } from '@mui/icons-material';
 import GradientButton from '@/components/GradientButton';
 import { FiLock } from "react-icons/fi";
 import { useRouter } from 'next/navigation';
-import { validatePasswords } from '../utils/validatePasswords';
+import { validatePasswords } from '../utils/validations';
 import toast from 'react-hot-toast';
 
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
@@ -47,11 +47,10 @@ export default function ResetPasswordForm() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Validate here (not during render)
+        // Validate here
         const errors = validatePasswords(newPassword, confirmPassword) as FormErrors;
         setFormErrors(errors);
         if (Object.keys(errors).length > 0) {
-            toast.error(Object.values(errors)[0] || "Please fix the errors.");
             return;
         }
 
@@ -72,7 +71,7 @@ export default function ResetPasswordForm() {
                 localStorage.removeItem("otpId");
 
                 toast.success("Password reset successfully!");
-                setTimeout(() => router.push("/login"), 1200);
+                setTimeout(() => router.push("/login"), 3000);
             } else {
                 const msg = data?.message || "Failed to reset password";
                 setErrorMessage(msg);
@@ -171,7 +170,7 @@ export default function ResetPasswordForm() {
                                 Include one number
                             </li>
                             <li className="flex items-center gap-2">
-                                <span className={/[@$!%*?&]/.test(newPassword) ? 'text-green-500' : 'text-gray-400'}>•</span>
+                                <span className={/[@$!%*?&#]/.test(newPassword) ? 'text-green-500' : 'text-gray-400'}>•</span>
                                 Include one special character
                             </li>
                         </ul>

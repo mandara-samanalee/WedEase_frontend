@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { FaUserCircle, FaCamera } from "react-icons/fa";
 import DefaultButton from "@/components/DefaultButton";
 import toast from "react-hot-toast";
@@ -11,21 +11,101 @@ export default function EditProfile() {
     const [profileImage, setProfileImage] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [imageFile, setImageFile] = useState<File | null>(null);
+
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [deleting, setDeleting] = useState(false);
-    const router = useRouter();
+    const [loadingProfile, setLoadingProfile] = useState(true);
 
+    const router = useRouter();
     const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+    // Prefill form state
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
+    const [email, setEmail] = useState("");
+    const [contactNo, setContactNo] = useState("");
+    const [address, setAddress] = useState("");
+    const [city, setCity] = useState("");
+    const [distric, setDistric] = useState("");
+    const [province, setProvince] = useState("");
+    const [country, setCountry] = useState("");
+
+    // GET vendor profile and prefill form
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                if (!BASE_URL) {
+                    console.error("Backend URL not configured");
+                    return;
+                }
+                const raw = localStorage.getItem("user");
+                if (!raw) {
+                    console.error("Not authenticated");
+                    return;
+                }
+
+                let userId: string | undefined;
+                let token: string | undefined;
+                try {
+                    const parsed = JSON.parse(raw);
+                    userId = parsed?.userId;
+                    token = parsed?.token;
+                } catch {
+                    toast.error("Invalid session");
+                    return;
+                }
+                if (!userId || !token) {
+                    console.error("Missing session");
+                    return;
+                }
+
+                const endpoint = `${BASE_URL}/vendor/getdetails/${userId}`;
+                const res = await fetch(endpoint, {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        Accept: "application/json",
+                    },
+                });
+
+                const json = await res.json().catch(() => ({}));
+                if (!res.ok) {
+                    toast.error(json?.message || 'Failed to load profile');
+                    return;
+                } 
+                toast.success("Profile data retrieved successfully")
+
+                const v = json?.data ?? json;
+                setFirstName(v?.firstName || "");
+                setLastName(v?.lastName || "");
+                setEmail(v?.email || "");
+                setContactNo(v?.contactNo || "");
+                setAddress(v?.address || "");
+                setCity(v?.city || "");
+                setDistric(v?.distric || "");
+                setProvince(v?.province || "");
+                setCountry(v?.country || "");
+                setProfileImage(v?.image || null);
+            } catch (e) {
+                toast.error("Unable to load profile");
+                console.error(e);
+            } finally {
+                setLoadingProfile(false);
+            }
+        };
+
+        fetchProfile();
+    }, []);
 
     const handleDeleteAccount = async (): Promise<boolean> => {
         if (!BASE_URL) {
-            toast.error("Backend URL not configured");
+            console.error("Backend URL not configured");
             return false;
         }
 
         const raw = localStorage.getItem("user");
         if (!raw) {
-            toast.error("Not authenticated");
+            console.error("Not authenticated");
             return false;
         }
 
@@ -40,13 +120,13 @@ export default function EditProfile() {
             return false;
         }
         if (!userId || !token) {
-            toast.error("User ID or token is missing");
+            console.error("User ID or token is missing");
             return false;
         }
 
         try {
             setDeleting(true);
-            const endpoint = `${BASE_URL.replace(/\/$/, "")}/user/delete-account/${encodeURIComponent(userId)}`;
+            const endpoint = `${BASE_URL}/user/delete-account/${userId}`;
             const res = await fetch(endpoint, {
                 method: "DELETE",
                 headers: {
@@ -63,7 +143,7 @@ export default function EditProfile() {
 
             toast.success("Account deleted successfully");
             localStorage.removeItem("user");
-            setTimeout(() => router.replace("/login"), 1500);
+            setTimeout(() => router.replace("/login"), 2500);
             return true;
         } catch (err) {
             toast.error("An error occurred while deleting account");
@@ -94,32 +174,37 @@ export default function EditProfile() {
             userId = parsed.userId;
             token = parsed.token;
         } catch (error) {
-            return console.error("Invalid session", error);
+            return toast.error("Invalid session", error);
         }
-        if (!userId || !token) return console.error("User ID or token is missing");
-        if (!BASE_URL) return console.error("Backend URL not configured");
+
+        if (!userId || !token) 
+            return console.error("User ID or token is missing");
+        if (!BASE_URL) 
+            return console.error("Backend URL not configured");
 
         // Build multipart form-data (do NOT set Content-Type manually)
         const form = new FormData();
-        form.append("firstName", (document.querySelector<HTMLInputElement>('[name="firstName"]')?.value || "").trim());
-        form.append("lastName", (document.querySelector<HTMLInputElement>('[name="lastName"]')?.value || "").trim());
-        form.append("address", (document.querySelector<HTMLInputElement>('[name="address"]')?.value || "").trim());
-        form.append("city", (document.querySelector<HTMLInputElement>('[name="city"]')?.value || "").trim());
-        form.append("distric", (document.querySelector<HTMLInputElement>('[name="distric"]')?.value || "").trim());
-        form.append("province", (document.querySelector<HTMLInputElement>('[name="province"]')?.value || "").trim());
-        form.append("country", (document.querySelector<HTMLInputElement>('[name="country"]')?.value || "").trim());
-        form.append("contactNo", (document.querySelector<HTMLInputElement>('[name="contactNo"]')?.value || "").trim());
+        form.append("firstName", firstName.trim());
+        form.append("lastName", lastName.trim());
+        form.append("address", address.trim());
+        form.append("city", city.trim());
+        form.append("distric", (distric || "").trim());
+        form.append("province", (province || "").trim());
+        form.append("country", country.trim());
+        form.append("contactNo", contactNo.trim());
         if (imageFile) form.append("image", imageFile);
 
         try {
-            const res = await fetch(`${BASE_URL.replace(/\/$/, "")}/vendor/profile/${encodeURIComponent(userId)}`, {
-                method: "PUT",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    Accept: "application/json",
-                },
-                body: form,
-            });
+            const res = await fetch(`${BASE_URL}/vendor/profile/${userId}`,
+                {
+                    method: "PUT",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        Accept: "application/json",
+                    },
+                    body: form,
+                }
+            );
 
             const data = await res.json().catch(() => ({}));
             if (!res.ok) {
@@ -169,136 +254,158 @@ export default function EditProfile() {
                 />
             </div>
 
-            <div className="space-y-6">
-                <div className="flex gap-4">
-                    <div className="flex-1">
-                        <label className="block mb-2">First Name</label>
+            {loadingProfile ? (
+                <p className="text-sm text-gray-500">Loading profile...</p>
+            ) : (
+                <div className="space-y-6">
+                    <div className="flex gap-4">
+                        <div className="flex-1">
+                            <label className="block mb-2">First Name</label>
+                            <input
+                                name="firstName"
+                                type="text"
+                                className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                                required
+                                value={firstName}
+                                onChange={(e) => setFirstName(e.target.value)}
+                            />
+                        </div>
+
+                        <div className="flex-1">
+                            <label className="block mb-2">Last Name</label>
+                            <input
+                                name="lastName"
+                                type="text"
+                                className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                                required
+                                value={lastName}
+                                onChange={(e) => setLastName(e.target.value)}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="flex gap-4">
+                        <div className="flex-1">
+                            <label className="block mb-2">Email Address</label>
+                            <input
+                                name="email"
+                                type="email"
+                                className="w-full px-4 py-2 border border-purple-300 rounded-lg bg-gray-50 text-gray-600"
+                                required
+                                disabled
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                            />
+                        </div>
+
+                        <div className="flex-1">
+                            <label className="block mb-2">Contact Number</label>
+                            <input
+                                name="contactNo"
+                                type="text"
+                                className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                                required
+                                title="Use format: +countryCode|number (e.g. +94|712345678)"
+                                pattern="^\\+\\d{1,4}\\|\\d{7,15}$"
+                                value={contactNo}
+                                onChange={(e) => setContactNo(e.target.value)}
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="block mb-2">Address</label>
                         <input
-                            name="firstName"
+                            name="address"
                             type="text"
                             className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-                            required
+                            value={address}
+                            onChange={(e) => setAddress(e.target.value)}
                         />
                     </div>
 
-                    <div className="flex-1">
-                        <label className="block mb-2">Last Name</label>
-                        <input
-                            name="lastName"
-                            type="text"
-                            className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-                            required
-                        />
-                    </div>
-                </div>
+                    <div className="flex gap-4">
+                        <div className="flex-1">
+                            <label className="block mb-2">City/ Region</label>
+                            <input
+                                name="city"
+                                type="text"
+                                className="w-[320px] px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                                value={city}
+                                onChange={(e) => setCity(e.target.value)}
+                            />
+                        </div>
 
-                <div className="flex gap-4">
-                    <div className="flex-1">
-                        <label className="block mb-2">Email Address</label>
-                        <input
-                            name="email"
-                            type="email"
-                            className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-                            required
-                            disabled
-                        />
+                        <div className="flex-1">
+                            <label className="block mb-2">Distric/ Suburb</label>
+                            <input
+                                name="distric"
+                                type="text"
+                                className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                                required
+                                value={distric}
+                                onChange={(e) => setDistric(e.target.value)}
+                            />
+                        </div>
                     </div>
 
-                    <div className="flex-1">
-                        <label className="block mb-2">Contact Number</label>
-                        <input
-                            name="contactNo"
-                            type="text"
-                            className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-                            required
-                            title="Use format: +countryCode|number (e.g. +94|712345678)"
-                            pattern="^\+\d{1,4}\|\d{7,15}$"
-                        />
-                    </div>
-                </div>
+                    <div className="flex gap-4">
+                        <div className="flex-1">
+                            <label className="block mb-2">Province/ State</label>
+                            <input
+                                name="province"
+                                type="text"
+                                className="w-[320px] px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                                value={province}
+                                onChange={(e) => setProvince(e.target.value)}
+                            />
+                        </div>
 
-                <div>
-                    <label className="block mb-2">Address</label>
-                    <input
-                        name="address"
-                        type="text"
-                        className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                        <div className="flex-1">
+                            <label className="block mb-2">Country</label>
+                            <input
+                                name="country"
+                                type="text"
+                                className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                                required
+                                value={country}
+                                onChange={(e) => setCountry(e.target.value)}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="flex gap-4">
+                        <DefaultButton
+                            btnLabel="Update profile"
+                            className="mt-2"
+                            handleClick={handleUpdateProfile}
+                        />
+                        <button
+                            type="button"
+                            className="w-[200px] py-2 border border-red-500 bg-white text-red-500 rounded-lg hover:bg-red-50 hover:text-red-600 transition-colors text-sm mt-2 disabled:opacity-60"
+                            onClick={() => setConfirmOpen(true)}
+                            disabled={deleting}
+                        >
+                            {deleting ? "Deleting..." : "Delete Account"}
+                        </button>
+                    </div>
+
+                    <ConfirmModal
+                        open={confirmOpen}
+                        onClose={() => (!deleting ? setConfirmOpen(false) : null)}
+                        title="Delete account?"
+                        message="This action cannot be undone. Are you sure you want to delete your account?"
+                        confirmText="Delete"
+                        cancelText="Cancel"
+                        variant="danger"
+                        disableOutsideClose
+                        onConfirm={async () => {
+                            const ok = await handleDeleteAccount();
+                            if (ok) setConfirmOpen(false);
+                        }}
                     />
                 </div>
-
-                <div className="flex gap-4">
-                    <div className="flex-1">
-                        <label className="block mb-2">City/ Region</label>
-                        <input
-                            name="city"
-                            type="text"
-                            className="w-[320px] px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-                        />
-                    </div>
-
-                    <div className="flex-1">
-                        <label className="block mb-2">Distric/ Suburb</label>
-                        <input
-                            name="distric"
-                            type="text"
-                            className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-                            required
-                        />
-                    </div>
-                </div>
-
-                <div className="flex gap-4">
-                    <div className="flex-1">
-                        <label className="block mb-2">Province/ State</label>
-                        <input
-                            name="province"
-                            type="text"
-                            className="w-[320px] px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-                        />
-                    </div>
-
-                    <div className="flex-1">
-                        <label className="block mb-2">Country</label>
-                        <input
-                            name="country"
-                            type="text"
-                            className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-                            required
-                        />
-                    </div>
-                </div>
-
-                <div className="flex gap-4">
-                    <DefaultButton
-                        btnLabel="Update profile"
-                        className="mt-2"
-                        handleClick={handleUpdateProfile}
-                    />
-                    <button
-                        type="button"
-                        className="w-[200px] py-2 border border-red-500 bg-white text-red-500 rounded-lg hover:bg-red-50 hover:text-red-600 transition-colors text-sm mt-2 disabled:opacity-60"
-                        onClick={() => setConfirmOpen(true)}
-                        disabled={deleting}
-                    >
-                        {deleting ? "Deleting..." : "Delete Account"}
-                    </button>
-                </div>
-
-                <ConfirmModal
-                    open={confirmOpen}
-                    onClose={() => (!deleting ? setConfirmOpen(false) : null)}
-                    title="Delete account?"
-                    message="This action cannot be undone. Are you sure you want to delete your account?"
-                    confirmText="Delete"
-                    cancelText="Cancel"
-                    variant="danger"
-                    disableOutsideClose
-                    onConfirm={async () => {
-                        const ok = await handleDeleteAccount();
-                        if (ok) setConfirmOpen(false);
-                    }}
-                />
-            </div>
+            )}
         </div>
     );
 }

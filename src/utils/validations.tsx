@@ -11,7 +11,7 @@ export const validatePasswords = (newPassword: string, confirmPassword: string) 
     }
 
     if (newPassword !== confirmPassword) {
-        errors.confirm = 'Passwords do not match';
+        errors.confirm = 'New password and confirm password do not match.';
     }
 
     return errors;

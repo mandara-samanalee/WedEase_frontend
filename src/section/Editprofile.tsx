@@ -11,12 +11,12 @@ export default function EditProfile() {
     const [profileImage, setProfileImage] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [imageFile, setImageFile] = useState<File | null>(null);
-
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const [loadingProfile, setLoadingProfile] = useState(true);
 
     const router = useRouter();
+    const didFetch = useRef(false); // add guard
     const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
     // Prefill form state
@@ -32,6 +32,9 @@ export default function EditProfile() {
 
     // GET vendor profile and prefill form
     useEffect(() => {
+        if (didFetch.current) return; // prevent double run in React StrictMode (dev)
+        didFetch.current = true;
+
         const fetchProfile = async () => {
             try {
                 if (!BASE_URL) {
@@ -174,7 +177,9 @@ export default function EditProfile() {
             userId = parsed.userId;
             token = parsed.token;
         } catch (error) {
-            return toast.error("Invalid session", error);
+            console.error("Invalid user data in localStorage", error);
+            toast.error("Invalid session");
+            return;
         }
 
         if (!userId || !token) 
@@ -374,7 +379,7 @@ export default function EditProfile() {
                         </div>
                     </div>
 
-                    <div className="flex gap-4">
+                    <div className="flex gap-4 pb-60">
                         <DefaultButton
                             btnLabel="Update profile"
                             className="mt-2"

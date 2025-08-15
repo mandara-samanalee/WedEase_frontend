@@ -1,8 +1,9 @@
 "use client"
 
 import React, { useEffect, useRef, useState } from "react";
-import Map, { PickedAddress } from "@/components/Map";
+import type { PickedAddress } from "@/components/Map";
 import DefaultButton from "@/components/DefaultButton";
+import dynamic from "next/dynamic"
 import toast from "react-hot-toast";
 
 export default function ServiceDetails() {
@@ -12,6 +13,8 @@ export default function ServiceDetails() {
     const [district, setDistrict] = useState("");
     const [city, setCity] = useState("");
     const [address, setAddress] = useState("");
+    // Dynamically load the Map only on the client
+    const Map = dynamic(() => import("@/components/Map"), { ssr: false });
 
     // Service details fields
     const [serviceName, setServiceName] = useState("");
@@ -119,7 +122,7 @@ export default function ServiceDetails() {
             if (!userDataString) throw new Error("Vendor not logged in");
 
             const userData = JSON.parse(userDataString);
-            const vendorId = userData.userId; 
+            const vendorId = userData.userId;
 
             const formData = new FormData();
             formData.append("vendorId", vendorId);
@@ -422,7 +425,7 @@ export default function ServiceDetails() {
                     className="mt-2"
                     handleClick={handleSaveService}
                 />
-            </div> 
+            </div>
         </div>
     );
 }

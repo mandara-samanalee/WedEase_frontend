@@ -1,7 +1,7 @@
 "use client"
 import React, { useState } from "react";
-import Navbar from "@/components/MainLayout/Navbar";
-import Sidebar from "@/components/MainLayout/Sidebar";
+import Navbar from "@/components/VendorLayout/Navbar";
+import Sidebar from "@/components/VendorLayout/Sidebar";
 import ToastProvider from "@/utils/toastMsgs";
 //import PageBottom from "@/components/MainLayout/PageBottom";
 

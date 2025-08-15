@@ -1,4 +1,4 @@
-import MainLayout from "@/components/MainLayout/MainLayout";
+import MainLayout from "@/components/VendorLayout/MainLayout";
 import React from "react";
 import ServiceDetails from "../../../../section/ServiceDetails";
 

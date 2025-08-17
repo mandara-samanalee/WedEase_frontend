@@ -2,6 +2,7 @@
 
 import { JSX, useMemo, useState } from "react";
 import CustomerMainLayout from "@/components/CustomerLayout/CustomerMainLayout";
+import DefaultButton from "@/components/DefaultButton";
 import {
     ChevronDown,
     ChevronRight,
@@ -186,7 +187,7 @@ export default function Checklist(): JSX.Element {
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900 mb-1">Wedding Checklist</h1>
+                        <h1 className="text-2xl font-bold text-gray-900 mb-1">Create Checklist</h1>
                         <p className="text-block">Plan everything from 6 months out to the day of.</p>
                     </div>
 
@@ -250,12 +251,12 @@ export default function Checklist(): JSX.Element {
 
                 {/* Add Task */}
                 <div className="flex justify-end mb-4">
-                    <button
-                        onClick={addTask}
-                        className="bg-gradient-to-r from-purple-700 to-purple-400 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:opacity-95"
-                    >
-                        <Plus size={18} /> Add Task
-                    </button>
+                    <DefaultButton
+                        btnLabel="Add Task"
+                        Icon={<Plus size={18} />}
+                        handleClick={addTask}
+                        className="w-auto px-4 text-white inline-flex items-center gap-2"
+                    />
                 </div>
 
                 {/* Tasks */}
@@ -373,7 +374,7 @@ export default function Checklist(): JSX.Element {
                                                                     <input
                                                                         value={sub.text}
                                                                         onChange={(e) =>
-                                                                        updateSubTask(task.id, sub.id, "text", e.target.value)
+                                                                            updateSubTask(task.id, sub.id, "text", e.target.value)
                                                                         }
                                                                         className="w-full px-2 py-1 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-purple-300"
                                                                     />

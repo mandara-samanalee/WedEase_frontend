@@ -379,7 +379,7 @@ export default function EditProfile() {
                         </div>
                     </div>
 
-                    <div className="flex gap-4 pb-60">
+                    <div className="flex gap-4 pb-32">
                         <DefaultButton
                             btnLabel="Update profile"
                             className="mt-2"

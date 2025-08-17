@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import CustomerMainLayout from "@/components/CustomerLayout/CustomerMainLayout";
 import DefaultButton from "@/components/DefaultButton";
 

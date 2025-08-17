@@ -54,7 +54,12 @@ export default {
         "700": "#622444",
         "800": "#41182d",
         "900": "#210c17" 	 
-        }
+        },
+        brand: {
+          violet: "#9333ea",
+          pink: "#ec4899",
+          offWhite: "#e5e7eb"     
+        },
       },
     }, 
   },

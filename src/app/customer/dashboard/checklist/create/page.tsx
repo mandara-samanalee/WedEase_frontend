@@ -350,7 +350,7 @@ export default function Checklist(): JSX.Element {
                                                         updateTaskDescription(task.id, e.target.value)
                                                     }
                                                     placeholder="Add a short description for this task"
-                                                    className="w-full px-3 py-2 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-purple-300"
+                                                    className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-purple-400"
                                                 />
                                             </div>
 
@@ -376,7 +376,7 @@ export default function Checklist(): JSX.Element {
                                                                         onChange={(e) =>
                                                                             updateSubTask(task.id, sub.id, "text", e.target.value)
                                                                         }
-                                                                        className="w-full px-2 py-1 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-purple-300"
+                                                                        className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-purple-400"
                                                                     />
                                                                 </td>
 
@@ -388,7 +388,7 @@ export default function Checklist(): JSX.Element {
                                                                                 key={st}
                                                                                 type="button"
                                                                                 onClick={() => updateSubTask(task.id, sub.id, "status", st)}
-                                                                                className={`px-2 py-1 rounded-full text-xs ${STATUS_META[st].badge} border border-transparent ${sub.status === st ? "ring-2 ring-offset-1 ring-purple-300" : ""
+                                                                                className={`px-2 py-1 rounded-full text-sm ${STATUS_META[st].badge} border border-transparent ${sub.status === st ? "ring-2 ring-offset-1 ring-purple-400" : ""
                                                                                     }`}
                                                                                 title={STATUS_META[st].label}
                                                                             >
@@ -414,7 +414,7 @@ export default function Checklist(): JSX.Element {
                                                                             updateSubTask(task.id, sub.id, "assignee", e.target.value)
                                                                         }
                                                                         placeholder="Type a name"
-                                                                        className="w-40 px-2 py-1 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-purple-300"
+                                                                        className="w-40 px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-purple-400"
                                                                     />
                                                                     <datalist id={`assignees-${task.id}`}>
                                                                         {ASSIGNEE_SUGGESTIONS.map((a) => (
@@ -430,7 +430,7 @@ export default function Checklist(): JSX.Element {
                                                                         onChange={(e) =>
                                                                             updateSubTask(task.id, sub.id, "bucket", e.target.value as Bucket)
                                                                         }
-                                                                        className="px-2 py-1 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-purple-300"
+                                                                        className="px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-purple-400"
                                                                     >
                                                                         {BUCKETS.map((b) => (
                                                                             <option key={b.key} value={b.key}>

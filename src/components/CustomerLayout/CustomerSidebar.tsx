@@ -98,14 +98,14 @@ export default function CustomerSidebar({ activeSection }: CustomerSidebarProps)
                   >
                     Create Agenda
                   </a>
-                  <a
+                  {/* <a
                     href="/customer/dashboard/agenda/view"
                     className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-m transition-all ${
                       pathname === '/customer/dashboard/agenda/view' ? 'bg-purple-600 text-white shadow-sm' : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
                     }`}
                   >
                     View Agenda
-                  </a>
+                  </a> */}
                 </div>
               )}
             </div>

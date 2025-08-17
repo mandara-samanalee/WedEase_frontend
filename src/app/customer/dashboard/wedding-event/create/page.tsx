@@ -140,7 +140,7 @@ export default function CreateEventPage() {
                     </div>
 
                     {/* Submit */}
-                    <div className="flex gap-4 pb-60">
+                    <div className="flex gap-4 pb-24">
                         <DefaultButton
                             btnLabel="Create event"
                             className="mt-2"

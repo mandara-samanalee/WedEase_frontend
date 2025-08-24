@@ -49,13 +49,13 @@ export const CategoryCard: React.FC<Props> = ({
           <label className="block text-[10px] font-medium text-gray-600 uppercase mb-1">
             Allocated
           </label>
-            <input
-              type="number"
-              min={0}
-              value={category.allocated}
-              onChange={e => onUpdate(category.id, 'allocated', e.target.value)}
-              className="w-full rounded-md px-2.5 py-1.5 text-xs border border-purple-300 focus:outline-none focus:ring-1 focus:ring-purple-400"
-            />
+          <input    
+            type="number"
+            min={0}
+            value={category.allocated}
+            onChange={e => onUpdate(category.id, 'allocated', e.target.value)}
+            className="w-full rounded-md px-2.5 py-1.5 text-xs border border-purple-300 focus:outline-none focus:ring-1 focus:ring-purple-400"
+          />
         </div>
         <div>
           <label className="block text-[10px] font-medium text-gray-600 uppercase mb-1">

@@ -1,5 +1,5 @@
 import React from 'react';
-import { PlusCircle } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { CategoryCard, BudgetCategory } from './CategoryCard';
 import DefaultButton from '../DefaultButton';
 
@@ -27,7 +27,7 @@ export const CategoriesSection: React.FC<Props> = ({
   return (
     <>
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-block tracking-wide uppercase">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-700">
           Add Category
         </h2>
         {error && (
@@ -45,14 +45,14 @@ export const CategoriesSection: React.FC<Props> = ({
           <DefaultButton
           btnLabel='Add'
             handleClick={addCategory}
-            Icon={<PlusCircle size={16} />}
+            Icon={<Plus size={16} />}
             className="!w-auto inline-flex items-center gap-2 px-5 py-2 rounded-lg font-medium text-sm"
           />
         </div>
       </section>
 
       <section className="space-y-4">
-        <h2 className="text-sm font-semibold text-block tracking-wide uppercase">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-700">
           Categories
         </h2>
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">

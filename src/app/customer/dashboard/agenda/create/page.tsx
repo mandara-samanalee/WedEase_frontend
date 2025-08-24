@@ -71,7 +71,7 @@ export default function CreateAgendaPage() {
   const removeItem = (id: number) =>
     setItems((prev) => (prev.length === 1 ? prev : prev.filter((it) => it.id !== id)));
 
-  // Silent submit (no logs/alerts)
+  // Silent submit 
   const handleSave = () => {
     // Prepare payload for backend (one record per item)
     // Example mapping to your WeddingAgenda model:
@@ -238,17 +238,15 @@ export default function CreateAgendaPage() {
         </div>
 
         {/* Top-level actions */}
-
         <div className="flex items-center gap-4 mt-6">
-          <DefaultButton
-            btnLabel="Save"
-            handleClick={handleSave}
-            className="w-[100px]"
-          />
           <DefaultButton
             btnLabel="Export PDF"
             handleClick={exportPDF}
-            className="w-[120px]"
+            className="!bg-white !text-purple-600 border border-purple-600 rounded-md hover:!bg-purple-50 flex items-center justify-center tracking-wide"
+          />
+          <DefaultButton
+            btnLabel="Save"
+            handleClick={handleSave}
           />
         </div>
       </div>

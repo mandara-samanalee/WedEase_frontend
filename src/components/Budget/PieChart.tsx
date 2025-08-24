@@ -46,7 +46,7 @@ export const AllocationDistributionSection: React.FC<Props> = ({
 
   return (
     <section className="space-y-4">
-      <h2 className="text-sm font-semibold text-block tracking-wide uppercase">
+      <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-700">
         Budget Allocation Distribution
       </h2>
       <div

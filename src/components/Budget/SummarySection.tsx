@@ -14,7 +14,7 @@ interface Props {
   onReset: () => void;
 }
 
-const currency = (v: number) => 
+const currency = (v: number) =>
   v.toLocaleString(undefined, { style: 'currency', currency: 'LKR', maximumFractionDigits: 0 });
 
 export const SummarySection: React.FC<Props> = ({
@@ -92,31 +92,39 @@ export const SummarySection: React.FC<Props> = ({
       <div className="rounded-xl">
         <div className="rounded-[inherit] py-5 flex flex-col gap-5">
           <div className="flex flex-col gap-2">
-            <label className="block text-sm font-semibold uppercase mb-1">
+            <label className="text-sm font-semibold uppercase tracking-wide text-gray-700">
               Total Wedding Budget (LKR)
             </label>
             <div className="flex items-center gap-3">
-            <input
-              type="number"
-              min={0}
-              value={totalBudget || ''}
-              onChange={e => {
-                const v = Number(e.target.value);
-                setTotalBudget(isNaN(v) || v < 0 ? 0 : v);
-              }}
-              placeholder="Enter total budget"
-              className="flex-1 px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-            />
-            <DefaultButton handleClick={onAutoDistribute} btnLabel="Auto Distribute" className="!w-auto !bg-white !text-purple-600 border border-purple-400 px-4 py-2 rounded-lg font-medium text-sm 
-            active:!bg-purple-100"/>
+              <input
+                type="number"
+                min={0}
+                value={totalBudget || ''}
+                onChange={e => {
+                  const v = Number(e.target.value);
+                  setTotalBudget(isNaN(v) || v < 0 ? 0 : v);
+                }}
+                placeholder="Enter total budget"
+                className="flex-1 px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+              />
+              <DefaultButton
+                handleClick={onAutoDistribute}
+                btnLabel="Auto Distribute"
+                className="!w-auto !bg-white !text-purple-600 border border-purple-400 px-4 py-2 rounded-lg font-medium text-sm 
+            active:!bg-purple-100"
+              />
 
-            <DefaultButton handleClick={onReset} btnLabel="Reset" className="w-auto px-4 text-white font-medium text-sm inline-flex items-center"></DefaultButton>
-          </div>
+              <DefaultButton
+                handleClick={onReset}
+                btnLabel="Reset"
+                className="w-auto px-4 text-white font-medium text-sm inline-flex items-center"
+              />
+            </div>
           </div>
         </div>
       </div>
 
-      
+
     </section>
   );
 };
@@ -124,11 +132,10 @@ export const SummarySection: React.FC<Props> = ({
 function SummaryCard({ label, value, warn }: { label: string; value: string; warn?: boolean }) {
   return (
     <div
-      className={`rounded-lg px-2 py-4 text-center border shadow-sm leading-tight ${
-        warn 
+      className={`rounded-lg px-2 py-4 text-center border shadow-sm leading-tight ${warn
           ? 'bg-red-50/80 border-2 border-red-200 text-red-700'
           : 'bg-white/80 border-2 border-purple-400 text-gray-800'
-      }`}
+        }`}
     >
       <div className="text-[12px] uppercase tracking-wide text-gray-500 font-semibold mb-0.5">
         {label}

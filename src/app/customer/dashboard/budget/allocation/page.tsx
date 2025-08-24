@@ -1,4 +1,3 @@
-// ...existing code updated for unified heading + left margin...
 "use client";
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -7,6 +6,8 @@ import { SummarySection } from '@/components/Budget/SummarySection';
 import { CategoriesSection } from '@/components/Budget/CategoriesSection';
 import { AllocationDistributionSection } from '@/components/Budget/PieChart';
 import { BudgetCategory } from '@/components/Budget/CategoryCard';
+import DefaultButton from '@/components/DefaultButton';
+
 
 const STARTER_CATEGORIES: BudgetCategory[] = [
   { id: 1, name: 'Venue',         allocated: 0, actual: 0 },
@@ -92,6 +93,88 @@ export default function BudgetAllocation() {
     setCategories(prev => prev.map(c => ({ ...c, allocated: 0 })));
   };
 
+  const handleSave = () => {
+    localStorage.setItem('weddingBudget', String(totalBudget));
+    localStorage.setItem('weddingCategoriesV2', JSON.stringify(categories));
+  };
+
+
+  // Enhanced detailed CSV export
+  const exportCSV = () => {
+    const now = new Date();
+    const timestamp = now.toISOString();
+
+    const meta: string[][] = [
+      ['Report', 'Wedding Budget Allocation'],
+      ['Generated At (UTC)', timestamp],
+      ['Total Budget (LKR)', totalBudget.toString()],
+      ['Total Allocated (LKR)', totalAllocated.toString()],
+      ['Total Actual (LKR)', totalActual.toString()],
+      ['Remaining (LKR)', (remainingBudget).toString()],
+      ['Utilization % (Actual / Total Budget)', totalBudget ? ((totalActual / totalBudget) * 100).toFixed(2) + '%' : '0%'],
+      ['Over Allocated?', totalAllocated > totalBudget ? 'YES' : 'NO'],
+      ['Over Actual?', totalActual > totalBudget ? 'YES' : 'NO'],
+      []
+    ];
+
+    const header = [
+      'Category',
+      'Allocated (LKR)',
+      'Actual (LKR)',
+      'Variance (Actual-Allocated)',
+      'Variance % (vs Alloc)',
+      'Allocated % of Total',
+      'Actual % of Total',
+      'Category Utilization % (Actual / Allocated)'
+    ];
+
+    const body = categories.map(c => {
+      const variance = c.actual - c.allocated;
+      const variancePct = c.allocated ? (variance / c.allocated) * 100 : 0;
+      const allocPct = totalBudget ? (c.allocated / totalBudget) * 100 : 0;
+      const actualPct = totalBudget ? (c.actual / totalBudget) * 100 : 0;
+      const catUtilPct = c.allocated ? (c.actual / c.allocated) * 100 : 0;
+      return [
+        c.name,
+        c.allocated.toString(),
+        c.actual.toString(),
+        variance.toString(),
+        (variancePct).toFixed(2) + '%',
+        allocPct.toFixed(2) + '%',
+        actualPct.toFixed(2) + '%',
+        catUtilPct.toFixed(2) + '%'
+      ];
+    });
+
+    // Totals row
+    body.push([
+      'TOTAL',
+      totalAllocated.toString(),
+      totalActual.toString(),
+      (totalActual - totalAllocated).toString(),
+      totalAllocated ? (((totalActual - totalAllocated) / totalAllocated) * 100).toFixed(2) + '%' : '0%',
+      '100%',
+      totalBudget ? ((totalActual / totalBudget) * 100).toFixed(2) + '%' : '0%',
+      totalAllocated ? ((totalActual / totalAllocated) * 100).toFixed(2) + '%' : '0%'
+    ]);
+
+    const rows = [...meta, header, ...body];
+
+    const csv = rows
+      .map(r => r.map(v => `"${(v ?? '').toString().replace(/"/g, '""')}"`).join(','))
+      .join('\n');
+
+    // Add BOM for Excel UTF-8
+    const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'budget-allocation-detailed.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  
   return (
     <CustomerMainLayout>
       <div>
@@ -121,6 +204,19 @@ export default function BudgetAllocation() {
               deleteCategory={deleteCategory}
             />
             <AllocationDistributionSection categories={categories} />
+
+            {/* Action bar */}
+            <div className="flex items-center gap-4 mt-6">
+              <DefaultButton
+                btnLabel="Export CSV"
+                handleClick={exportCSV}
+                className="!bg-white !text-purple-600 border border-purple-600 rounded-md hover:!bg-purple-50 flex items-center justify-center tracking-wide"
+              />
+              <DefaultButton
+                btnLabel="Save"
+                handleClick={handleSave}
+              />
+            </div>
           </div>
           </div>
       </div>

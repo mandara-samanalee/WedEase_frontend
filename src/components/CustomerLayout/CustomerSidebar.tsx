@@ -98,14 +98,7 @@ export default function CustomerSidebar({ activeSection }: CustomerSidebarProps)
                   >
                     Create Agenda
                   </a>
-                  {/* <a
-                    href="/customer/dashboard/agenda/view"
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-m transition-all ${
-                      pathname === '/customer/dashboard/agenda/view' ? 'bg-purple-600 text-white shadow-sm' : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
-                    }`}
-                  >
-                    View Agenda
-                  </a> */}
+
                 </div>
               )}
             </div>
@@ -129,14 +122,7 @@ export default function CustomerSidebar({ activeSection }: CustomerSidebarProps)
                   >
                     Create Checklist
                   </a>
-                  {/* <a
-                    href="/customer/dashboard/checklist/my-tasks"
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-m transition-all ${
-                      pathname === '/customer/dashboard/checklist/my-tasks' ? 'bg-purple-600 text-white shadow-sm' : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
-                    }`}
-                  >
-                    My Tasks
-                  </a> */}
+                  
                 </div>
               )}
             </div>
@@ -160,14 +146,7 @@ export default function CustomerSidebar({ activeSection }: CustomerSidebarProps)
                   >
                     Budget Allocation
                   </a>
-                  <a
-                    href="/customer/dashboard/budget/expense-tracking"
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-m transition-all ${
-                      pathname === '/customer/dashboard/budget/expense-tracking' ? 'bg-purple-600 text-white shadow-sm' : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
-                    }`}
-                  >
-                    Expense Tracking
-                  </a>
+                  
                 </div>
               )}
             </div>

@@ -243,7 +243,7 @@ export default function CreateAgendaPage() {
           <DefaultButton
             btnLabel="Save"
             handleClick={handleSave}
-            className="w-[120px]"
+            className="w-[100px]"
           />
           <DefaultButton
             btnLabel="Export PDF"

@@ -4,7 +4,7 @@ import CustomerMainLayout from '@/components/CustomerLayout/CustomerMainLayout';
 import { Guest } from '@/components/RSVP/GuestTypes';
 import { RSVPStats } from '@/components/RSVP/RSVPStats';
 import DefaultButton from '@/components/DefaultButton';
-import { FileText, Save, Download } from 'lucide-react';
+import { FileText, Download } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
@@ -42,11 +42,16 @@ export default function RSVPResponsesPage() {
     URL.revokeObjectURL(url);
   }, [guests]);
 
+
   const exportPDF = () => {
     const doc = new jsPDF({ orientation: 'landscape' });
     doc.setFontSize(16);
+    // Title in purple #82305a
+    doc.setTextColor(130, 48, 90);
     doc.text('RSVP Responses', 14, 16);
     doc.setFontSize(10);
+    // black for non-heading text
+    doc.setTextColor(0, 0, 0);
     doc.text(`Total Guests: ${guests.length}`, 14, 23);
     const statuses = ['confirmed','pending','invited','declined'];
     let y = 30;
@@ -65,17 +70,15 @@ export default function RSVPResponsesPage() {
           g.notes || '—'
         ]),
         styles: { fontSize: 8 },
-        theme: 'grid'
+        theme: 'grid',
+        headStyles: { fillColor: [130, 48, 90], textColor: 255 } // purple header background with white text
       });
-      // @ts-expect-error
+      // @ts-expect-error: lastAutoTable is a property added by jspdf-autotable plugin
       y = doc.lastAutoTable.finalY + 6;
     });
     doc.save('rsvp-responses.pdf');
   };
 
-  const handleSave = () => {
-    localStorage.setItem('wedeaseGuests', JSON.stringify(guests));
-  };
 
   return (
     <CustomerMainLayout>

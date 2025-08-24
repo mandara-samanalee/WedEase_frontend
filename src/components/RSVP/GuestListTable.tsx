@@ -50,7 +50,7 @@ export const GuestListTable: React.FC<Props> = ({ guests, updateGuest, removeGue
                 <input
                   className="w-full bg-transparent outline-none"
                   value={g.email}
-                  placeholder="Email"
+                  placeholder="email"
                   onChange={e => updateGuest(g.id, 'email', e.target.value)}
                 />
               </td>
@@ -58,7 +58,7 @@ export const GuestListTable: React.FC<Props> = ({ guests, updateGuest, removeGue
                 <input
                   className="w-full bg-transparent outline-none"
                   value={g.phone}
-                  placeholder="Phone"
+                  placeholder="phone"
                   onChange={e => updateGuest(g.id, 'phone', e.target.value)}
                 />
               </td>

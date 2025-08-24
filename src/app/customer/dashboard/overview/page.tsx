@@ -1,9 +1,10 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import CustomerMainLayout from "@/components/CustomerLayout/CustomerMainLayout";
 import DefaultButton from "@/components/DefaultButton";
-import { FileText, Calendar, DollarSign, CheckSquare, Users, Briefcase } from "lucide-react";
+import { FileText, Calendar, DollarSign, CheckSquare, Users, Briefcase, CircleDollarSign } from "lucide-react";
 
 type Vendor = { id?: number; name?: string };
 type ChecklistItem = { id?: number; title?: string; done?: boolean };
@@ -98,97 +99,91 @@ export default function DashboardOverviewPage() {
   return (
     <CustomerMainLayout>
       <div className="max-w-5xl pb-24 space-y-8 px-2 py-4">
-
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div className="rounded-lg border-2 border-purple-400 p-4 bg-gradient-to-b from-purple-50 via-purple-100 to-purple-200 shadow-lg">
+          <div className="rounded-lg border-2 border-purple-500 p-4 bg-gradient-to-b from-purple-100 to-purple-300 shadow-lg">
             <div className="flex items-start gap-3">
-              <Calendar className="text-purple-600" />
+              <Calendar className="text-purple-700" />
               <div>
-                <div className="text-md text-purple-700">Event</div>
-                <div className="font-medium text-gray-800">{eventTitle || "-"}</div>
-                <div className="text-sm text-gray-500">{eventDate || "-"}</div>
+                <div className="text-md text-purple-900 font-semibold">Event</div>
+                <div className="font-medium text-gray-900">{eventTitle || "-"}</div>
+                <div className="text-sm text-gray-700">{eventDate || "-"}</div>
               </div>
             </div>
-            <div className="mt-3 flex justify-end">
-              <Link href="/customer/dashboard/event/view" className="text-sm text-purple-600">Manage</Link>
+            <div className="mt-8 flex justify-end">
+              <Link href="/customer/dashboard/event/view" className="text-sm text-purple-700 hover:text-purple-900">Manage</Link>
             </div>
           </div>
 
- 
-          <div className="rounded-lg border-2 border-purple-400 p-4 bg-gradient-to-b from-purple-50 via-purple-100 to-purple-200 shadow-lg">
+          <div className="rounded-lg border-2 border-purple-500 p-4 bg-gradient-to-b from-purple-100 to-purple-300 shadow-lg">
             <div className="flex items-start gap-3">
-              <DollarSign className="text-purple-600" />
+              <CircleDollarSign className="text-purple-700 w-7 h-7" />
               <div>
-                <div className="text-md text-purple-700">Budget</div>
-                <div className="font-medium text-gray-800">LKR {budgetTotal.toLocaleString()}</div>
-                <div className="text-sm text-gray-500">Allocated: LKR {budgetAllocated.toLocaleString()} • Actual: LKR {budgetActual.toLocaleString()}</div>
-                <div className="mt-2 text-sm text-gray-600">Utilization: {budgetUtilPct}%</div>
+                <div className="text-md text-purple-900 font-semibold">Budget</div>
+                <div className="font-medium text-gray-900">LKR {budgetTotal.toLocaleString()}</div>
+                <div className="text-sm text-gray-700">Allocated: LKR {budgetAllocated.toLocaleString()} • Actual: LKR {budgetActual.toLocaleString()}</div>
+                <div className="mt-2 text-sm text-gray-800">Utilization: {budgetUtilPct}%</div>
               </div>
             </div>
-            <div className="mt-3 flex justify-end">
-              <Link href="/customer/dashboard/budget/allocation" className="text-sm text-purple-600">Manage</Link>
+            <div className="mt-2 flex justify-end">
+              <Link href="/customer/dashboard/budget/allocation" className="text-sm text-purple-700 hover:text-purple-900">Manage</Link>
             </div>
           </div>
 
-
-          <div className="rounded-lg border-2 border-purple-400 p-4 bg-gradient-to-b from-purple-50 via-purple-100 to-purple-200 shadow-lg">
+          <div className="rounded-lg border-2 border-purple-500 p-4 bg-gradient-to-b from-purple-100 to-purple-300 shadow-lg">
             <div className="flex items-start gap-3">
-              <Users className="text-purple-600" />
+              <Users className="text-purple-700" />
               <div>
-                <div className="text-md text-purple-700">RSVPs</div>
-                <div className="font-medium text-gray-800">{guestCount} guests</div>
-                <div className="text-sm text-gray-600">
+                <div className="text-md text-purple-900 font-semibold">RSVPs</div>
+                <div className="font-medium text-gray-900">{guestCount} guests</div>
+                <div className="text-sm text-gray-700">
                   Confirmed: {rsvpCounts["confirmed"] || 0} • Pending: {rsvpCounts["pending"] || 0} • Declined: {rsvpCounts["declined"] || 0}
                 </div>
               </div>
             </div>
-            <div className="mt-3 flex justify-end">
-              <Link href="/customer/dashboard/rsvp/responses" className="text-sm text-purple-600">View</Link>
+            <div className="mt-8 flex justify-end">
+              <Link href="/customer/dashboard/rsvp/responses" className="text-sm text-purple-700 hover:text-purple-900">View</Link>
             </div>
           </div>
 
-
-          <div className="rounded-lg border-2 border-purple-400 p-4 bg-gradient-to-b from-purple-50 via-purple-100 to-purple-200 shadow-lg">
+          <div className="rounded-lg border-2 border-purple-500 p-4 bg-gradient-to-b from-purple-100 to-purple-300 shadow-lg">
             <div className="flex items-start gap-3">
-              <FileText className="text-purple-600" />
+              <FileText className="text-purple-700" />
               <div>
-                <div className="text-md text-purple-700">Agenda</div>
-                <div className="font-medium text-gray-800">{agendaCount} items</div>
-                <div className="text-sm text-gray-500">Plan your event schedule</div>
+                <div className="text-md text-purple-900 font-semibold">Agenda</div>
+                <div className="font-medium text-gray-900">{agendaCount} items</div>
+                <div className="text-sm text-gray-700">Plan your event schedule</div>
               </div>
             </div>
             <div className="mt-3 flex justify-end">
-              <Link href="/customer/dashboard/agenda/create" className="text-sm text-purple-600">Edit</Link>
+              <Link href="/customer/dashboard/agenda/create" className="text-sm text-purple-700 hover:text-purple-900">Edit</Link>
             </div>
           </div>
 
-
-          <div className="rounded-lg border-2 border-purple-400 p-4 bg-gradient-to-b from-purple-50 via-purple-100 to-purple-200 shadow-lg">
+          <div className="rounded-lg border-2 border-purple-500 p-4 bg-gradient-to-b from-purple-100 to-purple-300 shadow-lg">
             <div className="flex items-start gap-3">
-              <CheckSquare className="text-purple-600" />
+              <CheckSquare className="text-purple-700" />
               <div>
-                <div className="text-md text-purple-700">Checklist</div>
-                <div className="font-medium text-gray-800">{checklistDone}/{checklistTotal} done</div>
-                <div className="text-sm text-gray-500">Progress: {checklistPct}%</div>
+                <div className="text-md text-purple-900 font-semibold">Checklist</div>
+                <div className="font-medium text-gray-900">{checklistDone}/{checklistTotal} done</div>
+                <div className="text-sm text-gray-700">Progress: {checklistPct}%</div>
               </div>
             </div>
             <div className="mt-3 flex justify-end">
-              <Link href="/customer/dashboard/checklist/create" className="text-sm text-purple-600">Edit</Link>
+              <Link href="/customer/dashboard/checklist/create" className="text-sm text-purple-700 hover:text-purple-900">Edit</Link>
             </div>
           </div>
 
-
-          <div className="rounded-lg border-2 border-purple-400 p-4 bg-gradient-to-b from-purple-50 via-purple-100 to-purple-200 shadow-lg">
+          <div className="rounded-lg border-2 border-purple-500 p-4 bg-gradient-to-b from-purple-100 to-purple-300 shadow-lg">
             <div className="flex items-start gap-3">
-              <Briefcase className="text-purple-600" />
+              <Briefcase className="text-purple-700" />
               <div>
-                <div className="text-md text-purple-700">Vendors</div>
-                <div className="font-medium text-gray-800">{vendorsCount} vendors</div>
-                <div className="text-sm text-gray-500">Contacts & bookings</div>
+                <div className="text-md text-purple-900 font-semibold">Vendors</div>
+                <div className="font-medium text-gray-900">{vendorsCount} vendors</div>
+                <div className="text-sm text-gray-700">Contacts & bookings</div>
               </div>
             </div>
             <div className="mt-3 flex justify-end">
-              <Link href="/customer/dashboard/vendors/selection" className="text-sm text-purple-600">Manage</Link>
+              <Link href="/customer/dashboard/vendors/selection" className="text-sm text-purple-700 hover:text-purple-900">Manage</Link>
             </div>
           </div>
         </div>

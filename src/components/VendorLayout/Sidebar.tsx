@@ -39,7 +39,7 @@ export default function Sidebar({ activeSection }: SidebarProps) {
                                 }`}
                         >
                             <HiBookmark className="text-2xl" />
-                            Booked Services
+                            Booking Details
                         </a>
 
                         <a

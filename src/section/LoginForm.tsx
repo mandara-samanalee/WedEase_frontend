@@ -36,6 +36,17 @@ try {
 
       toast.success('Login successful!');
 
+      // navigate user based on role
+      if (data.user.role === 'VENDOR') {
+      window.location.href = '/vendor/services/service-profile';
+      } else if (data.user.role === 'CUSTOMER') {
+      window.location.href = '/customer/dashboard/overview';
+      } else if (data.user.role === 'ADMIN') {
+      window.location.href = '/admin/dashboard/overview';
+      } else {
+      window.location.href = '/login'; // fallback
+      }
+
     } catch (err) {
       toast.error(
         err instanceof Error ? err.message : 'Something went wrong'

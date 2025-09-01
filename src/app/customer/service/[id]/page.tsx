@@ -76,7 +76,7 @@ export default function ServiceDetailsPage({ params }: { params: Promise<{ id: s
       const updated = [...filtered, stored];
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
 
-      alert(`Service ${status === "pending" ? "booked" : "added to list"}!`);
+      //alert(`Service ${status === "pending" ? "booked" : "added to list"}!`);
     } catch (e) {
       console.error("Failed to save service:", e);
     }

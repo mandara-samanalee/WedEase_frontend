@@ -168,7 +168,7 @@ export default function ServiceDetails() {
 
     return (
         <div className="max-w-2xl w-full space-y-6">
-            <h1 className="text-xl font-bold mb-4 text-gray-900">1. Service Details</h1>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-800 to-pink-800 bg-clip-text text-transparent mb-4">1. Service Details</h1>
 
             <div className="flex gap-6">
                 <div className="flex-1">
@@ -222,7 +222,7 @@ export default function ServiceDetails() {
                 </div>
             </div>
 
-            <h1 className="text-xl font-bold mb-4 text-gray-900">2. Service Location</h1>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-800 to-pink-800 bg-clip-text text-transparent mb-4">2. Service Location</h1>
             <p className="text-m mb-2">
                 Pick the location on the map.
             </p>
@@ -295,7 +295,7 @@ export default function ServiceDetails() {
             {/* Pricing Packages Section  */}
 
             <div>
-                <h1 className="text-xl font-bold mb-4 text-gray-900">3. Pricing Packages</h1>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-800 to-pink-800 bg-clip-text text-transparent mb-4">3. Pricing Packages</h1>
 
                 <p className="text-m mb-2">
                     Add one or more pricing options for your service.
@@ -361,7 +361,7 @@ export default function ServiceDetails() {
             </div>
 
             {/* photographs section */}
-            <h1 className="text-xl font-bold mb-4 text-gray-900">4. Photographs</h1>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-800 to-pink-800 bg-clip-text text-transparent mb-4">4. Photographs</h1>
             <p className="text-m mb-2">
                 Upload images that showcase your service.
             </p>

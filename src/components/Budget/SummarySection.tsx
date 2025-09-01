@@ -46,7 +46,7 @@ export const SummarySection: React.FC<Props> = ({
     <section className="space-y-8">
       <div className="flex flex-col gap-6 lg:flex-row lg:justify-between lg:items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-1">
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-800 to-pink-800 bg-clip-text text-transparent mb-1">
             Budget Allocation
           </h1>
           <p className="text-gray-600">

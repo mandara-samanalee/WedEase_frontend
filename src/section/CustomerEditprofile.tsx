@@ -227,7 +227,7 @@ export default function EditCustomerProfile() {
 
     return (
         <div className="max-w-2xl">
-            <h1 className="text-2xl font-bold mb-8 text-gray-900">My Profile</h1>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-800 to-pink-800 bg-clip-text text-transparent mb-8">My Profile</h1>
 
             <div className="flex flex-col items-center mb-8">
                 <div className="relative">

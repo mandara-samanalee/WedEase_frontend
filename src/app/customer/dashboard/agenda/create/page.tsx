@@ -139,7 +139,7 @@ export default function CreateAgendaPage() {
   return (
     <CustomerMainLayout>
       <div className="max-w-5xl pb-24">
-        <h1 className="text-2xl font-bold text-gray-900 mb-1">Event Day Timeline</h1>
+        <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-800 to-pink-800 bg-clip-text text-transparent mb-1">Event Day Timeline</h1>
         {/* Top bar with Date on the right */}
         <div className="mt-4 mb-2 flex items-center justify-between gap-4">
           <DefaultButton

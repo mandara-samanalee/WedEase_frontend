@@ -42,7 +42,7 @@ export default function ServicesSelectionPage() {
               category: v.category || "Other",
               price: typeof v.price === "number" ? v.price : undefined,
               status: ["interested", "pending", "confirmed", "declined"].includes(v.status) 
-                ? (v.status === "booked" ? "pending" : v.status) // Map "booked" to "pending" for compatibility
+                ? (v.status === "booked" ? "pending" : v.status) 
                 : "interested",
               addedAt: v.addedAt || new Date().toISOString(),
               contactNumber: v.contactNumber || "Not provided",
@@ -83,7 +83,7 @@ export default function ServicesSelectionPage() {
     persist(
       items.map((it) =>
         it.id === id && it.status === "interested" // Only allow toggle if "interested"
-          ? { ...it, status: "pending" } // Set to "pending" on first toggle (simulating booking)
+          ? { ...it, status: "pending" } // Set to "pending" on first toggle 
           : it
       )
     );
@@ -119,7 +119,7 @@ export default function ServicesSelectionPage() {
         {/* Header */}
         <div className="flex items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-1">
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-800 to-pink-800 bg-clip-text text-transparent mb-1">
               Service List
             </h1>
             <p className="text-gray-600"> 
@@ -129,14 +129,14 @@ export default function ServicesSelectionPage() {
           <div className="flex gap-2">
             <Link
               href="/customer/service/browse"
-              className="inline-flex items-center text-sm px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50"
+              className="inline-flex items-center text-sm px-3 py-2 rounded-lg border border-purple-400 text-purple-700 hover:bg-purple-50"
             >
               <ArrowLeft size={14} className="mr-1" /> Browse More
             </Link>
             {!!items.length && (
               <button
                 onClick={clearAll}
-                className="inline-flex items-center text-sm px-3 py-2 rounded-lg border border-red-300 text-red-600 hover:bg-red-50"
+                className="inline-flex items-center text-sm px-3 py-2 rounded-lg border bg-red-600 text-white hover:bg-red-700 transition-colors"
               >
                 <Trash2 size={14} className="mr-1" /> Clear All
               </button>

@@ -79,7 +79,7 @@ export default function ServiceBrowsePage() {
         <main className="flex-1 p-8 pt-2">
           {/* Header */}
             <div className="mb-4">
-              <h1 className="text-2xl font-bold text-gray-900 mb-1">
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-800 to-pink-800 bg-clip-text text-transparent mb-1">
                 Browse Services
               </h1>
               <p className="text-gray-600">

@@ -187,7 +187,7 @@ export default function Checklist(): JSX.Element {
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900 mb-1">Create Checklist</h1>
+                        <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-800 to-pink-800 bg-clip-text text-transparent mb-1">Create Checklist</h1>
                         <p className="text-gray-600">Plan everything from 6 months out to the day of.</p>
                     </div>
 

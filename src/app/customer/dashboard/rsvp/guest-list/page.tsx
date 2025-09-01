@@ -82,7 +82,7 @@ export default function GuestListPage() {
       <div className="max-w-6xl pb-24 space-y-10">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-1">Guest List</h1>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-800 to-pink-800 bg-clip-text text-transparent mb-1">Guest List</h1>
             <p className="text-gray-600">Manage and track all invited guests.</p>
           </div>
           <div className="flex flex-wrap gap-2">

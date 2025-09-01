@@ -78,7 +78,7 @@ export default function ChangePasswordForm() {
 
     return (
         <div className="max-w-md">
-            <h1 className="text-2xl font-bold mb-8 text-gray-900">Change Password</h1>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-800 to-pink-800 bg-clip-text text-transparent mb-8">Change Password</h1>
 
             <div className="space-y-6">
                 <div>

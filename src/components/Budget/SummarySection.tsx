@@ -49,7 +49,7 @@ export const SummarySection: React.FC<Props> = ({
           <h1 className="text-2xl font-bold text-gray-900 mb-1">
             Budget Allocation
           </h1>
-          <p className="text-block">
+          <p className="text-gray-600">
             Plan allocations vs actual spending and stay on target.
           </p>
         </div>

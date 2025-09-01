@@ -86,7 +86,7 @@ export default function CreateEventPage() {
 
                     {/* Start/End Time */}
                     <div className="flex items-center gap-6 mb-4"> {/* Added gap-6 */}
-                        <label className="w-40 text-block">Start Time</label>
+                        <label className="w-40 text-gray-600">Start Time</label>
                         <div className="flex-1">
                             <div className="flex items-center gap-6">
                                 <input
@@ -94,7 +94,7 @@ export default function CreateEventPage() {
                                     className="w-32 px-3 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
                                     required
                                 />
-                                <span className="text-block">End Time</span>
+                                <span className="text-gray-600">End Time</span>
                                 <input
                                     type="time"
                                     className="w-32 px-3 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
@@ -106,7 +106,7 @@ export default function CreateEventPage() {
 
                     {/* Location */}
                     <div className="flex items-center gap-6 mb-4">
-                        <label className="w-40 text-block">Location</label>
+                        <label className="w-40 text-gray-600">Location</label>
                         <div className="flex-1 min-w-[300px]">
                             <input
                                 type="text"
@@ -118,7 +118,7 @@ export default function CreateEventPage() {
 
                     {/* Description */}
                     <div className="flex items-start gap-6 mb-4">
-                        <label className="w-40 text-block mt-2">Description</label>
+                        <label className="w-40 text-gray-600 mt-2">Description</label>
                         <div className="flex-1 min-w-[300px]">
                             <textarea
                                 rows={4}
@@ -129,7 +129,7 @@ export default function CreateEventPage() {
 
                     {/* Guests Count */}
                     <div className="flex items-center gap-6 mb-4">
-                        <label className="w-40 text-block">Guests Count</label>
+                        <label className="w-40 text-gray-600">Guests Count</label>
                         <div className="flex-1">
                             <input
                                 type="number"

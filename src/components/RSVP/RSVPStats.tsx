@@ -1,32 +1,82 @@
-import React, { useMemo } from 'react';
 import { Guest } from './GuestTypes';
 
-export const RSVPStats: React.FC<{ guests: Guest[] }> = ({ guests }) => {
-  const { totals, headcount } = useMemo(() => {
-    const t = { invited: 0, confirmed: 0, declined: 0, pending: 0 };
-    let headcount = 0;
-    guests.forEach(g => {
-    
-      t[g.status] += 1;
-      if (g.status === 'confirmed') headcount += 1 + g.plusOnes;
-    });
-    return { totals: t, headcount };
-  }, [guests]);
+export function RSVPStats({ guests }: { guests: Guest[] }) {
+  const total = guests.length;
+  const accepted = guests.filter(g => g.status === 'accepted').length;
+  const declined = guests.filter(g => g.status === 'declined').length;
+  const children = guests.reduce((n, g) => n + (g.childCount || 0), 0);
+  const brideSide = guests.filter(g => g.side === 'bride').length;
+  const groomSide = guests.filter(g => g.side === 'groom').length;
+  const male = guests.filter(g => g.gender === 'male').length;
+  const female = guests.filter(g => g.gender === 'female').length;
 
-  const Card = ({ label, value, color }: { label: string; value: number; color: string }) => (
-    <div className={`rounded-lg px-4 py-4 text-center border-2 border-purple-400 bg-white/80`}>
-      <div className="text-[12px] uppercase tracking-wide text-gray-600 font-semibold mb-1">{label}</div>
-      <div className={`text-lg font-semibold text-${color}-700 tabular-nums`}>{value}</div>
-    </div>
-  );
+  type Metric = { label: string; value: number | string; tone: string };
+
+  const metrics: Metric[] = [
+    { label: 'Total', value: total, tone: 'purple' },
+    { label: 'Accepted', value: accepted, tone: 'green' },
+    { label: 'Declined', value: declined, tone: 'rose' },
+    { label: 'Children', value: children, tone: 'amber' },
+    { label: 'Bride / Groom', value: `${brideSide}/${groomSide}`, tone: 'indigo' },
+    { label: 'Male / Female', value: `${male}/${female}`, tone: 'cyan' },
+  ];
+
+  const toneStyles: Record<string, string> = {
+    purple: 'from-purple-50/90 via-white to-white border-purple-200/70',
+    green: 'from-emerald-50/90 via-white to-white border-emerald-200/70',
+    rose: 'from-rose-50/90 via-white to-white border-rose-200/70',
+    amber: 'from-amber-50/90 via-white to-white border-amber-200/70',
+    indigo: 'from-indigo-50/90 via-white to-white border-indigo-200/70',
+    cyan: 'from-cyan-50/90 via-white to-white border-cyan-200/70',
+  };
+
+  const glowRing: Record<string, string> = {
+    purple: 'group-hover:ring-purple-300/60',
+    green: 'group-hover:ring-emerald-300/60',
+    rose: 'group-hover:ring-rose-300/60',
+    amber: 'group-hover:ring-amber-300/60',
+    indigo: 'group-hover:ring-indigo-300/60',
+    cyan: 'group-hover:ring-cyan-300/60',
+  };
+
+  const badgeDot: Record<string, string> = {
+    purple: 'bg-purple-400',
+    green: 'bg-emerald-400',
+    rose: 'bg-rose-400',
+    amber: 'bg-amber-400',
+    indigo: 'bg-indigo-400',
+    cyan: 'bg-cyan-400',
+  };
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-      <Card label="Invited" value={totals.invited} color="gray" />
-      <Card label="Confirmed" value={totals.confirmed} color="green" />
-      <Card label="Declined" value={totals.declined} color="red" />
-      <Card label="Pending" value={totals.pending} color="amber" />
-      <Card label="Headcount" value={headcount} color="purple" />
-    </div>
+    <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-6">
+      {metrics.map(m => (
+        <div
+          key={m.label}
+          className={[
+            'group relative overflow-hidden rounded-xl border backdrop-blur-sm',
+            'bg-gradient-to-br',
+            toneStyles[m.tone],
+            'shadow-sm hover:shadow-md transition-all',
+            'ring-1 ring-transparent',
+            glowRing[m.tone]
+          ].join(' ')}
+        >
+          {/* soft decorative radial highlight */}
+            <div className="pointer-events-none absolute -top-6 -right-6 h-24 w-24 rounded-full bg-white/40 blur-2xl opacity-0 group-hover:opacity-40 transition-opacity" />
+            <div className="relative px-4 py-3 flex flex-col gap-1">
+              <div className="flex items-center gap-2">
+                <span className={['h-2.5 w-2.5 rounded-full shadow-inner', badgeDot[m.tone]].join(' ')} />
+                <p className="text-[11px] font-semibold tracking-wide text-gray-600 uppercase select-none">
+                  {m.label}
+                </p>
+              </div>
+              <p className="text-xl font-bold tracking-tight text-gray-900">
+                {m.value}
+              </p>
+            </div>
+        </div>
+      ))}
+      </div>
   );
-};
+}

@@ -32,25 +32,25 @@ export default function Sidebar({ activeSection }: SidebarProps) {
                         </a>
 
                         <a
-                            href="/vendor/services/booked-services"
-                            className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-m transition-all ${pathname === '/vendor/services/booked-services'
-                                ? 'bg-purple-600 text-white shadow-sm'
-                                : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
-                                }`}
-                        >
-                            <HiBookmark className="text-2xl" />
-                            Booking Details
-                        </a>
-
-                        <a
                             href="/vendor/services/booking-requests"
                             className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-m transition-all ${pathname === '/vendor/services/booking-requests'
                                 ? 'bg-purple-600 text-white shadow-sm'
                                 : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
                                 }`}
                         >
-                            <FaCalendar className="text-lg" />
+                            <HiBookmark className="text-2xl" />
                             Booking Requests
+                        </a>
+
+                        <a
+                            href="/vendor/services/booked-services"
+                            className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-m transition-all ${pathname === '/vendor/services/booked-services'
+                                ? 'bg-purple-600 text-white shadow-sm'
+                                : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
+                                }`}
+                        >
+                            <FaCalendar className="text-lg" />
+                            Booking Details
                         </a>
                     </>
                 );
@@ -86,7 +86,7 @@ export default function Sidebar({ activeSection }: SidebarProps) {
     };
 
     return (
-        <div className="w-[280px] flex-shrink-0 bg-white border-2 border-gray-300 min-h-full mt-12 ml-8 mb-8 shadow-lg">
+        <div className="w-[300px] flex-shrink-0 bg-white border-2 border-gray-300 min-h-full mt-12 ml-8 mb-8 shadow-lg">
             <div className="p-6">
                 <nav className="space-y-2">
                     {renderSidebarContent()}

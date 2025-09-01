@@ -217,6 +217,7 @@ export default function EditProfile() {
                 return;
             }
             toast.success("Profile updated successfully");
+            localStorage.setItem("user", JSON.stringify(data.data || data));
         } catch (error) {
             toast.error("An error occurred while updating profile");
             console.error("Update profile error:", error);

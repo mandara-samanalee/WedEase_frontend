@@ -149,7 +149,7 @@ export default function CreateAgendaPage() {
             className="!w-auto inline-flex items-center px-3 py-2 !bg-white !text-purple-600 hover:!text-purple-800"
           />
           <div className="flex items-center gap-2">
-            <label className="text-md text-block mr-2">Date:</label>
+            <label className="text-md text-gray-600 mr-2">Date:</label>
             <input
               type="date"
               value={date}
@@ -187,7 +187,7 @@ export default function CreateAgendaPage() {
                   {/* Sections: Start time, End time, Location */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
-                      <label className="block text-sm text-block mb-1">Start time</label>
+                      <label className="block text-sm text-gray-600 mb-1">Start time</label>
                       <input
                         type="time"
                         value={it.startTime}
@@ -196,7 +196,7 @@ export default function CreateAgendaPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm text-block mb-1">End time</label>
+                      <label className="block text-sm text-gray-600 mb-1">End time</label>
                       <input
                         type="time"
                         value={it.endTime}
@@ -208,7 +208,7 @@ export default function CreateAgendaPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm text-block mb-1">Location</label>
+                      <label className="block text-sm text-gray-600 mb-1">Location</label>
                       <input
                         value={it.location}
                         onChange={(e) => updateItem(it.id, "location", e.target.value)}

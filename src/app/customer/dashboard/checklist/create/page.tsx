@@ -188,7 +188,7 @@ export default function Checklist(): JSX.Element {
                 <div className="flex items-center justify-between mb-6">
                     <div>
                         <h1 className="text-2xl font-bold text-gray-900 mb-1">Create Checklist</h1>
-                        <p className="text-block">Plan everything from 6 months out to the day of.</p>
+                        <p className="text-gray-600">Plan everything from 6 months out to the day of.</p>
                     </div>
 
                     {/* Progress ring */}
@@ -229,7 +229,7 @@ export default function Checklist(): JSX.Element {
                 {/* Bucket filter */}
                 <div className="flex flex-wrap gap-2 mb-6">
                     <button
-                        className={`px-3 py-1.5 rounded-full text-sm border ${activeBucket === "all" ? "bg-purple-600 text-white border-purple-600" : "text-block hover:bg-gray-50 border-gray-300"
+                        className={`px-3 py-1.5 rounded-full text-sm border ${activeBucket === "all" ? "bg-purple-600 text-white border-purple-600" : "text-gray-600 hover:bg-gray-50 border-gray-300"
                             }`}
                         onClick={() => setActiveBucket("all")}
                     >
@@ -240,7 +240,7 @@ export default function Checklist(): JSX.Element {
                             key={b.key}
                             className={`px-3 py-1.5 rounded-full text-sm border ${activeBucket === b.key
                                 ? "bg-purple-600 text-white border-purple-600"
-                                : "text-block hover:bg-gray-50 border-gray-300"
+                                : "text-gray-600 hover:bg-gray-50 border-gray-300"
                                 }`}
                             onClick={() => setActiveBucket(b.key)}
                         >

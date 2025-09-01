@@ -1,6 +1,6 @@
 import MainLayout from "@/components/VendorLayout/MainLayout";
 
-export default function BookingRequestsPage() {
+export default function BookedServicesPage() {
     return (
         <MainLayout>
             <h1>booking-requests</h1>

@@ -3,12 +3,9 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import CustomerMainLayout from "@/components/CustomerLayout/CustomerMainLayout";
-import DefaultButton from "@/components/DefaultButton";
-import { FileText, Calendar, DollarSign, CheckSquare, Users, Briefcase, CircleDollarSign } from "lucide-react";
+import { FileText, Calendar, CheckSquare, Users, Briefcase, CircleDollarSign } from "lucide-react";
 
-type Vendor = { id?: number; name?: string };
 type ChecklistItem = { id?: number; title?: string; done?: boolean };
-type AgendaItem = { id?: number; activity?: string };
 
 export default function DashboardOverviewPage() {
   const [eventTitle, setEventTitle] = useState<string>("-");
@@ -21,7 +18,7 @@ export default function DashboardOverviewPage() {
   const [agendaCount, setAgendaCount] = useState<number>(0);
   const [checklistDone, setChecklistDone] = useState<number>(0);
   const [checklistTotal, setChecklistTotal] = useState<number>(0);
-  const [vendorsCount, setVendorsCount] = useState<number>(0);
+  const [servicesCount, setServicesCount] = useState<number>(0);
 
   useEffect(() => {
     try {
@@ -46,7 +43,8 @@ export default function DashboardOverviewPage() {
       if (Array.isArray(arr)) {
         setGuestCount(arr.length);
         const byStatus: Record<string, number> = {};
-        arr.forEach((g: any) => {
+        interface Guest { status?: string }
+        arr.forEach((g: Guest) => {
           const s = (g?.status || "unknown").toString();
           byStatus[s] = (byStatus[s] || 0) + 1;
         });
@@ -60,9 +58,10 @@ export default function DashboardOverviewPage() {
       setBudgetTotal(total);
       const catsRaw = localStorage.getItem("weddingCategoriesV2");
       const cats = catsRaw ? JSON.parse(catsRaw) : [];
+      interface Category { allocated?: number; actual?: number; }
       if (Array.isArray(cats)) {
-        const allocated = cats.reduce((s: number, c: any) => s + (Number(c?.allocated) || 0), 0);
-        const actual = cats.reduce((s: number, c: any) => s + (Number(c?.actual) || 0), 0);
+        const allocated = cats.reduce((s: number, c: Category) => s + (Number(c?.allocated) || 0), 0);
+        const actual = cats.reduce((s: number, c: Category) => s + (Number(c?.actual) || 0), 0);
         setBudgetAllocated(allocated);
         setBudgetActual(actual);
       }
@@ -86,12 +85,19 @@ export default function DashboardOverviewPage() {
     } catch {}
 
     try {
-      // Vendors
-      const vRaw = localStorage.getItem("wedeaseVendors") || localStorage.getItem("vendors") || localStorage.getItem("weddingVendors");
-      const vendors = vRaw ? JSON.parse(vRaw) : [];
-      setVendorsCount(Array.isArray(vendors) ? vendors.length : 0);
-    } catch {}
-  }, []);
+  // Services
+  const vRaw =
+    localStorage.getItem("wedeaseServices") ||
+    localStorage.getItem("Services") ||
+    localStorage.getItem("weddingServices");
+  const services: Service[] = vRaw ? JSON.parse(vRaw) : [];
+  if (Array.isArray(services)) {
+    setServicesCount(
+      services.filter((s) => s?.booked || s?.status === "booked").length
+    );
+  }
+} catch {}
+}, []);
 
   const checklistPct = checklistTotal ? Math.round((checklistDone / checklistTotal) * 100) : 0;
   const budgetUtilPct = budgetTotal ? Math.round((budgetActual / budgetTotal) * 100) : 0;
@@ -177,17 +183,17 @@ export default function DashboardOverviewPage() {
             <div className="flex items-start gap-3">
               <Briefcase className="text-purple-700" />
               <div>
-                <div className="text-md text-purple-900 font-semibold">Vendors</div>
-                <div className="font-medium text-gray-900">{vendorsCount} vendors</div>
+                <div className="text-md text-purple-900 font-semibold">Services</div>
+                <div className="font-medium text-gray-900">{servicesCount} booked services</div>
                 <div className="text-sm text-gray-700">Contacts & bookings</div>
               </div>
             </div>
             <div className="mt-3 flex justify-end">
-              <Link href="/customer/dashboard/vendors/selection" className="text-sm text-purple-700 hover:text-purple-900">Manage</Link>
+              <Link href="/customer/dashboard/services/selection" className="text-sm text-purple-700 hover:text-purple-900">Manage</Link>
             </div>
           </div>
         </div>
       </div>
     </CustomerMainLayout>
   );
-}
+ }

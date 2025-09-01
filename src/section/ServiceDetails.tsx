@@ -88,9 +88,9 @@ export default function ServiceDetails() {
                 url.searchParams.set("limit", "1");
 
                 const res = await fetch(url.toString(), { headers: { Accept: "application/json" }, signal: ctrl.signal });
-                const data: any[] = await res.json();
+                const data: unknown[] = await res.json();
                 if (data.length) {
-                    const best = data[0];
+                    const best = data[0] as { lat: string; lon: string };
                     const lat = parseFloat(best.lat);
                     const lon = parseFloat(best.lon);
                     if (!Number.isNaN(lat) && !Number.isNaN(lon)) setPosition([lat, lon]);

@@ -123,8 +123,6 @@ export const SummarySection: React.FC<Props> = ({
           </div>
         </div>
       </div>
-
-
     </section>
   );
 };

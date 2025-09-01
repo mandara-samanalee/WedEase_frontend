@@ -422,7 +422,7 @@ export default function DashboardOverviewPage() {
               Your Perfect Day Awaits!
             </h3>
             <p className="text-gray-700 max-w-2xl mx-auto leading-relaxed">
-              Every detail you plan today brings you closer to the magical moment you've dreamed of. 
+              Every detail you plan today brings you closer to the magical moment you&apos;ve dreamed of. 
               Take your time, enjoy the process, and remember that love is what makes everything perfect.
             </p>
           </div>

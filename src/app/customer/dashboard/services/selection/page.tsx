@@ -33,7 +33,7 @@ export default function ServicesSelectionPage() {
       if (Array.isArray(parsed)) {
         // Deduplicate by id (latest entry wins)
         const map = new Map<number, StoredService>();
-        parsed.forEach((v: any) => {
+        parsed.forEach((v) => {
           if (v && typeof v.id === "number") {
             map.set(v.id, {
               id: v.id,

@@ -23,7 +23,7 @@ export default function RSVPResponsesPage() {
           const parsed = JSON.parse(raw);
           if (Array.isArray(parsed)) {
             setGuests(
-              parsed.map((g: any) => ({
+              parsed.map((g) => ({
                 ...g,
                 status: g.status === "confirmed" ? "accepted" : g.status || "invited",
               }))

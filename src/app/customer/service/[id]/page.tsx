@@ -56,7 +56,7 @@ export default function ServiceDetailsPage({ params }: { params: Promise<{ id: s
       const existing = Array.isArray(parsed) ? parsed : [];
 
       // Remove old entry if exists
-      const filtered = existing.filter((s: any) => s.id !== service.id);
+      const filtered = existing.filter((s) => s.id !== service.id);
 
       // Build stored object
       const stored = {

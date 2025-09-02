@@ -53,14 +53,14 @@ export default function AdminSidebar({ activeSection }: AdminSidebarProps) {
                         </a>
 
                         <a
-                            href="/admin/dashboard/users"
-                            className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-m transition-all ${pathname === '/admin/dashboard/users'
+                            href="/admin/dashboard/customer"
+                            className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-m transition-all ${pathname === '/admin/dashboard/customer'
                                 ? 'bg-purple-600 text-white shadow-sm'
                                 : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
                                 }`}
                         >
                             <FaUsers className="text-lg" />
-                            User Management
+                            Customer Management
                         </a>
                     </>
                 );

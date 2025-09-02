@@ -36,14 +36,14 @@ export default function AdminEditProfile() {
         setFirstName("Hansika");
         setLastName("Gimhani");
         setEmail("admin@wedease.com");
-        setContactNo("+94 7723478567");
+        setContactNo("+947723478567");
         setAdminId("ADMIN-001");
-        setRole("App Admin");
-        setAddress("No 123 Street");
-        setCity("Colombo");
-        setDistrict("Colombo");
-        setProvince("Western");
-        setCountry("Sri Lanka");
+        setRole("System Admin");
+        setAddress("");
+        setCity("");
+        setDistrict("");
+        setProvince("");
+        setCountry("");
         setProfileImage(""); 
     }, []);
 

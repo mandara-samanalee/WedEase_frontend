@@ -29,6 +29,37 @@ export default function ServiceDetails() {
     // Pricing packages
     const [packages, setPackages] = useState([{ name: "", price: "", features: "" }]);
 
+    const [isOtherCategory, setIsOtherCategory] = useState(false);
+    const [customCategory, setCustomCategory] = useState("");
+
+    // Define available categories
+    const categories = [
+        "Photography",
+        "Videography",
+        "Catering",
+        "Decoration",
+        "Music & Entertainment",
+        "Florist",
+        "Wedding Planning",
+        "Transportation",
+        "Venue",
+        "Makeup & Beauty",
+        "Wedding Cake",
+        "Bridal Wear",
+        "Jewelry",
+        "Invitation Cards",
+        "Other"
+    ];
+
+    // Add this handler function
+    const handleCategoryChange = (selectedCategory: string) => {
+        setCategory(selectedCategory);
+        setIsOtherCategory(selectedCategory === "Other");
+        if (selectedCategory !== "Other") {
+            setCustomCategory("");
+        }
+    };
+
     // Photographs state
     const [photos, setPhotos] = useState<{ file: File; url: string }[]>([]);
     const photoInputId = "photos-input";
@@ -125,10 +156,13 @@ export default function ServiceDetails() {
             const userData = JSON.parse(userDataString);
             const vendorId = userData.userId;
 
+            // Use custom category if "Other" is selected
+            const finalCategory = isOtherCategory ? customCategory : category;
+
             const formData = new FormData();
             formData.append("vendorId", vendorId);
             formData.append("serviceName", serviceName);
-            formData.append("category", category);
+            formData.append("category", finalCategory);
             formData.append("description", description);
             formData.append("capacity", capacity);
             formData.append("latitude", String(position?.[0] || ""));
@@ -169,266 +203,287 @@ export default function ServiceDetails() {
 
     return (
         <MainLayout>
-        <div className="max-w-2xl w-full space-y-6">
-            <h1 className="text-xl font-bold bg-gradient-to-r from-purple-800 to-pink-800 bg-clip-text text-transparent mb-4">1. Service Details</h1>
+            <div className="max-w-2xl w-full space-y-6">
+                <h1 className="text-xl font-bold bg-gradient-to-r from-purple-800 to-pink-800 bg-clip-text text-transparent mb-4">1. Service Details</h1>
 
-            <div className="flex gap-6">
-                <div className="flex-1">
-                    <label className="block mb-2">Service Name</label>
-                    <input
-                        name="serviceName"
-                        type="text"
-                        value={serviceName}
-                        onChange={(e) => setServiceName(e.target.value)}
-                        className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-                        required
-                    />
-                </div>
+                <div className="flex gap-6">
+                    <div className="flex-1">
+                        <label className="block mb-2">Service Name</label>
+                        <input
+                            name="serviceName"
+                            type="text"
+                            value={serviceName}
+                            onChange={(e) => setServiceName(e.target.value)}
+                            className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                            required
+                        />
+                    </div>
 
-                <div className="flex-1">
-                    <label className="block mb-2">Select Category</label>
-                    <input
-                        name="category"
-                        type="text"
-                        value={category}
-                        onChange={(e) => setCategory(e.target.value)}
-                        className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-                        required
-                    />
-                </div>
-            </div>
+                    <div className="flex-1">
+                        <label className="block mb-2">Select Category</label>
+                        <select
+                            name="category"
+                            value={category}
+                            onChange={(e) => handleCategoryChange(e.target.value)}
+                            className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                            required
+                        >
+                            <option value="">Choose a category</option>
+                            {categories.map((cat) => (
+                                <option key={cat} value={cat}>
+                                    {cat}
+                                </option>
+                            ))}
+                        </select>
 
-            <div className="flex gap-6">
-                <div className="flex-1">
-                    <label className="block mb-2">Description</label>
-                    <textarea
-                        name="description"
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        rows={6}
-                        className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-                        required
-                    />
-                </div>
-
-                <div className="flex-1">
-                    <label className="block mb-2">Capacity</label>
-                    <input
-                        name="capacity"
-                        type="text"
-                        value={capacity}
-                        onChange={(e) => setCapacity(e.target.value)}
-                        className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-                        required
-                    />
-                </div>
-            </div>
-
-            <h1 className="text-xl font-bold bg-gradient-to-r from-purple-800 to-pink-800 bg-clip-text text-transparent mb-4">2. Service Location</h1>
-            <p className="text-m mb-2">
-                Pick the location on the map.
-            </p>
-
-            {/* Clickable map (controlled by position) */}
-            <Map
-                onPick={handlePick}
-                position={position}
-                onPositionChange={setPosition}
-                height={320}
-            />
-
-
-            {/* Editable location fields */}
-            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label className="block mb-2">Country</label>
-                    <input
-                        name="country"
-                        type="text"
-                        value={country}
-                        onChange={(e) => setCountry(e.target.value)}
-                        className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-                    />
-                </div>
-                <div>
-                    <label className="block mb-2">Province/State</label>
-                    <input
-                        name="province"
-                        type="text"
-                        value={province}
-                        onChange={(e) => setProvince(e.target.value)}
-                        className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-                    />
-                </div>
-
-                <div>
-                    <label className="block mb-2">District</label>
-                    <input
-                        name="district"
-                        type="text"
-                        value={district}
-                        onChange={(e) => setDistrict(e.target.value)}
-                        className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-                    />
-                </div>
-                <div>
-                    <label className="block mb-2">City</label>
-                    <input
-                        name="city"
-                        type="text"
-                        value={city}
-                        onChange={(e) => setCity(e.target.value)}
-                        className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-                    />
-                </div>
-
-                <div className="md:col-span-2">
-                    <label className="block mb-2">Address</label>
-                    <input
-                        name="address"
-                        type="text"
-                        value={address}
-                        onChange={(e) => setAddress(e.target.value)}
-                        className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-                    />
-                </div>
-            </div>
-
-            {/* Pricing Packages Section  */}
-
-            <div>
-                <h1 className="text-xl font-bold bg-gradient-to-r from-purple-800 to-pink-800 bg-clip-text text-transparent mb-4">3. Pricing Packages</h1>
-
-                <p className="text-m mb-2">
-                    Add one or more pricing options for your service.
-                </p>
-                <button
-                    type="button"
-                    onClick={addPackage}
-                    className="inline-flex items-center gap-2 text-purple-600"
-                >
-                    <span className="text-lg leading-none">+</span>
-                    <span>Add new</span>
-                </button>
-
-                {packages.map((pkg, index) => (
-                    <div
-                        key={index}
-                        className="mb-4 flex flex-col gap-6"
-                    >
-                        <div className="flex flex-col gap-6">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                <div>
-                                    <label className="block mb-2">Package Name</label>
-                                    <input
-                                        type="text"
-                                        value={pkg.name}
-                                        onChange={(e) => updatePackage(index, "name", e.target.value)}
-                                        className="w-full px-3 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block mb-2">Price</label>
-                                    <input
-                                        type="number"
-                                        value={pkg.price}
-                                        onChange={(e) => updatePackage(index, "price", e.target.value)}
-                                        className="w-full px-3 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-                                    />
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="block mb-2">Features</label>
-                                <textarea
-                                    value={pkg.features}
-                                    onChange={(e) => updatePackage(index, "features", e.target.value)}
-                                    rows={3}
-                                    className="w-full px-3 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                        {/* Conditional "Other" category input */}
+                        {isOtherCategory && (
+                            <div className="mt-3">
+                                <label className="block mb-2">Specify Category</label>
+                                <input
+                                    type="text"
+                                    value={customCategory}
+                                    onChange={(e) => setCustomCategory(e.target.value)}
+                                    placeholder="Enter your custom category"
+                                    className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                                    required
                                 />
-
-                                <div className="flex justify-end">
-                                    <button
-                                        type="button"
-                                        onClick={() => removePackage(index)}
-                                        className="text-red-600 text-sm"
-                                    >
-                                        Remove Package
-                                    </button>
-                                </div>
                             </div>
+                        )}
+                    </div>
+                    </div>
+
+                    <div className="flex gap-6">
+                        <div className="flex-1">
+                            <label className="block mb-2">Description</label>
+                            <textarea
+                                name="description"
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                                rows={6}
+                                className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                                required
+                            />
+                        </div>
+
+                        <div className="flex-1">
+                            <label className="block mb-2">Capacity</label>
+                            <input
+                                name="capacity"
+                                type="text"
+                                value={capacity}
+                                onChange={(e) => setCapacity(e.target.value)}
+                                className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                                required
+                            />
                         </div>
                     </div>
-                ))}
-            </div>
 
-            {/* photographs section */}
-            <h1 className="text-xl font-bold bg-gradient-to-r from-purple-800 to-pink-800 bg-clip-text text-transparent mb-4">4. Photographs</h1>
-            <p className="text-m mb-2">
-                Upload images that showcase your service.
-            </p>
+                    <h1 className="text-xl font-bold bg-gradient-to-r from-purple-800 to-pink-800 bg-clip-text text-transparent mb-4">2. Service Location</h1>
+                    <p className="text-m mb-2">
+                        Pick the location on the map.
+                    </p>
 
-            <div
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={onDropPhotos}
-                className="rounded-lg border-2 border-dashed border-purple-300 p-6 text-center"
-            >
-                <p className="text-sm text-gray-600 mb-3">
-                    Drag & drop images here, or
-                </p>
-                <label
-                    htmlFor={photoInputId}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-white text-purple-600 cursor-pointer"
-                >
-                    <span className="text-lg leading-none">+</span>
-                    <span>Add images</span>
-                </label>
-                <input
-                    id={photoInputId}
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={onPhotosChange}
-                    className="hidden"
-                />
-                <p className="mt-2 text-xs text-gray-500">
-                    Up to 6 images. JPG, PNG, or WebP recommended.
-                </p>
-            </div>
+                    {/* Clickable map (controlled by position) */}
+                    <Map
+                        onPick={handlePick}
+                        position={position}
+                        onPositionChange={setPosition}
+                        height={320}
+                    />
 
-            {photos.length > 0 && (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                    {photos.map((p, i) => (
-                        <div
-                            key={i}
-                            className="relative aspect-square overflow-hidden rounded-lg border border-purple-200"
-                        >
-                            <img
-                                src={p.url}
-                                alt={`Photo ${i + 1}`}
-                                className="w-full h-full object-cover"
+
+                    {/* Editable location fields */}
+                    <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label className="block mb-2">Country</label>
+                            <input
+                                name="country"
+                                type="text"
+                                value={country}
+                                onChange={(e) => setCountry(e.target.value)}
+                                className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
                             />
-                            <button
-                                type="button"
-                                onClick={() => removePhoto(i)}
-                                className="absolute top-2 right-2 bg-white/90 hover:bg-white text-red-600 rounded-full w-7 h-7 flex items-center justify-center text-base"
-                                aria-label="Remove photo"
-                                title="Remove"
-                            >
-                            </button>
                         </div>
-                    ))}
-                </div>
-            )}
+                        <div>
+                            <label className="block mb-2">Province/State</label>
+                            <input
+                                name="province"
+                                type="text"
+                                value={province}
+                                onChange={(e) => setProvince(e.target.value)}
+                                className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                            />
+                        </div>
 
-            <div className="flex gap-4 pb-60 pt-6">
-                <DefaultButton
-                    btnLabel="Save Service"
-                    className="mt-2"
-                    handleClick={handleSaveService}
-                />
-            </div>
-        </div>
+                        <div>
+                            <label className="block mb-2">District</label>
+                            <input
+                                name="district"
+                                type="text"
+                                value={district}
+                                onChange={(e) => setDistrict(e.target.value)}
+                                className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                            />
+                        </div>
+                        <div>
+                            <label className="block mb-2">City</label>
+                            <input
+                                name="city"
+                                type="text"
+                                value={city}
+                                onChange={(e) => setCity(e.target.value)}
+                                className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                            />
+                        </div>
+
+                        <div className="md:col-span-2">
+                            <label className="block mb-2">Address</label>
+                            <input
+                                name="address"
+                                type="text"
+                                value={address}
+                                onChange={(e) => setAddress(e.target.value)}
+                                className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                            />
+                        </div>
+                    </div>
+
+                    {/* Pricing Packages Section  */}
+
+                    <div>
+                        <h1 className="text-xl font-bold bg-gradient-to-r from-purple-800 to-pink-800 bg-clip-text text-transparent mb-4">3. Pricing Packages</h1>
+
+                        <p className="text-m mb-2">
+                            Add one or more pricing options for your service.
+                        </p>
+                        <button
+                            type="button"
+                            onClick={addPackage}
+                            className="inline-flex items-center gap-2 text-purple-600"
+                        >
+                            <span className="text-lg leading-none">+</span>
+                            <span>Add new</span>
+                        </button>
+
+                        {packages.map((pkg, index) => (
+                            <div
+                                key={index}
+                                className="mb-4 flex flex-col gap-6"
+                            >
+                                <div className="flex flex-col gap-6">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                        <div>
+                                            <label className="block mb-2">Package Name</label>
+                                            <input
+                                                type="text"
+                                                value={pkg.name}
+                                                onChange={(e) => updatePackage(index, "name", e.target.value)}
+                                                className="w-full px-3 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block mb-2">Price</label>
+                                            <input
+                                                type="number"
+                                                value={pkg.price}
+                                                onChange={(e) => updatePackage(index, "price", e.target.value)}
+                                                className="w-full px-3 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="block mb-2">Features</label>
+                                        <textarea
+                                            value={pkg.features}
+                                            onChange={(e) => updatePackage(index, "features", e.target.value)}
+                                            rows={3}
+                                            className="w-full px-3 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                                        />
+
+                                        <div className="flex justify-end">
+                                            <button
+                                                type="button"
+                                                onClick={() => removePackage(index)}
+                                                className="text-red-600 text-sm"
+                                            >
+                                                Remove Package
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* photographs section */}
+                    <h1 className="text-xl font-bold bg-gradient-to-r from-purple-800 to-pink-800 bg-clip-text text-transparent mb-4">4. Photographs</h1>
+                    <p className="text-m mb-2">
+                        Upload images that showcase your service.
+                    </p>
+
+                    <div
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={onDropPhotos}
+                        className="rounded-lg border-2 border-dashed border-purple-300 p-6 text-center"
+                    >
+                        <p className="text-sm text-gray-600 mb-3">
+                            Drag & drop images here, or
+                        </p>
+                        <label
+                            htmlFor={photoInputId}
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-white text-purple-600 cursor-pointer"
+                        >
+                            <span className="text-lg leading-none">+</span>
+                            <span>Add images</span>
+                        </label>
+                        <input
+                            id={photoInputId}
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            onChange={onPhotosChange}
+                            className="hidden"
+                        />
+                        <p className="mt-2 text-xs text-gray-500">
+                            Up to 6 images. JPG, PNG, or WebP recommended.
+                        </p>
+                    </div>
+
+                    {photos.length > 0 && (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                            {photos.map((p, i) => (
+                                <div
+                                    key={i}
+                                    className="relative aspect-square overflow-hidden rounded-lg border border-purple-200"
+                                >
+                                    <img
+                                        src={p.url}
+                                        alt={`Photo ${i + 1}`}
+                                        className="w-full h-full object-cover"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => removePhoto(i)}
+                                        className="absolute top-2 right-2 bg-white/90 hover:bg-white text-red-600 rounded-full w-7 h-7 flex items-center justify-center text-base"
+                                        aria-label="Remove photo"
+                                        title="Remove"
+                                    >
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    <div className="flex gap-4 pb-60 pt-6">
+                        <DefaultButton
+                            btnLabel="Save Service"
+                            className="mt-2"
+                            handleClick={handleSaveService}
+                        />
+                    </div>
+                </div>
         </MainLayout>
     );
 }

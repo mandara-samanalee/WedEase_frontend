@@ -194,7 +194,7 @@ export default function BookedServicesPage() {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm font-medium text-gray-600">Total Revenue</p>
-                                <p className="text-xl font-bold text-green-600">${totalRevenue.toLocaleString()}</p>
+                                <p className="text-xl font-bold text-green-600">LKR {totalRevenue.toLocaleString()}</p>
                             </div>
                             <DollarSign className="w-6 h-6 text-green-600" />
                         </div>
@@ -286,7 +286,7 @@ export default function BookedServicesPage() {
                                                 </div>
                                                 <div className="flex items-center gap-2 text-gray-600 text-sm">
                                                     <DollarSign className="w-4 h-4 text-purple-600" />
-                                                    <span className="font-medium text-green-600">${service.totalAmount}</span>
+                                                    <span className="font-medium text-green-600">LKR {service.totalAmount}</span>
                                                 </div>
                                             </div>
 
@@ -305,7 +305,7 @@ export default function BookedServicesPage() {
                                                     setShowDetails(true);
                                                 }}
                                                 Icon={<Eye className="w-4 h-4" />}
-                                                className="inline-flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg transition w-[140px] text-sm"
+                                                className="inline-flex items-center gap-2 px-3 py-2 rounded-lg transition w-[160px] text-sm"
                                             />
                                         </div>
                                     </div>
@@ -415,7 +415,7 @@ export default function BookedServicesPage() {
                                             <DollarSign className="w-4 h-4 text-purple-600" />
                                             <div>
                                                 <p className="text-xs text-purple-700 font-medium">Total Amount</p>
-                                                <p className="font-bold text-lg text-purple-800">${selectedService.totalAmount}</p>
+                                                <p className="font-bold text-lg text-purple-800">LKR {selectedService.totalAmount}</p>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg border border-purple-100">

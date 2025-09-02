@@ -299,6 +299,7 @@ export default function BookedServicesPage() {
                                         <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-3">
                                             <h3 className="text-md font-semibold text-gray-900">{booking.serviceName}</h3>
                                             <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(booking.status)}`}>
+
                                                 {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
                                             </span>
                                         </div>
@@ -313,8 +314,8 @@ export default function BookedServicesPage() {
                                                 <span>{formatDate(booking.eventDate)}</span>
                                             </div>
                                             <div className="flex items-center gap-2 text-gray-600 text-sm">
-                                                <DollarSign className="w-4 h-4" />
-                                                <span className="font-medium">${booking.totalAmount}</span>
+                                                <div className="w-4 h-4" />
+                                                <span className="font-medium">LKR {booking.totalAmount}</span>
                                             </div>
                                         </div>
 
@@ -333,7 +334,7 @@ export default function BookedServicesPage() {
                                                 setShowDetails(true);
                                             }}
                                             Icon={<Eye className="w-4 h-4" />}
-                                            className="inline-flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg transition w-[140px] text-sm"
+                                            className="inline-flex items-center gap-2 px-3 py-2 rounded-lg transition w-[160px] text-sm"
                                         />
 
                                         {booking.status === "pending" && (
@@ -342,13 +343,13 @@ export default function BookedServicesPage() {
                                                     btnLabel="Accept"
                                                     handleClick={() => handleStatusUpdate(booking.id, "accepted")}
                                                     Icon={<Check className="w-4 h-4" />}
-                                                    className="inline-flex items-center gap-2 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition w-[100px] text-sm"
+                                                    className="inline-flex items-center gap-2 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition w-[110px] text-sm !bg-green-600 hover:!bg-green-700"
                                                 />
                                                 <DefaultButton
                                                     btnLabel="Decline"
                                                     handleClick={() => handleStatusUpdate(booking.id, "declined")}
                                                     Icon={<X className="w-4 h-4" />}
-                                                    className="inline-flex items-center gap-2 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition w-[100px] text-sm"
+                                                    className="inline-flex items-center gap-2 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition w-[110px] text-sm"
                                                 />
                                             </div>
                                         )}
@@ -458,7 +459,7 @@ export default function BookedServicesPage() {
                                         <DollarSign className="w-4 h-4 text-gray-600" />
                                         <div>
                                             <p className="text-xs text-gray-600">Total Amount</p>
-                                            <p className="font-medium text-md">${selectedBooking.totalAmount}</p>
+                                            <p className="font-medium text-md">LKR{selectedBooking.totalAmount}</p>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">

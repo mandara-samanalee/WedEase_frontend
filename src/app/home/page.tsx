@@ -5,25 +5,39 @@ import about3 from "@/assets/images/about-3.png";
 import vendorSection from "@/assets/images/vendor-section.jpg";
 import ServiceCards from "@/components/ServiceCards";
 import Footer from "@/section/Footer";
+import { GiDiamondRing } from "react-icons/gi";
 
 export default function Home() {
   return (
     <div className="relative w-screen h-screen overflow-x-hidden">
 
     {/* Navbar */}
-      <nav className="absolute top-0 left-0 w-full bg-purple-200 py-4 px-8 z-10">
+      <nav className="absolute top-0 left-0 w-full bg-purple-100 py-4 px-8 z-10">
+        <div className="flex justify-between items-center relative">
 
-        <div className="flex justify-between items-center">
-          <h2 className="text-white text-2xl font-semibold">Your Logo</h2>
-          <div className="flex space-x-10 text-purple-600">
-            <a href="#home" className="hover:text-purple-350">Home</a>
-            <a href="#about" className="hover:text-purple-350">About</a>
-            <a href="#services" className="hover:text-purple-350">Services</a>
-            <a href="#vendors" className="hover:text-purple-350">Vendors</a>
-            <a href="#contact" className="hover:text-purple-350">Contacts</a>
+          {/* Logo */}
+          <div className="flex items-center gap-1">
+            <GiDiamondRing className="text-4xl text-purple-700" />
+            <div className="text-3xl font-bold bg-gradient-to-t from-purple-700 to-purple-300 bg-clip-text text-transparent tracking-wide">
+              WedEase
+            </div>
           </div>
 
-          <div className="flex space-x-4">
+          {/* Navigation Links */}
+          <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 flex gap-12">
+            <a href="#home" 
+            className="font-medium transition text-purple-400 hover:text-purple-700">Home</a>
+            <a href="#about"  
+            className="font-medium transition text-purple-400 hover:text-purple-700">About</a>
+            <a href="#services"  
+            className="font-medium transition text-purple-400 hover:text-purple-700">Services</a>
+            <a href="#vendors"  
+            className="font-medium transition text-purple-400 hover:text-purple-700">Vendors</a>
+            <a href="#contact"  
+            className="font-medium transition text-purple-400 hover:text-purple-700">Contacts</a>
+          </div>
+
+          <div className="flex space-x-4 z-10">
             <a href="/register">
               <button className="bg-purple-600 text-white px-6 py-2 rounded hover:bg-purple-700 transition">
                 Sign up

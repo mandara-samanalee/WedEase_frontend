@@ -59,9 +59,9 @@ export default function DashboardOverviewPage(): JSX.Element {
             });
 
             const mockTopBookedServices: ServiceBooking[] = [
-                { service: "Wedding Photography Premium", vendor: "John's Photography", category: "Photography", bookings: 23 },
-                { service: "Full Wedding Planning", vendor: "Sarah's Event Planning", category: "Planning", bookings: 19 },
-                { service: "Venue Decoration - Elite", vendor: "Elite Decorations", category: "Decoration", bookings: 15 },
+                { service: "Wedding Photography Premium", vendor: "John's Photography", category: "Photography", bookings: 5 },
+                { service: "Full Wedding Planning", vendor: "Sarah's Event Planning", category: "Planning", bookings: 3 },
+                { service: "Venue Decoration - Elite", vendor: "Elite Decorations", category: "Decoration", bookings: 2 },
             ];
 
             const mockTopRatedServices: TopRatedService[] = [

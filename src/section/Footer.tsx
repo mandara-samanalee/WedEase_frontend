@@ -27,8 +27,8 @@ const Footer = () => {
             <div>
               <h3 className="text-2xl font-semibold mb-4">Contact Us</h3>
               <p className="text-gray-300">Email: support@wedease.com</p>
-              <p className="text-gray-300">Phone: +123 456 7890</p>
-              <p className="text-gray-300">Location: 123 Wedding St, Bliss City</p>
+              <p className="text-gray-300">Phone: +97 775974957</p>
+              <p className="text-gray-300">Location: Colombo, Sri Lanka</p>
             </div>
   
           </div>

@@ -32,31 +32,43 @@ const ServiceCategoryPage: React.FC = () => {
                 id: "1",
                 categoryName: "Photography",
                 description: "Wedding photography and videography services",
-                createdAt: "2024-01-15"
+                createdAt: "2025-08-15"
             },
             {
                 id: "2",
                 categoryName: "Catering",
                 description: "Food and beverage services for weddings",
-                createdAt: "2024-01-16"
+                createdAt: "2025-08-16"
             },
             {
                 id: "3",
                 categoryName: "Decoration",
                 description: "Wedding venue decoration and floral arrangements",
-                createdAt: "2024-01-17"
+                createdAt: "2025-08-17"
             },
             {
                 id: "4",
                 categoryName: "Music & Entertainment",
                 description: "Live bands, DJs, and entertainment services",
-                createdAt: "2024-01-18"
+                createdAt: "2025-08-18"
             },
             {
                 id: "5",
                 categoryName: "Transportation",
                 description: "Wedding transportation and vehicle rental",
-                createdAt: "2024-01-19"
+                createdAt: "2025-08-19"
+            },
+            {
+                id: "6",
+                categoryName: "Floring",
+                description: "",
+                createdAt: "2025-08-19"
+            },
+            {
+                id: "7",
+                categoryName: "Other",
+                description: "Other Wedding related Services",
+                createdAt: "2025-08-19"
             }
         ];
         setCategories(mockCategories);

@@ -57,7 +57,7 @@ export default function AdminNavbar({ activeSection, setActiveSection }: AdminNa
     const handleLogout = () => {
         localStorage.removeItem("adminToken");
         localStorage.removeItem("admin");
-        window.location.href = "/admin/login";
+        window.location.href = "/login";
     };
 
     // Use activeSection prop instead of pathname for initial render to avoid hydration mismatch

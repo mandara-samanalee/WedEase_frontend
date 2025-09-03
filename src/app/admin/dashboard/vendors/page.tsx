@@ -228,7 +228,129 @@ const VendorManagement: React.FC = () => {
                         ]
                     }
                 ]
-            }
+            },
+            {
+                id: "V004",
+                firstName: "Sarah",
+                lastName: "Events",
+                email: "sarah@events.com",
+                contactNo: "+94777654321",
+                businessName: "Sarah's Event Planning",
+                isActive: true,
+                joinDate: "2024-02-20",
+                services: [
+                    {
+                        id: "S003",
+                        serviceName: "Complete Wedding Planning",
+                        category: "Wedding Planning",
+                        description: "Full-service wedding planning and coordination",
+                        capacity: "50-500 guests",
+                        rating: 4.9,
+                        totalReviews: 12,
+                        bookingCount: 15,
+                        packages: [
+                            { name: "Full Planning", price: "500000", features: "6 months planning, venue booking, vendor coordination" }
+                        ],
+                        location: {
+                            address: "456 Event Avenue",
+                            city: "Kandy",
+                            district: "Kandy",
+                            province: "Central",
+                            country: "Sri Lanka"
+                        },
+                        photos: ["/event1.jpg", "/event2.jpg"],
+                        reviews: [
+                            {
+                                id: "R004",
+                                customerName: "Michael Brown",
+                                rating: 5,
+                                comment: "Sarah planned our dream wedding perfectly! Every detail was taken care of.",
+                                date: "2024-07-30"
+                            }
+                        ]
+                    }
+                ]
+            },
+             {
+                id: "V005",
+                firstName: "John",
+                lastName: "Photography",
+                email: "john@photos.com",
+                contactNo: "+94771234567",
+                businessName: "John's Photography Studio",
+                isActive: true,
+                joinDate: "2024-01-15",
+                services: [
+                    {
+                        id: "S001",
+                        serviceName: "Wedding Photography Premium",
+                        category: "Photography",
+                        description: "Professional wedding photography with premium packages",
+                        capacity: "1-200 guests",
+                        rating: 4.8,
+                        totalReviews: 24,
+                        bookingCount: 18,
+                        packages: [
+                            { name: "Basic", price: "150000", features: "8 hours coverage, 500 edited photos" },
+                            { name: "Premium", price: "250000", features: "12 hours coverage, 800 edited photos, videography" }
+                        ],
+                        location: {
+                            address: "123 Main Street",
+                            city: "Colombo",
+                            district: "Colombo",
+                            province: "Western",
+                            country: "Sri Lanka"
+                        },
+                        photos: ["/photo1.jpg", "/photo2.jpg"],
+                        reviews: [
+                            {
+                                id: "R001",
+                                customerName: "Emily Johnson",
+                                rating: 5,
+                                comment: "Absolutely amazing photography! John captured every precious moment perfectly.",
+                                date: "2024-08-15"
+                            },
+                            {
+                                id: "R002",
+                                customerName: "David Smith",
+                                rating: 4,
+                                comment: "Great quality photos and professional service. Highly recommended!",
+                                date: "2024-07-22"
+                            }
+                        ]
+                    },
+                    {
+                        id: "S002",
+                        serviceName: "Engagement Photography",
+                        category: "Photography",
+                        description: "Romantic engagement photo sessions",
+                        capacity: "2-10 people",
+                        rating: 4.6,
+                        totalReviews: 18,
+                        bookingCount: 10,
+                        packages: [
+                            { name: "Standard", price: "75000", features: "2 hours session, 100 edited photos" }
+                        ],
+                        location: {
+                            address: "123 Main Street",
+                            city: "Colombo",
+                            district: "Colombo",
+                            province: "Western",
+                            country: "Sri Lanka"
+                        },
+                        photos: ["/photo3.jpg"],
+                        reviews: [
+                            {
+                                id: "R003",
+                                customerName: "Sarah Wilson",
+                                rating: 5,
+                                comment: "Beautiful engagement photos! John made us feel so comfortable.",
+                                date: "2024-08-01"
+                            }
+                        ]
+                    }
+                ]
+            },
         ];
         setVendors(mockVendors);
         setFilteredVendors(mockVendors);

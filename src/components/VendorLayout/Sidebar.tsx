@@ -1,5 +1,5 @@
 import { FaUser, FaLock, FaCalendar } from "react-icons/fa";
-import { MdAssignmentInd } from "react-icons/md";
+import { MdAssignmentInd, MdHomeRepairService } from "react-icons/md";
 import { HiBookmark } from "react-icons/hi";
 import React from "react";
 import { usePathname } from "next/navigation";
@@ -29,6 +29,17 @@ export default function Sidebar({ activeSection }: SidebarProps) {
                         >
                             <MdAssignmentInd className="text-2xl" />
                             Service Profile
+                        </a>
+
+                        <a
+                            href="/vendor/services/view-services"
+                            className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-m transition-all ${pathname === '/vendor/services/view-services'
+                                ? 'bg-purple-600 text-white shadow-sm'
+                                : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
+                                }`}
+                        >
+                            <MdHomeRepairService className="text-2xl" />
+                            View Services
                         </a>
 
                         <a

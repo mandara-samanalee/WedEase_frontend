@@ -37,14 +37,14 @@ interface BookedService {
 }
 
 export default function BookedServicesPage() {
-    const [bookedServices, setBookedServices] = useState<BookedService[]>([]);
+    const [bookedServices] = useState<BookedService[]>([]);
     const [filteredServices, setFilteredServices] = useState<BookedService[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [filterByMonth, setFilterByMonth] = useState<string>("all");
     const [selectedService, setSelectedService] = useState<BookedService | null>(null);
     const [showDetails, setShowDetails] = useState(false);
 
-    // Mock data for accepted bookings - Replace with actual API call
+ /*    // Mock data for accepted bookings - Replace with actual API call
     useEffect(() => {
         const mockBookedServices: BookedService[] = [
             {
@@ -102,7 +102,7 @@ export default function BookedServicesPage() {
 
         setBookedServices(mockBookedServices);
         setFilteredServices(mockBookedServices);
-    }, []);
+    }, []); */
 
     // Filter services based on search term and month
     useEffect(() => {

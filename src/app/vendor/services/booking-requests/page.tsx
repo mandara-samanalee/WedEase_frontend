@@ -44,7 +44,7 @@ export default function BookedServicesPage() {
     const [selectedBooking, setSelectedBooking] = useState<BookingRequest | null>(null);
     const [showDetails, setShowDetails] = useState(false);
 
-    // Mock data - Replace with actual API call
+/*     // Mock data - Replace with actual API call
     useEffect(() => {
         const mockBookings: BookingRequest[] = [
             {
@@ -123,7 +123,7 @@ export default function BookedServicesPage() {
 
         setBookings(mockBookings);
         setFilteredBookings(mockBookings);
-    }, []);
+    }, []); */
 
     // Filter bookings based on status and search term
     useEffect(() => {

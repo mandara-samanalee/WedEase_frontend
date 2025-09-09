@@ -51,11 +51,11 @@ export default function DashboardOverviewPage(): JSX.Element {
         const timer = setTimeout(() => {
             // Mock data with numbers 1-25
             setMetrics({
-                customers: 24,
-                vendors: 12,
+                customers: 11,
+                vendors: 8,
                 services: 18,
-                bookings: 23,
-                events: 7,
+                bookings: 6,
+                events: 3,
             });
 
             const mockTopBookedServices: ServiceBooking[] = [
@@ -75,11 +75,11 @@ export default function DashboardOverviewPage(): JSX.Element {
 
             // Aggregate bookings by category
             const categoryMap: Record<string, number> = {
-                "Photography": 23,
-                "Planning": 19,
-                "Decoration": 15,
-                "Catering": 12,
-                "Beauty": 8,
+                "Photography": 6,
+                "Planning": 4,
+                "Decoration": 3,
+                "Catering": 2,
+                "Beauty": 3,
             };
             setCategoryData(Object.entries(categoryMap).map(([category, value]) => ({ category, value })));
 

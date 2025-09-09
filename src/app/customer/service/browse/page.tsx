@@ -132,8 +132,8 @@ export default function ServiceBrowsePage() {
                 >
                   <option value="priceAsc">Price: Low to High</option>
                   <option value="priceDesc">Price: High to Low</option>
-                  {/* <option value="ratingDesc">Rating: High to Low</option>
-                  <option value="ratingAsc">Rating: Low to High</option> */}
+                  <option value="ratingDesc">Rating: High to Low</option>
+                  <option value="ratingAsc">Rating: Low to High</option> 
                 </select>
 
                 <div className="relative">

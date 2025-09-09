@@ -77,7 +77,6 @@ try {
               <input
                 type={showPassword ? "text" : "password"}
                 className="w-full px-4 py-2 mb-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-                placeholder="Password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}

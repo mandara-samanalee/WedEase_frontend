@@ -192,7 +192,7 @@ export default function VendorSignupForm() {
                   setNumber(digits.slice(0, 15));
                   if (phoneError) setPhoneError(undefined);
                 }}
-                placeholder={prefix === "+94" ? "7XXXXXXXX (9 digits)" : "Phone number (7–15 digits)"}
+                placeholder={prefix === "+94" ? "7XXXXXXXX" : "Phone number (7–15 digits)"}
                 inputMode="numeric"
                 aria-invalid={!!phoneError}
               />

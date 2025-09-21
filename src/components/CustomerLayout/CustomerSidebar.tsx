@@ -14,7 +14,7 @@ interface ServiceFilters {
 
 interface CustomerSidebarProps {
   activeSection: string;
-  serviceFilters: ServiceFilters;
+  serviceFilters?: ServiceFilters;
 }
 
 const SERVICE_CATEGORIES = [

@@ -12,7 +12,7 @@ interface Props {
 export const GuestListTable: React.FC<Props> = ({ guests, updateGuest, removeGuest, filter }) => {
   const filtered = guests.filter(g =>
     filter
-      ? (g.name + g.phone + g.dietary + g.notes).toLowerCase().includes(filter.toLowerCase())
+      ? (g.guestName + g.phone + g.mealPref + g.notes).toLowerCase().includes(filter.toLowerCase())
       : true
   );
 
@@ -43,28 +43,28 @@ export const GuestListTable: React.FC<Props> = ({ guests, updateGuest, removeGue
               <td className="px-3 py-2">
                 <input
                   className="w-full bg-transparent outline-none"
-                  value={g.name}
+                  value={g.guestName}
                   placeholder="Name"
-                  onChange={e => updateGuest(g.id, 'name', e.target.value)}
+                  onChange={e => updateGuest(g.id, 'guestName', e.target.value)}
                 />
               </td>
               <td className="px-3 py-2">
                 <input
                   className="w-full bg-transparent outline-none"
                   value={g.phone}
-                  placeholder="phone"
+                  placeholder="Phone"
                   onChange={e => updateGuest(g.id, 'phone', e.target.value)}
                 />
               </td>
               <td className="py-2 px-3">
                 <select
-                  value={g.gender}
-                  onChange={e => updateGuest(g.id, 'gender', e.target.value)}
+                  value={g.Gender}
+                  onChange={e => updateGuest(g.id, 'Gender', e.target.value)}
                   className="w-18 rounded-md px-2 py-1 text-sm border border-purple-300 focus:outline-none focus:ring-1 focus:ring-purple-400"
                 >
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
-                  <option value="other">Other</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
                 </select>
               </td>
               <td className="py-2 px-3">
@@ -78,8 +78,8 @@ export const GuestListTable: React.FC<Props> = ({ guests, updateGuest, removeGue
               </td>
               <td className="py-2 px-3">
                 <select
-                  value={g.alcohol}
-                  onChange={e => updateGuest(g.id, 'alcohol', e.target.value)}
+                  value={g.alcoholPref}
+                  onChange={e => updateGuest(g.id, 'alcoholPref', e.target.value)}
                   className="w-18 rounded-md px-2 py-1 text-sm border border-purple-300 focus:outline-none focus:ring-1 focus:ring-purple-400"
                 >
                   <option value="unknown">Unknown</option>
@@ -93,21 +93,22 @@ export const GuestListTable: React.FC<Props> = ({ guests, updateGuest, removeGue
                   value={g.side}
                   onChange={e => updateGuest(g.id, 'side', e.target.value)}
                 >
-                  <option value="bride">Bride</option>
-                  <option value="groom">Groom</option>
-                  <option value="other">Other</option>
+                  <option value="Bride">Bride</option>
+                  <option value="Groom">Groom</option>
+                  <option value="Other">Other</option>
                 </select>
               </td>
               <td className="py-2 px-3">
                 <select
-                  value={g.status}
-                  onChange={e => updateGuest(g.id, 'status', e.target.value)}
-                  className="text-sm bg-transparent"
+                  value={g.responseStatus}
+                  onChange={e => updateGuest(g.id, 'responseStatus', e.target.value)}
+                  className="rounded-md px-2 py-1 text-sm border border-purple-300 focus:outline-none focus:ring-1 focus:ring-purple-400"
                 >
-                  <option value="invited">Invited</option>
-                  <option value="accepted">Accepted</option>
-                  <option value="declined">Declined</option>
-                  <option value="pending">Pending</option>
+                  <option value="PRELISTED">Prelisted</option>
+                  <option value="INVITED">Invited</option>
+                  <option value="ACCEPTED">Accepted</option>
+                  <option value="DECLINED">Declined</option>
+                  <option value="PENDING">Pending</option>
                 </select>
               </td>
               <td className="px-3 py-2">
@@ -115,16 +116,16 @@ export const GuestListTable: React.FC<Props> = ({ guests, updateGuest, removeGue
                   type="number"
                   min={0}
                   className="w-14 rounded-md px-2 py-1 text-xs border border-purple-300 focus:outline-none focus:ring-1 focus:ring-purple-400"
-                  value={g.plusOnes}
-                  onChange={e => updateGuest(g.id, 'plusOnes', Number(e.target.value) || 0)}
+                  value={g.plus}
+                  onChange={e => updateGuest(g.id, 'plus', Number(e.target.value) || 0)}
                 />
               </td>
               <td className="px-3 py-2">
                 <input
                   className="w-full bg-transparent outline-none"
-                  value={g.dietary}
+                  value={g.mealPref}
                   placeholder="-"
-                  onChange={e => updateGuest(g.id, 'dietary', e.target.value)}
+                  onChange={e => updateGuest(g.id, 'mealPref', e.target.value)}
                 />
               </td>
               <td className="px-3 py-2">

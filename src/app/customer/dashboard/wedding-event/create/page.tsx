@@ -36,20 +36,29 @@ export default function CreateEventPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ 
-      ...prev, 
-      [name]: name === "guestCount" ? parseInt(value) || 0 : value 
+    setFormData((prev) => ({
+      ...prev,
+      [name]: name === "guestCount" ? parseInt(value) || 0 : value
     }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const userId = getUserId();
     if (!userId) {
       toast.error("User not found. Please login again.");
       return;
     }
+
+    // get token from localStorage
+    const token = (() => {
+      try {
+        return localStorage.getItem("token") || "";
+      } catch { 
+        toast.error("Unauthorized access. Please login again."); 
+      }
+    })();
 
     // Validation
     if (!formData.title.trim()) {
@@ -84,7 +93,7 @@ export default function CreateEventPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          //"Authorization": `Bearer ${token}`,
+          "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify(requestBody),
       });
@@ -98,7 +107,7 @@ export default function CreateEventPage() {
       // Success
       toast.success("Event created successfully!");
 
-       // Store event data locally as backup
+      // Store event data locally as backup
       try {
         localStorage.setItem("wedeaseEvent", JSON.stringify({
           ...formData,
@@ -125,7 +134,7 @@ export default function CreateEventPage() {
     } catch (error) {
       console.error("Error creating event:", error);
       toast.error(error instanceof Error ? error.message : "Failed to create event. Please try again.");
-    } 
+    }
   };
 
   return (

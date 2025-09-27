@@ -60,6 +60,8 @@ const MyServices: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+    const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
     // Get vendor ID from localStorage or context
     const getVendorId = () => {
         try {
@@ -89,12 +91,12 @@ const MyServices: React.FC = () => {
             setLoading(true);
             setError(null);
 
-            const response = await fetch(`http://localhost:5000/api/service/getAll/${vendorId}`, {
+            const response = await fetch(`${BASE_URL}/service/getAll/${vendorId}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
                     // Add authorization header if needed
-                    // 'Authorization': `Bearer ${token}`,
+                   // 'Authorization': `Bearer ${token}`,
                 },
             });
 
@@ -376,7 +378,7 @@ const MyServices: React.FC = () => {
                                 className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-4 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-300 shadow-lg flex items-center gap-2 mx-auto"
                             >
                                 <FaPlus className="w-5 h-5" />
-                                Add Your First Service
+                                Register Your Services
                             </button>
                         </div>
                     ) : filteredServices.length === 0 ? (

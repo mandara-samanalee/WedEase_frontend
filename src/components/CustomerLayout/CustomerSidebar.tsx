@@ -1,7 +1,9 @@
 "use client";
 import { FaUser, FaLock, FaCalendar, FaList, FaCheckSquare, FaUsers, FaChevronDown, FaChevronRight, FaDonate, FaIdCard, FaBriefcase } from "react-icons/fa";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
+
+const BASE_URL= process.env.NEXT_PUBLIC_BACKEND_URL;
 
 interface ServiceFilters {
   priceRange: [number, number];
@@ -17,20 +19,41 @@ interface CustomerSidebarProps {
   serviceFilters?: ServiceFilters;
 }
 
-const SERVICE_CATEGORIES = [
-  "All",
-  "Catering",
-  "Poruwa",
-  "Photography & Videography",
-  "Decorations",
-  "Music & Entertainment",
-  "Transportation",
-  "Floral Arrangements",
-  "Wedding Planning",
-];
+// categories loaded from backend (fallback to a few defaults)
+const DEFAULT_CATEGORIES = ["Catering","Poruwa","Photography & Videography","Decorations","Music & Entertainment","Transportation","Floral Arrangements","Wedding Planning","Other"];
 
 export default function CustomerSidebar({ activeSection, serviceFilters }: CustomerSidebarProps) {
   const pathname = usePathname();
+
+// categories state + fetch must be inside component 
+  const [categories, setCategories] = useState<string[]>(["All", ...DEFAULT_CATEGORIES]);
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await fetch(`${BASE_URL}/category/all`, { headers: { 
+          "Content-Type": "application/json" 
+        } 
+      });
+        const json = await res.json();
+        const raw = Array.isArray(json) ? json : json?.data ?? json?.categories ?? [];
+        const names = (raw || [])
+        .map((c: any) => { 
+          const rawName = (c.name ?? c.categoryName ?? "").toString().trim();
+          if (!rawName) return "";
+          return rawName.charAt(0).toUpperCase() + rawName.slice(1);
+        })
+        .filter(Boolean);
+        //const unique = Array.from(new Set(["All", ...names, ...DEFAULT_CATEGORIES]));
+         // prefer API categories; fall back to defaults only when API returns none
+        const unique = names.length ? Array.from(new Set(["All", ...names])) : ["All", ...DEFAULT_CATEGORIES];
+        if (mounted) setCategories(unique);
+      } catch (err) {
+        console.error("Failed to load service categories", err);
+      }
+    })();
+    return () => { mounted = false; };
+  }, []);
 
   const [expandedSections, setExpandedSections] = useState({
     weddingEvent: false,
@@ -119,7 +142,7 @@ export default function CustomerSidebar({ activeSection, serviceFilters }: Custo
         <div className="mb-8">
           <h4 className="font-medium mb-3 text-xs text-gray-700 uppercase tracking-wide">Category</h4>
           <div className="space-y-1">
-            {SERVICE_CATEGORIES.map(cat => {
+            {categories.map(cat => {
               const checked =
                 cat === "All"
                   ? selectedCategories.length === 0

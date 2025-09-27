@@ -9,7 +9,7 @@ import EditEventForm from "@/components/Event/EditEventForm";
 import EventDetailsView from "@/components/Event/ViewEventModal";
 import DeleteEventModal from "@/components/Event/DeleteEventModal";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 interface EventData {
   id?: string;
@@ -72,7 +72,7 @@ export default function ViewEventPage() {
     try {
       setLoading(true);
 
-      const response = await fetch(`${BACKEND_URL}/event/user/${userId}`, {
+      const response = await fetch(`${BASE_URL}/event/user/${userId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -166,7 +166,7 @@ export default function ViewEventPage() {
         GuestCount: updatedData.guestCount
       };
 
-      const response = await fetch(`${BACKEND_URL}/event/${event.id}`, {
+      const response = await fetch(`${BASE_URL}/event/${event.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -200,7 +200,7 @@ export default function ViewEventPage() {
     try {
       setDeleting(true);
 
-      const response = await fetch(`${BACKEND_URL}/event/${event.id}`, {
+      const response = await fetch(`${BASE_URL}/event/${event.id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

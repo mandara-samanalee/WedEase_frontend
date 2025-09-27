@@ -7,6 +7,8 @@ import dynamic from "next/dynamic"
 import toast from "react-hot-toast";
 import MainLayout from "@/components/VendorLayout/MainLayout";
 
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
 export default function ServiceDetails() {
     // Auto-filled fields from map pick
     const [country, setCountry] = useState("");
@@ -19,46 +21,14 @@ export default function ServiceDetails() {
 
     // Service details fields
     const [serviceName, setServiceName] = useState("");
+    const [categories, setCategories] = useState<string[]>([]);
     const [category, setCategory] = useState("");
     const [description, setDescription] = useState("");
     const [capacity, setCapacity] = useState("");
-
     // Controlled map position
     const [position, setPosition] = useState<[number, number] | null>(null);
 
-    // Pricing packages
     const [packages, setPackages] = useState([{ name: "", price: "", features: "" }]);
-
-    const [isOtherCategory, setIsOtherCategory] = useState(false);
-    const [customCategory, setCustomCategory] = useState("");
-
-    // Define available categories
-    const categories = [
-        "Photography",
-        "Videography",
-        "Catering",
-        "Decoration",
-        "Music & Entertainment",
-        "Florist",
-        "Wedding Planning",
-        "Transportation",
-        "Venue",
-        "Makeup & Beauty",
-        "Wedding Cake",
-        "Bridal Wear",
-        "Jewelry",
-        "Invitation Cards",
-        "Other"
-    ];
-
-    // Add this handler function
-    const handleCategoryChange = (selectedCategory: string) => {
-        setCategory(selectedCategory);
-        setIsOtherCategory(selectedCategory === "Other");
-        if (selectedCategory !== "Other") {
-            setCustomCategory("");
-        }
-    };
 
     // Photographs state
     const [photos, setPhotos] = useState<{ file: File; url: string }[]>([]);
@@ -148,6 +118,40 @@ export default function ServiceDetails() {
         setPackages(updated);
     };
 
+    // load categories from backend
+    useEffect(() => {
+        let mounted = true;
+        (async () => {
+            try {
+                const res = await fetch(`${BASE_URL}/category/all`, {
+                    headers: {
+                        "Content-Type": "application/json"
+                        //"Authorization": Bearer `${token}`
+                    }
+                });
+                const json = await res.json();
+                const raw = Array.isArray(json) ? json : json?.data ?? json?.categories ?? [];
+                const names = (raw || [])
+                    .map((c: unknown) => {
+                        if (typeof c === "object" && c !== null) {
+                            const obj = c as { name?: unknown; categoryName?: unknown };
+                            return (obj.name ?? obj.categoryName ?? "").toString().trim();
+                        }
+                        return "";
+                    })
+                    .filter((n: string) => !!n);
+                const unique = Array.from(new Set([...names, "Other"]));
+                if (mounted && unique.length) setCategories(unique);
+            } catch (err) {
+                console.error("Failed to load categories", err);
+            }
+        })();
+        return () => { mounted = false; };
+    }, []);
+
+    const handleCategoryChange = (value: string) => setCategory(value);
+
+    // save service details
     const handleSaveService = async () => {
         try {
             const userDataString = localStorage.getItem("user");
@@ -156,13 +160,10 @@ export default function ServiceDetails() {
             const userData = JSON.parse(userDataString);
             const vendorId = userData.userId;
 
-            // Use custom category if "Other" is selected
-            const finalCategory = isOtherCategory ? customCategory : category;
-
             const formData = new FormData();
             formData.append("vendorId", vendorId);
             formData.append("serviceName", serviceName);
-            formData.append("category", finalCategory);
+            formData.append("category", category);
             formData.append("description", description);
             formData.append("capacity", capacity);
             formData.append("latitude", String(position?.[0] || ""));
@@ -181,7 +182,7 @@ export default function ServiceDetails() {
 
             photos.forEach((p) => formData.append("photos", p.file));
 
-            const res = await fetch("http://localhost:5000/api/service/create", {
+            const res = await fetch(`${BASE_URL}/service/create`, {
                 method: "POST",
                 body: formData,
             });
@@ -190,7 +191,7 @@ export default function ServiceDetails() {
             const data = await res.json();
             toast.success("Service created successfully!");
             console.log("Created service:", data);
-        } catch (err: unknown) {
+        } catch (err) {
             if (err instanceof Error) {
                 console.error(err);
                 toast.error(err.message || "Error creating service");
@@ -225,266 +226,236 @@ export default function ServiceDetails() {
                             name="category"
                             value={category}
                             onChange={(e) => handleCategoryChange(e.target.value)}
-                            className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                            className={`w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 ${category ? "text-gray-900" : "text-gray-400"}`}
                             required
                         >
-                            <option value="">Choose a category</option>
+                            <option value="">
+                                Choose a category
+                            </option>
                             {categories.map((cat) => (
-                                <option key={cat} value={cat}>
+                                <option key={cat} value={cat} className="text-gray-900">
                                     {cat}
                                 </option>
                             ))}
                         </select>
-
-                        {/* Conditional "Other" category input */}
-                        {isOtherCategory && (
-                            <div className="mt-3">
-                                <label className="block mb-2">Specify Category</label>
-                                <input
-                                    type="text"
-                                    value={customCategory}
-                                    onChange={(e) => setCustomCategory(e.target.value)}
-                                    placeholder="Enter your custom category"
-                                    className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-                                    required
-                                />
-                            </div>
-                        )}
                     </div>
-                    </div>
+                </div>
 
-                    <div className="flex gap-6">
-                        <div className="flex-1">
-                            <label className="block mb-2">Description</label>
-                            <textarea
-                                name="description"
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                                rows={6}
-                                className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-                                required
-                            />
-                        </div>
-
-                        <div className="flex-1">
-                            <label className="block mb-2">Capacity</label>
-                            <input
-                                name="capacity"
-                                type="text"
-                                value={capacity}
-                                onChange={(e) => setCapacity(e.target.value)}
-                                className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-                                required
-                            />
-                        </div>
-                    </div>
-
-                    <h1 className="text-xl font-bold bg-gradient-to-r from-purple-800 to-pink-800 bg-clip-text text-transparent mb-4">2. Service Location</h1>
-                    <p className="text-m mb-2">
-                        Pick the location on the map.
-                    </p>
-
-                    {/* Clickable map (controlled by position) */}
-                    <Map
-                        onPick={handlePick}
-                        position={position}
-                        onPositionChange={setPosition}
-                        height={320}
-                    />
-
-
-                    {/* Editable location fields */}
-                    <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label className="block mb-2">Country</label>
-                            <input
-                                name="country"
-                                type="text"
-                                value={country}
-                                onChange={(e) => setCountry(e.target.value)}
-                                className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-                            />
-                        </div>
-                        <div>
-                            <label className="block mb-2">Province/State</label>
-                            <input
-                                name="province"
-                                type="text"
-                                value={province}
-                                onChange={(e) => setProvince(e.target.value)}
-                                className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block mb-2">District</label>
-                            <input
-                                name="district"
-                                type="text"
-                                value={district}
-                                onChange={(e) => setDistrict(e.target.value)}
-                                className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-                            />
-                        </div>
-                        <div>
-                            <label className="block mb-2">City</label>
-                            <input
-                                name="city"
-                                type="text"
-                                value={city}
-                                onChange={(e) => setCity(e.target.value)}
-                                className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-                            />
-                        </div>
-
-                        <div className="md:col-span-2">
-                            <label className="block mb-2">Address</label>
-                            <input
-                                name="address"
-                                type="text"
-                                value={address}
-                                onChange={(e) => setAddress(e.target.value)}
-                                className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Pricing Packages Section  */}
-
-                    <div>
-                        <h1 className="text-xl font-bold bg-gradient-to-r from-purple-800 to-pink-800 bg-clip-text text-transparent mb-4">3. Pricing Packages</h1>
-
-                        <p className="text-m mb-2">
-                            Add one or more pricing options for your service.
-                        </p>
-                        <button
-                            type="button"
-                            onClick={addPackage}
-                            className="inline-flex items-center gap-2 text-purple-600"
-                        >
-                            <span className="text-lg leading-none">+</span>
-                            <span>Add new</span>
-                        </button>
-
-                        {packages.map((pkg, index) => (
-                            <div
-                                key={index}
-                                className="mb-4 flex flex-col gap-6"
-                            >
-                                <div className="flex flex-col gap-6">
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                        <div>
-                                            <label className="block mb-2">Package Name</label>
-                                            <input
-                                                type="text"
-                                                value={pkg.name}
-                                                onChange={(e) => updatePackage(index, "name", e.target.value)}
-                                                className="w-full px-3 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block mb-2">Price</label>
-                                            <input
-                                                type="number"
-                                                value={pkg.price}
-                                                onChange={(e) => updatePackage(index, "price", e.target.value)}
-                                                className="w-full px-3 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <label className="block mb-2">Features</label>
-                                        <textarea
-                                            value={pkg.features}
-                                            onChange={(e) => updatePackage(index, "features", e.target.value)}
-                                            rows={3}
-                                            className="w-full px-3 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-                                        />
-
-                                        <div className="flex justify-end">
-                                            <button
-                                                type="button"
-                                                onClick={() => removePackage(index)}
-                                                className="text-red-600 text-sm"
-                                            >
-                                                Remove Package
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* photographs section */}
-                    <h1 className="text-xl font-bold bg-gradient-to-r from-purple-800 to-pink-800 bg-clip-text text-transparent mb-4">4. Photographs</h1>
-                    <p className="text-m mb-2">
-                        Upload images that showcase your service.
-                    </p>
-
-                    <div
-                        onDragOver={(e) => e.preventDefault()}
-                        onDrop={onDropPhotos}
-                        className="rounded-lg border-2 border-dashed border-purple-300 p-6 text-center"
-                    >
-                        <p className="text-sm text-gray-600 mb-3">
-                            Drag & drop images here, or
-                        </p>
-                        <label
-                            htmlFor={photoInputId}
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-white text-purple-600 cursor-pointer"
-                        >
-                            <span className="text-lg leading-none">+</span>
-                            <span>Add images</span>
-                        </label>
-                        <input
-                            id={photoInputId}
-                            type="file"
-                            accept="image/*"
-                            multiple
-                            onChange={onPhotosChange}
-                            className="hidden"
+                <div className="flex gap-6">
+                    <div className="flex-1">
+                        <label className="block mb-2">Description</label>
+                        <textarea
+                            name="description"
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            rows={6}
+                            className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                            required
                         />
-                        <p className="mt-2 text-xs text-gray-500">
-                            Up to 6 images. JPG, PNG, or WebP recommended.
-                        </p>
                     </div>
 
-                    {photos.length > 0 && (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                            {photos.map((p, i) => (
-                                <div
-                                    key={i}
-                                    className="relative aspect-square overflow-hidden rounded-lg border border-purple-200"
-                                >
-                                    <img
-                                        src={p.url}
-                                        alt={`Photo ${i + 1}`}
-                                        className="w-full h-full object-cover"
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => removePhoto(i)}
-                                        className="absolute top-2 right-2 bg-white/90 hover:bg-white text-red-600 rounded-full w-7 h-7 flex items-center justify-center text-base"
-                                        aria-label="Remove photo"
-                                        title="Remove"
-                                    >
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-
-                    <div className="flex gap-4 pb-60 pt-6">
-                        <DefaultButton
-                            btnLabel="Save Service"
-                            className="mt-2"
-                            handleClick={handleSaveService}
+                    <div className="flex-1">
+                        <label className="block mb-2">Capacity</label>
+                        <input
+                            name="capacity"
+                            type="text"
+                            value={capacity}
+                            onChange={(e) => setCapacity(e.target.value)}
+                            className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                            required
                         />
                     </div>
                 </div>
+
+                <h1 className="text-xl font-bold bg-gradient-to-r from-purple-800 to-pink-800 bg-clip-text text-transparent mb-4">2. Service Location</h1>
+                <p className="text-m mb-2">
+                    Pick the location on the map.
+                </p>
+
+                <Map
+                    onPick={handlePick}
+                    position={position}
+                    onPositionChange={setPosition}
+                    height={320}
+                />
+
+                <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label className="block mb-2">Country</label>
+                        <input
+                            name="country"
+                            type="text"
+                            value={country}
+                            onChange={(e) => setCountry(e.target.value)}
+                            className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                        />
+                    </div>
+                    <div>
+                        <label className="block mb-2">Province/State</label>
+                        <input
+                            name="province"
+                            type="text"
+                            value={province}
+                            onChange={(e) => setProvince(e.target.value)}
+                            className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block mb-2">District</label>
+                        <input
+                            name="district"
+                            type="text"
+                            value={district}
+                            onChange={(e) => setDistrict(e.target.value)}
+                            className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                        />
+                    </div>
+                    <div>
+                        <label className="block mb-2">City</label>
+                        <input
+                            name="city"
+                            type="text"
+                            value={city}
+                            onChange={(e) => setCity(e.target.value)}
+                            className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                        />
+                    </div>
+
+                    <div className="md:col-span-2">
+                        <label className="block mb-2">Address</label>
+                        <input
+                            name="address"
+                            type="text"
+                            value={address}
+                            onChange={(e) => setAddress(e.target.value)}
+                            className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                        />
+                    </div>
+                </div>
+
+                {/* Pricing Packages Section */}
+                <div>
+                    <h1 className="text-xl font-bold bg-gradient-to-r from-purple-800 to-pink-800 bg-clip-text text-transparent mb-4">3. Pricing Packages</h1>
+                    <p className="text-m mb-2">Add one or more pricing options for your service.</p>
+                    <button
+                        type="button"
+                        onClick={addPackage}
+                        className="inline-flex items-center gap-2 text-purple-600"
+                    >
+                        <span className="text-lg leading-none">+</span>
+                        <span>Add new</span>
+                    </button>
+
+                    {packages.map((pkg, index) => (
+                        <div key={index} className="mb-4 flex flex-col gap-6">
+                            <div className="flex flex-col gap-6">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                    <div>
+                                        <label className="block mb-2">Package Name</label>
+                                        <input
+                                            type="text"
+                                            value={pkg.name}
+                                            onChange={(e) => updatePackage(index, "name", e.target.value)}
+                                            className="w-full px-3 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block mb-2">Price</label>
+                                        <input
+                                            type="number"
+                                            value={pkg.price}
+                                            onChange={(e) => updatePackage(index, "price", e.target.value)}
+                                            className="w-full px-3 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block mb-2">Features</label>
+                                    <textarea
+                                        value={pkg.features}
+                                        onChange={(e) => updatePackage(index, "features", e.target.value)}
+                                        rows={3}
+                                        className="w-full px-3 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                                    />
+
+                                    <div className="flex justify-end">
+                                        <button
+                                            type="button"
+                                            onClick={() => removePackage(index)}
+                                            className="text-red-600 text-sm"
+                                        >
+                                            Remove Package
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                {/* photographs section */}
+                <h1 className="text-xl font-bold bg-gradient-to-r from-purple-800 to-pink-800 bg-clip-text text-transparent mb-4">4. Photographs</h1>
+                <p className="text-m mb-2">Upload images that showcase your service.</p>
+
+                <div
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={onDropPhotos}
+                    className="rounded-lg border-2 border-dashed border-purple-300 p-6 text-center"
+                >
+                    <p className="text-sm text-gray-600 mb-3">Drag & drop images here, or</p>
+                    <label
+                        htmlFor={photoInputId}
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-white text-purple-600 cursor-pointer"
+                    >
+                        <span className="text-lg leading-none">+</span>
+                        <span>Add images</span>
+                    </label>
+                    <input
+                        id={photoInputId}
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={onPhotosChange}
+                        className="hidden"
+                    />
+                    <p className="mt-2 text-xs text-gray-500">Up to 6 images. JPG, PNG, or WebP recommended.</p>
+                </div>
+
+                {photos.length > 0 && (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                        {photos.map((p, i) => (
+                            <div
+                                key={i}
+                                className="relative aspect-square overflow-hidden rounded-lg border border-purple-200"
+                            >
+                                <img
+                                    src={p.url}
+                                    alt={`Photo ${i + 1}`}
+                                    className="w-full h-full object-cover"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => removePhoto(i)}
+                                    className="absolute top-2 right-2 bg-white/90 hover:bg-white text-red-600 rounded-full w-7 h-7 flex items-center justify-center text-base"
+                                    aria-label="Remove photo"
+                                    title="Remove"
+                                >
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                <div className="flex gap-4 pb-60 pt-6">
+                    <DefaultButton
+                        btnLabel="Save Service"
+                        className="mt-2"
+                        handleClick={handleSaveService}
+                    />
+                </div>
+            </div>
         </MainLayout>
     );
 }
-

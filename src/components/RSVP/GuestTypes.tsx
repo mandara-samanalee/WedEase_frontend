@@ -1,14 +1,16 @@
 export interface Guest {
   id: number;
-  name: string;
+  guestName: string;
   phone: string;
-  gender: 'male' | 'female' | 'other';
+  Gender: 'Male' | 'Female' | 'Other';
   childCount: number;
-  alcohol: 'yes' | 'no' | 'unknown';
-  side: 'bride' | 'groom' | 'other';
-  status: 'invited' | 'accepted' | 'declined' | 'pending';
-  dietary: string;
+  alcoholPref: 'yes' | 'no' | 'unknown';
+  mealPref: string;
+  plus: number;
+  side: 'Bride' | 'Groom' | 'Other';
+  responseStatus: 'PRELISTED' | 'INVITED' | 'ACCEPTED' | 'DECLINED' | 'PENDING';
   notes: string;
-  plusOnes: number;
   createdAt: string;
+  updatedAt: string;
 }
+

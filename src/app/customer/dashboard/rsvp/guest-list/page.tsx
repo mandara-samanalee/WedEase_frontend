@@ -1,11 +1,15 @@
 "use client";
-import React, { useEffect, useRef, useState } from 'react';
+
+import React, { useEffect, useState } from 'react';
 import CustomerMainLayout from '@/components/CustomerLayout/CustomerMainLayout';
 import { Guest } from '@/components/RSVP/GuestTypes';
 import { GuestListTable } from '@/components/RSVP/GuestListTable';
 import { RSVPStats } from '@/components/RSVP/RSVPStats';
 import DefaultButton from '@/components/DefaultButton';
-import { Plus, Save, Funnel } from 'lucide-react';
+import { Plus, Save, Funnel, Loader } from 'lucide-react';
+import toast from "react-hot-toast";
+
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export default function GuestListPage() {
   const [guests, setGuests] = useState<Guest[]>([]);
@@ -15,67 +19,239 @@ export default function GuestListPage() {
   const [genderFilter, setGenderFilter] = useState<string>('all');
   const [alcoholFilter, setAlcoholFilter] = useState<string>('all');
   const [minChildren, setMinChildren] = useState<number>(0);
-  const nextId = useRef(1);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const getSession = () => {
+    try {
+      const token = localStorage.getItem("token");
+      const userRaw = localStorage.getItem("user");
+      if (userRaw) {
+        const user = JSON.parse(userRaw);
+        return { userId: user?.userId, token };
+      }
+      return { userId: undefined, token: token || "" };
+    } catch {
+      return { userId: undefined, token: "" };
+    }
+  };
+
+  const fetchGuests = async () => {
+    const { token, userId } = getSession();
+
+    if (!userId || !token) {
+      toast.error("Please login to continue.");
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${BASE_URL}/rsvp/get-all-guests/${userId}`, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to load guests: ${response.status}`);
+      }
+
+      const result = await response.json();
+      
+      if (result.status && result.data?.guests) {
+        const guestList: Guest[] = result.data.guests.map((guest: unknown) => {
+          const g = guest as Partial<Guest> & { [key: string]: unknown };
+          return {
+            id: g.id as number,
+            guestName: g.guestName as string || '',
+            phone: g.phone as string || '',
+            Gender: g.Gender as Guest["Gender"] || 'Male',
+            childCount: g.childCount as number || 0,
+            alcoholPref: g.alcoholPref as Guest["alcoholPref"] || 'unknown',
+            mealPref: g.mealPref as string || '',
+            plus: g.plus as number || 0,
+            side: g.side as Guest["side"] || 'Bride',
+            responseStatus: g.responseStatus as Guest["responseStatus"] || 'PRELISTED',
+            notes: g.notes as string || '',
+            createdAt: g.createdAt as string || new Date().toISOString(),
+            updatedAt: g.updatedAt as string || new Date().toISOString()
+          };
+        });
+        setGuests(guestList);
+        toast.success("Guest list loaded successfully");
+      } else {
+        throw new Error("Invalid response format");
+      }
+    } catch (error) {
+      console.error("Error fetching guests:", error);
+      toast.error("Error loading guests");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem('wedeaseGuests');
-      if (raw) {
-        const parsed: Guest[] = JSON.parse(raw);
-        setGuests(parsed);
-        nextId.current = (parsed.reduce((m, g) => Math.max(m, g.id), 0) || 0) + 1;
-      }
-    } catch {}
+    fetchGuests();
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem('wedeaseGuests', JSON.stringify(guests));
-  }, [guests]);
-
   const addGuest = () => {
-    setGuests(g => [
-      ...g,
+    setGuests(prev => [
+      ...prev,
       {
-        id: nextId.current++,
-        name: '',
+        id: -Date.now(),
+        guestName: '',
         phone: '',
-        gender: 'other',
+        Gender: 'Male',
         childCount: 0,
-        alcohol: 'unknown',
-        side: 'bride',
-        status: 'invited',
-        dietary: '',
+        alcoholPref: 'unknown',
+        mealPref: '',
+        plus: 0,
+        side: 'Bride',
+        responseStatus: 'PRELISTED',
         notes: '',
-        plusOnes: 0,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       }
     ]);
   };
 
-  const updateGuest = (id: number, field: keyof Guest, value: unknown) =>
-    setGuests(g => g.map(x => (x.id === id ? { ...x, [field]: value } : x)));
+  const updateGuest = (id: number, field: keyof Guest, value: unknown) => {
+    setGuests(prev => prev.map(guest => 
+      guest.id === id ? { ...guest, [field]: value, updatedAt: new Date().toISOString() } : guest
+    ));
+  };
 
-  const removeGuest = (id: number) =>
-    setGuests(g => g.filter(x => x.id !== id));
+  const removeGuest = async (id: number) => {
+    const { token } = getSession();
 
-  const handleSave = () =>
-    localStorage.setItem('wedeaseGuests', JSON.stringify(guests));
-
-  const criteriaFiltered = guests.filter(g => {
-    if (textFilter) {
-      const t = textFilter.toLowerCase();
-      if (
-        !g.name.toLowerCase().includes(t) &&
-        !g.phone.toLowerCase().includes(t)
-      ) return false;
+    if (id < 0) {
+      setGuests(prev => prev.filter(guest => guest.id !== id));
+      toast.success("Guest removed");
+      return;
     }
-    if (sideFilter !== 'all' && g.side !== sideFilter) return false;
-    if (statusFilter !== 'all' && g.status !== statusFilter) return false;
-    if (genderFilter !== 'all' && g.gender !== genderFilter) return false;
-    if (alcoholFilter !== 'all' && g.alcohol !== alcoholFilter) return false;
-    if (minChildren > 0 && (g.childCount || 0) < minChildren) return false;
+
+    if (!token) {
+      toast.error("Please login to continue.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${BASE_URL}/rsvp/delete/${id}`, {
+        method: 'DELETE',
+        headers: { 
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json" 
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to delete guest: ${response.status}`);
+      }
+
+      setGuests(prev => prev.filter(guest => guest.id !== id));
+      toast.success("Guest deleted successfully");
+    } catch (error) {
+      console.error("Error deleting guest:", error);
+      toast.error("Error deleting guest");
+    }
+  };
+
+  const handleSave = async () => {
+    const { token, userId } = getSession();
+
+    if (!userId || !token) {
+      toast.error("Please login to continue.");
+      return;
+    }
+
+    try {
+      const eventResponse = await fetch(`${BASE_URL}/rsvp/get-all-guests/${userId}`, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (!eventResponse.ok) {
+        throw new Error("Failed to get event data");
+      }
+
+      const eventResult = await eventResponse.json();
+      const eventId = eventResult.data?.id;
+
+      if (!eventId) {
+        throw new Error("Event not found");
+      }
+
+      const payload = {
+        eventId,
+        guests: guests.map(guest => ({
+          ...(guest.id > 0 ? { id: guest.id } : {}),
+          guestName: guest.guestName,
+          phone: guest.phone,
+          Gender: guest.Gender,
+          childCount: guest.childCount,
+          alcoholPref: guest.alcoholPref,
+          mealPref: guest.mealPref,
+          plus: guest.plus,
+          side: guest.side,
+          responseStatus: guest.responseStatus,
+          notes: guest.notes
+        }))
+      };
+
+      const saveResponse = await fetch(`${BASE_URL}/rsvp/save-changes`, {
+        method: 'POST',
+        headers: { 
+          "Content-Type": "application/json", 
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!saveResponse.ok) {
+        throw new Error(`Failed to save guests: ${saveResponse.status}`);
+      }
+
+      toast.success("Guests saved successfully");
+      await fetchGuests(); // Refresh the list to get updated data
+    } catch (error) {
+      console.error("Error saving guests:", error);
+      toast.error("Error saving guests");
+    }
+  };
+
+  const criteriaFiltered = guests.filter(guest => {
+    if (textFilter) {
+      const searchTerm = textFilter.toLowerCase();
+      if (!guest.guestName.toLowerCase().includes(searchTerm) && 
+          !guest.phone.toLowerCase().includes(searchTerm)) {
+        return false;
+      }
+    }
+    if (sideFilter !== 'all' && guest.side !== sideFilter) return false;
+    if (statusFilter !== 'all' && guest.responseStatus !== statusFilter) return false;
+    if (genderFilter !== 'all' && guest.Gender !== genderFilter) return false;
+    if (alcoholFilter !== 'all' && guest.alcoholPref !== alcoholFilter) return false;
+    if (minChildren > 0 && guest.childCount < minChildren) return false;
     return true;
   });
+
+  if (isLoading) {
+    return (
+      <CustomerMainLayout>
+        <div className="max-w-4xl mx-auto py-2">
+                  <div className="flex justify-center items-center h-64">
+                    <div className="text-center">
+                      <Loader className="animate-spin text-4xl text-purple-600 mx-auto mb-4" />
+                      <p className="text-gray-600">Loading Guest details...</p>
+                    </div>
+                  </div>
+                </div>
+      </CustomerMainLayout>
+    );
+  }
 
   return (
     <CustomerMainLayout>
@@ -87,7 +263,7 @@ export default function GuestListPage() {
           </div>
           <div className="flex flex-wrap gap-2">
             <DefaultButton
-              btnLabel="Save"
+              btnLabel={"Save"}
               Icon={<Save size={16} />}
               handleClick={handleSave}
               className="!w-auto !bg-purple-600 !text-white px-4 py-2 rounded-lg text-sm hover:!bg-purple-700"
@@ -121,9 +297,9 @@ export default function GuestListPage() {
               className="px-3 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
             >
               <option value="all">Side (All)</option>
-              <option value="bride">Bride</option>
-              <option value="groom">Groom</option>
-              <option value="both">Both</option>
+              <option value="Bride">Bride</option>
+              <option value="Groom">Groom</option>
+              <option value="Other">Other</option>
             </select>
             <select
               value={statusFilter}
@@ -131,10 +307,11 @@ export default function GuestListPage() {
               className="px-3 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
             >
               <option value="all">Status (All)</option>
-              <option value="invited">Invited</option>
-              <option value="accepted">Accepted</option>
-              <option value="declined">Declined</option>
-              <option value="pending">Pending</option>
+              <option value="PRELISTED">Prelisted</option>
+              <option value="INVITED">Invited</option>
+              <option value="PENDING">Pending</option>
+              <option value="ACCEPTED">Accepted</option>
+              <option value="DECLINED">Declined</option>
             </select>
             <select
               value={genderFilter}
@@ -142,9 +319,9 @@ export default function GuestListPage() {
               className="px-3 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
             >
               <option value="all">Gender (All)</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
             </select>
             <select
               value={alcoholFilter}
@@ -154,7 +331,7 @@ export default function GuestListPage() {
               <option value="all">Alcohol (All)</option>
               <option value="yes">Yes</option>
               <option value="no">No</option>
-              <option value="unknown">?</option>
+              <option value="unknown">Unknown</option>
             </select>
           </div>
           <div className="flex gap-3">
@@ -178,7 +355,7 @@ export default function GuestListPage() {
           guests={criteriaFiltered}
           updateGuest={updateGuest}
           removeGuest={removeGuest}
-          filter={''} 
+          filter={''}
         />
       </div>
     </CustomerMainLayout>

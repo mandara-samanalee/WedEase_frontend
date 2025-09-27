@@ -6,42 +6,91 @@ import { Guest } from "@/components/RSVP/GuestTypes";
 import { RSVPStats } from "@/components/RSVP/RSVPStats";
 import DefaultButton from "@/components/DefaultButton";
 import { FileText, Download } from "lucide-react";
+import toast from "react-hot-toast";
 
-type StatusKey = Guest["status"] | "pending";
-const STATUS_ORDER: StatusKey[] = ["accepted", "pending", "invited", "declined"];
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+type StatusKey = Guest["responseStatus"];
+const STATUS_ORDER: StatusKey[] = ["ACCEPTED", "PENDING", "INVITED", "DECLINED", "PRELISTED"];
 
 export default function RSVPResponsesPage() {
   const [guests, setGuests] = useState<Guest[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Load guest data (client only)
-  useEffect(() => {
+  const getSession = () => {
     try {
-      if (typeof window !== "undefined") {
-        const raw = localStorage.getItem("wedeaseGuests");
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          if (Array.isArray(parsed)) {
-            setGuests(
-              parsed.map((g) => ({
-                ...g,
-                status: g.status === "confirmed" ? "accepted" : g.status || "invited",
-              }))
-            );
-          }
-        }
+      const token = localStorage.getItem("token");
+      const userRaw = localStorage.getItem("user");
+      if (userRaw) {
+        const user = JSON.parse(userRaw);
+        return { userId: user?.userId, token };
       }
-    } catch (e) {
-      console.warn("Failed to load guests", e);
-    } finally {
-      setLoading(false);
+      return { userId: undefined, token: token || "" };
+    } catch {
+      return { userId: undefined, token: "" };
     }
+  };
+
+  // Load guest data from API
+  useEffect(() => {
+    const fetchGuests = async () => {
+      const { token, userId } = getSession();
+
+      if (!userId || !token) {
+        toast.error("Please login to continue.");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await fetch(`${BASE_URL}/rsvp/get-all-guests/${userId}`, {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to load guests: ${response.status}`);
+        }
+
+        const result = await response.json();
+        
+        if (result.status && result.data?.guests) {
+          const guestList: Guest[] = result.data.guests.map((guest: any) => ({
+            id: guest.id,
+            guestName: guest.guestName || '',
+            phone: guest.phone || '',
+            Gender: guest.Gender as Guest["Gender"] || 'Male',
+            childCount: guest.childCount || 0,
+            alcoholPref: guest.alcoholPref as Guest["alcoholPref"] || 'unknown',
+            mealPref: guest.mealPref || '',
+            plus: guest.plus || 0,
+            side: guest.side as Guest["side"] || 'Bride',
+            responseStatus: guest.responseStatus as Guest["responseStatus"] || 'PRELISTED',
+            notes: guest.notes || '',
+            createdAt: guest.createdAt || new Date().toISOString(),
+            updatedAt: guest.updatedAt || new Date().toISOString()
+          }));
+          setGuests(guestList);
+        } else {
+          throw new Error("Invalid response format");
+        }
+      } catch (error) {
+        console.error("Error fetching guests:", error);
+        toast.error("Error loading guests");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGuests();
   }, []);
 
   const grouped = useMemo(() => {
     const byStatus: Record<string, Guest[]> = {};
     guests.forEach((g) => {
-      const key = (g.status || "invited").toLowerCase();
+      const key = g.responseStatus || "PRELISTED";
       (byStatus[key] ||= []).push(g);
     });
     return byStatus;
@@ -56,19 +105,21 @@ export default function RSVPResponsesPage() {
       "Gender",
       "Children",
       "Status",
-      "PlusOnes",
-      "Dietary",
+      "Plus Ones",
+      "Meal Preference",
+      "Alcohol Preference",
       "Notes",
     ];
     const rows = guests.map((g) => [
-      g.name || "",
+      g.guestName || "",
       g.phone || "",
       g.side || "",
-      g.gender || "",
+      g.Gender || "",
       g.childCount ?? 0,
-      g.status || "",
-      g.plusOnes ?? 0,
-      g.dietary || "",
+      g.responseStatus || "",
+      g.plus ?? 0,
+      g.mealPref || "",
+      g.alcoholPref || "",
       g.notes || "",
     ]);
     const csv = [header, ...rows]
@@ -85,7 +136,7 @@ export default function RSVPResponsesPage() {
     URL.revokeObjectURL(url);
   }, [guests]);
 
-  // PDF export (dynamic so SSR build does not break)
+  // PDF export
   const exportPDF = async () => {
     const { default: jsPDF } = await import("jspdf");
     
@@ -102,34 +153,38 @@ export default function RSVPResponsesPage() {
     let y = 30;
     for (const status of STATUS_ORDER) {
       const list = grouped[status] || [];
+      if (list.length === 0) continue;
+      
       autoTable(doc, {
         startY: y,
         head: [[
-          `${status.toUpperCase()} (${list.length})`,
+          `${status} (${list.length})`,
           "Phone",
           "Side",
           "Gender",
           "Children",
-          "Plus",
-          "Dietary",
+          "Plus Ones",
+          "Meal Preference",
+          "Alcohol",
           "Notes",
         ]],
         body: list.map((g) => [
-          g.name || "—",
+          g.guestName || "—",
           g.phone || "—",
           g.side,
-          g.gender || "—",
+          g.Gender || "—",
           g.childCount ?? 0,
-          g.plusOnes ?? 0,
-          g.dietary || "—",
+          g.plus ?? 0,
+          g.mealPref || "—",
+          g.alcoholPref || "—",
           g.notes || "—",
         ]),
         styles: { fontSize: 8 },
         theme: "grid",
         headStyles: { fillColor: [130, 48, 90], textColor: 255 },
       });
-      // @ts-expect-error plugin adds lastAutoTable
-      const finalY = doc.lastAutoTable?.finalY;
+      
+      const finalY = (doc as any).lastAutoTable?.finalY;
       y = (typeof finalY === "number" ? finalY : y) + 6;
     }
     doc.save("rsvp-responses.pdf");
@@ -137,16 +192,35 @@ export default function RSVPResponsesPage() {
 
   const cardClasses = (status: string) => {
     switch (status) {
-      case "accepted":
+      case "ACCEPTED":
         return "border-green-200 from-green-50 via-white to-white";
-      case "pending":
+      case "PENDING":
         return "border-amber-200 from-amber-50 via-white to-white";
-      case "invited":
+      case "INVITED":
         return "border-purple-200 from-purple-50 via-white to-white";
-      case "declined":
+      case "DECLINED":
         return "border-rose-200 from-rose-50 via-white to-white";
+      case "PRELISTED":
+        return "border-blue-200 from-blue-50 via-white to-white";
       default:
         return "border-gray-200 from-gray-50 via-white to-white";
+    }
+  };
+
+  const statusColor = (status: string) => {
+    switch (status) {
+      case "ACCEPTED":
+        return "bg-green-100 text-green-700";
+      case "PENDING":
+        return "bg-amber-100 text-amber-700";
+      case "INVITED":
+        return "bg-purple-100 text-purple-700";
+      case "DECLINED":
+        return "bg-rose-100 text-rose-700";
+      case "PRELISTED":
+        return "bg-blue-100 text-blue-700";
+      default:
+        return "bg-gray-100 text-gray-700";
     }
   };
 
@@ -191,11 +265,11 @@ export default function RSVPResponsesPage() {
               return (
                 <div key={status} className="space-y-3">
                   <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-700">
-                    {status.charAt(0).toUpperCase() + status.slice(1)} ({list.length})
+                    {status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()} ({list.length})
                   </h2>
                   {list.length === 0 && (
                     <div className="text-sm text-gray-500 border rounded-md px-3 py-4 bg-gray-50">
-                      No {status} guests.
+                      No {status.toLowerCase()} guests.
                     </div>
                   )}
                   {list.length > 0 && (
@@ -210,51 +284,45 @@ export default function RSVPResponsesPage() {
                             "before:absolute before:inset-0 before:rounded-xl before:pointer-events-none",
                             "before:opacity-0 hover:before:opacity-100 before:transition-opacity",
                             "before:bg-[radial-gradient(circle_at_30%_20%,rgba(128,0,128,0.07),transparent_60%)]",
-                            cardClasses(g.status || ""),
+                            cardClasses(g.responseStatus || ""),
                           ].join(" ")}
                         >
                           <div className="flex items-start justify-between gap-3">
                             <div className="font-semibold text-gray-800">
-                              {g.name || "Unnamed Guest"}
+                              {g.guestName || "Unnamed Guest"}
                             </div>
                             <span
                               className={[
                                 "text-[10px] font-medium tracking-wide uppercase px-2 py-0.5 rounded-full",
-                                g.status === "accepted" &&
-                                  "bg-green-100 text-green-700",
-                                g.status === "pending" &&
-                                  "bg-amber-100 text-amber-700",
-                                g.status === "invited" &&
-                                  "bg-purple-100 text-purple-700",
-                                g.status === "declined" &&
-                                  "bg-rose-100 text-rose-700",
-                              ]
-                                .filter(Boolean)
-                                .join(" ")}
+                                statusColor(g.responseStatus || "")
+                              ].join(" ")}
                             >
-                              {g.status}
+                              {g.responseStatus}
                             </span>
                           </div>
                           <div className="mt-1 text-[14px] text-gray-600 flex flex-wrap gap-x-2 gap-y-0.5">
                             <span>{g.phone || "—"}</span>
                             <span>| Side: {g.side}</span>
-                            {g.gender && (
+                            {g.Gender && (
                               <span>
-                                |{" "}
-                                {g.gender.charAt(0).toUpperCase() +
-                                  g.gender.slice(1)}
+                                | {g.Gender}
                               </span>
                             )}
                             {(g.childCount ?? 0) > 0 && (
                               <span>| Children: {g.childCount}</span>
                             )}
-                            {g.plusOnes ? <span>| +{g.plusOnes}</span> : null}
+                            {g.plus ? <span>| +{g.plus}</span> : null}
                           </div>
-                          {(g.dietary || g.notes) && (
+                          {(g.mealPref || g.notes) && (
                             <div className="mt-1 text-[14px] text-gray-700 line-clamp-2">
-                              {g.dietary && <span>Dietary: {g.dietary}</span>}
-                              {g.dietary && g.notes && <span> | </span>}
+                              {g.mealPref && <span>Meal: {g.mealPref}</span>}
+                              {g.mealPref && g.notes && <span> | </span>}
                               {g.notes && <span>{g.notes}</span>}
+                            </div>
+                          )}
+                          {g.alcoholPref && g.alcoholPref !== 'unknown' && (
+                            <div className="mt-1 text-[12px] text-gray-600">
+                              Alcohol: {g.alcoholPref}
                             </div>
                           )}
                           <div className="mt-3 h-px bg-gradient-to-r from-transparent via-purple-200/40 to-transparent" />
@@ -262,6 +330,11 @@ export default function RSVPResponsesPage() {
                             {(g.childCount ?? 0) > 0 && (
                               <span className="text-[11px] text-purple-600 font-medium">
                                 Family
+                              </span>
+                            )}
+                            {g.plus > 0 && (
+                              <span className="text-[11px] text-blue-600 font-medium">
+                                +{g.plus} guests
                               </span>
                             )}
                           </div>

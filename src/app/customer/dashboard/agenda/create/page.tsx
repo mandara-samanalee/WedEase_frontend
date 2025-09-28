@@ -157,6 +157,7 @@ export default function CreateAgendaPage() {
   }, []);
 
   // Transform API response to frontend format
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const transformApiResponse = (apiItems: any[]): AgendaItem[] => {
     return apiItems.map(item => {
       let startTime = "";
@@ -165,6 +166,7 @@ export default function CreateAgendaPage() {
       if (item.startTime) {
         try {
           startTime = new Date(item.startTime).toTimeString().slice(0, 5);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (e) {
           console.error("Error parsing startTime:", item.startTime);
         }
@@ -173,6 +175,7 @@ export default function CreateAgendaPage() {
       if (item.endTime) {
         try {
           endTime = new Date(item.endTime).toTimeString().slice(0, 5);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (e) {
           console.error("Error parsing endTime:", item.endTime);
         }
@@ -204,6 +207,7 @@ export default function CreateAgendaPage() {
         endDateTime = `${eventDate.split('T')[0]}T${item.endTime}:00Z`;
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const apiItem: any = {
         Activity: item.activity || "",
         startTime: startDateTime,
@@ -221,22 +225,22 @@ export default function CreateAgendaPage() {
     });
   };
 
-  // Add validation 
-const validateTimeRange = (startTime: string, endTime: string): string | null => {
-  if (!startTime || !endTime) return null; // No validation if either time is empty
+    // Add validation 
+    const validateTimeRange = (startTime: string, endTime: string): string | null => {
+    if (!startTime || !endTime) return null; // No validation if either time is empty
   
-  const [startHours, startMinutes] = startTime.split(':').map(Number);
-  const [endHours, endMinutes] = endTime.split(':').map(Number);
+    const [startHours, startMinutes] = startTime.split(':').map(Number);
+    const [endHours, endMinutes] = endTime.split(':').map(Number);
   
-  const startTotalMinutes = startHours * 60 + startMinutes;
-  const endTotalMinutes = endHours * 60 + endMinutes;
+    const startTotalMinutes = startHours * 60 + startMinutes;
+    const endTotalMinutes = endHours * 60 + endMinutes;
   
-  if (endTotalMinutes <= startTotalMinutes) {
+    if (endTotalMinutes <= startTotalMinutes) {
     return "End time must be after start time";
   }
   
-  return null;
-};
+    return null;
+  };
 
   const addItem = () =>
     setItems((prev) => {
@@ -468,7 +472,6 @@ const validateTimeRange = (startTime: string, endTime: string): string | null =>
         {/* Items list (cards) */}
         <div className="space-y-4">
           {items.map((it) => {
-            const invalidEnd = it.startTime && it.endTime && it.endTime < it.startTime;
             
             return (
               <div key={it.id} className="rounded-xl bg-gradient-to-r from-brand-violet to-brand-pink p-[1px]">

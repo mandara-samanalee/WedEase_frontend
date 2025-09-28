@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -25,8 +26,8 @@ const ServiceCategoryPage: React.FC = () => {
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState<ServiceCategory | null>(null);
-    const [newCategoryName, setNewCategoryName] = useState("");
-    const [newCategoryDescription, setNewCategoryDescription] = useState("");
+    const [, setNewCategoryName] = useState("");
+    const [, setNewCategoryDescription] = useState("");
 
     // fetch all categories
     const fetchCategories = async () => {

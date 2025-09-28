@@ -65,24 +65,25 @@ const MyServices: React.FC = () => {
     // Get vendor ID from localStorage or context
     const getVendorId = () => {
         try {
+            const token = localStorage.getItem("token");
             const userData = localStorage.getItem("user");
             if (userData) {
                 const vendor = JSON.parse(userData);
-                return vendor.userId;
+                return { vendorId:vendor.userId, token };
             }
-            return null;
+            return { vendorId: undefined, token: token || "" };
         } catch (error) {
             console.error("Error parsing vendor data:", error);
-            return null;
+            return { vendorId: undefined, token: "" };
         }
     };
 
     // Fetch services from API
     const fetchServices = async () => {
-        const vendorId = getVendorId();
+        const { vendorId, token } = getVendorId();
         
-        if (!vendorId) {
-            setError("Vendor ID not found. Please login again.");
+        if (!vendorId || !token) {
+            toast.error("Vendor ID not found. Please login again.");
             setLoading(false);
             return;
         }
@@ -95,20 +96,18 @@ const MyServices: React.FC = () => {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    // Add authorization header if needed
-                   // 'Authorization': `Bearer ${token}`,
+                    'Authorization': `Bearer ${token}`,
                 },
             });
 
             if (!response.ok) {
-                // Handle 404 or empty response differently
                 if (response.status === 404) {
                     setServices([]);
                     setFilteredServices([]);
                     setLoading(false);
                     return;
                 }
-                throw new Error(`HTTP error! status: ${response.status}`);
+                throw new Error(`Failed to load Service details: ${response.status}`);
             }
 
             const data = await response.json();

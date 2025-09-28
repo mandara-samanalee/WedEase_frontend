@@ -57,6 +57,7 @@ export default function RSVPResponsesPage() {
         const result = await response.json();
         
         if (result.status && result.data?.guests) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const guestList: Guest[] = result.data.guests.map((guest: any) => ({
             id: guest.id,
             guestName: guest.guestName || '',
@@ -184,6 +185,7 @@ export default function RSVPResponsesPage() {
         headStyles: { fillColor: [130, 48, 90], textColor: 255 },
       });
       
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const finalY = (doc as any).lastAutoTable?.finalY;
       y = (typeof finalY === "number" ? finalY : y) + 6;
     }

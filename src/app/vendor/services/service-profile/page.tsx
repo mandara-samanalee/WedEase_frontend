@@ -125,7 +125,7 @@ export default function ServiceDetails() {
             try {
                 const res = await fetch(`${BASE_URL}/category/all`, {
                     headers: {
-                        "Content-Type": "application/json"
+                        "Content-Type": "application/json",
                         //"Authorization": Bearer `${token}`
                     }
                 });

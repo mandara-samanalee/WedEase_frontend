@@ -3,7 +3,7 @@ import about from "@/assets/images/about.png";
 import about2 from "@/assets/images/about-2.png";
 import about3 from "@/assets/images/about-3.png";
 import vendorSection from "@/assets/images/vendor-section.jpg";
-import ServiceCards from "@/components/ServiceCards";
+import ServiceCards from "@/section/ServiceCards";
 import Footer from "@/section/Footer";
 import { GiDiamondRing } from "react-icons/gi";
 

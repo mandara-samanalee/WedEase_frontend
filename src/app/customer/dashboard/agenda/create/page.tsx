@@ -1,33 +1,242 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import CustomerMainLayout from "@/components/CustomerLayout/CustomerMainLayout";
 import DefaultButton from "@/components/DefaultButton";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Loader } from "lucide-react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import toast from "react-hot-toast";
+
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 type AgendaItem = {
   id: number;
-  activity: string;   // "Untitled" in UI
-  note: string;       // "Note" in UI
-  startTime: string;  // HH:MM
-  endTime: string;    // HH:MM
+  activity: string;
+  note: string;
+  startTime: string;
+  endTime: string;
   location: string;
 };
 
 export default function CreateAgendaPage() {
-  // Top date (Day)
   const [date, setDate] = useState<string>("");
+  const [displayDate, setDisplayDate] = useState<string>("");
+  const [items, setItems] = useState<AgendaItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  const nextIdRef = useRef(-1);
+  const nextId = () => nextIdRef.current--;
 
-  // Agenda items (each card = one WeddingAgenda row)
-  const [items, setItems] = useState<AgendaItem[]>([
-    { id: 1, activity: "", note: "", startTime: "", endTime: "", location: "" },
-  ]);
+  const getSession = () => {
+    try {
+      const token = localStorage.getItem("token");
+      const userRaw = localStorage.getItem("user");
+      if (userRaw) {
+        const user = JSON.parse(userRaw);
+        return { userId: user?.userId, token };
+      }
+      return { userId: undefined, token: token || "" };
+    } catch {
+      return { userId: undefined, token: "" };
+    }
+  };
 
-  // Client-only id generator (no Date.now to avoid hydration issues)
-  const nextIdRef = useRef(2);
-  const nextId = () => nextIdRef.current++;
+  const getEventId = (): string | null => {
+    try {
+      const raw = localStorage.getItem("wedeaseEvent");
+      if (raw) {
+        const ev = JSON.parse(raw);
+        if (ev?.id) return String(ev.id);
+        if (ev?.eventId) return String(ev.eventId);
+      }
+    } catch {
+      // ignore
+    }
+    return null;
+  };
+
+  // Format date as DD/MM/YYYY
+  const formatDisplayDate = (dateString: string): string => {
+    if (!dateString) return "";
+    
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return dateString;
+      
+      const day = date.getDate().toString().padStart(2, '0');
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const year = date.getFullYear();
+      
+      return `${day}/${month}/${year}`;
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return dateString;
+    }
+  };
+
+  // Get event date from API
+  const getEventDate = async (eventId: string, token: string): Promise<string | null> => {
+    try {
+      const response = await fetch(`${BASE_URL}/event/${eventId}`, {
+        headers: { 
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success && result.data?.date) {
+          return result.data.date;
+        }
+      }
+      return null;
+    } catch (error) {
+      console.error("Error fetching event date:", error);
+      return null;
+    }
+  };
+
+  // Fetch agenda items and event date from API
+  useEffect(() => {
+    const fetchAgendaAndDate = async () => {
+      const { token } = getSession();
+      const eventId = getEventId();
+
+      if (!eventId || !token) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        // Fetch event date first
+        const eventDate = await getEventDate(eventId, token);
+        if (eventDate) {
+          setDate(eventDate);
+          setDisplayDate(formatDisplayDate(eventDate));
+        }
+
+        // Then fetch agenda items
+        const response = await fetch(`${BASE_URL}/agenda/${eventId}`, {
+          headers: { 
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+          }
+        });
+
+        if (!response.ok) {
+          if (response.status === 404) {
+            setItems([{ id: nextId(), activity: "", note: "", startTime: "", endTime: "", location: "" }]);
+            return;
+          }
+          throw new Error(`Failed to load agenda: ${response.status}`);
+        }
+
+        const result = await response.json();
+        
+        if (result.success && Array.isArray(result.data)) {
+          const transformedItems = transformApiResponse(result.data);
+          transformedItems.sort((a, b) => (a.id - b.id));
+          setItems(transformedItems.length > 0 ? transformedItems : 
+            [{ id: nextId(), activity: "", note: "", startTime: "", endTime: "", location: "" }]);
+        } else {
+          setItems([{ id: nextId(), activity: "", note: "", startTime: "", endTime: "", location: "" }]);
+        }
+        
+      } catch (error) {
+        console.error("Error fetching agenda:", error);
+        toast.error("Error loading agenda");
+        setItems([{ id: nextId(), activity: "", note: "", startTime: "", endTime: "", location: "" }]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAgendaAndDate();
+  }, []);
+
+  // Transform API response to frontend format
+  const transformApiResponse = (apiItems: any[]): AgendaItem[] => {
+    return apiItems.map(item => {
+      let startTime = "";
+      let endTime = "";
+
+      if (item.startTime) {
+        try {
+          startTime = new Date(item.startTime).toTimeString().slice(0, 5);
+        } catch (e) {
+          console.error("Error parsing startTime:", item.startTime);
+        }
+      }
+
+      if (item.endTime) {
+        try {
+          endTime = new Date(item.endTime).toTimeString().slice(0, 5);
+        } catch (e) {
+          console.error("Error parsing endTime:", item.endTime);
+        }
+      }
+      
+      return {
+        id: item.id,
+        activity: item.Activity || "",
+        note: item.notes || "",
+        startTime,
+        endTime,
+        location: item.location || ""
+      };
+    });
+  };
+
+  // Transform frontend data to API format
+  const transformToApiFormat = (frontendItems: AgendaItem[], eventDate: string) => {
+    return frontendItems.map(item => {
+      let startDateTime = null;
+      let endDateTime = null;
+
+      // Only create DateTime if both date and time are provided and not empty
+      if (eventDate && item.startTime && item.startTime.trim() !== "") {
+        startDateTime = `${eventDate.split('T')[0]}T${item.startTime}:00Z`;
+      }
+
+      if (eventDate && item.endTime && item.endTime.trim() !== "") {
+        endDateTime = `${eventDate.split('T')[0]}T${item.endTime}:00Z`;
+      }
+
+      const apiItem: any = {
+        Activity: item.activity || "",
+        startTime: startDateTime,
+        endTime: endDateTime,
+        location: item.location || "",
+        notes: item.note || ""
+      };
+
+      // Only include ID for existing items (positive IDs)
+      if (item.id > 0) {
+        apiItem.id = item.id;
+      }
+
+      return apiItem;
+    });
+  };
+
+  // Add validation 
+const validateTimeRange = (startTime: string, endTime: string): string | null => {
+  if (!startTime || !endTime) return null; // No validation if either time is empty
+  
+  const [startHours, startMinutes] = startTime.split(':').map(Number);
+  const [endHours, endMinutes] = endTime.split(':').map(Number);
+  
+  const startTotalMinutes = startHours * 60 + startMinutes;
+  const endTotalMinutes = endHours * 60 + endMinutes;
+  
+  if (endTotalMinutes <= startTotalMinutes) {
+    return "End time must be after start time";
+  }
+  
+  return null;
+};
 
   const addItem = () =>
     setItems((prev) => {
@@ -46,11 +255,7 @@ export default function CreateAgendaPage() {
       ];
     });
 
-  const updateItem = (
-    id: number,
-    key: keyof AgendaItem,
-    value: string
-  ) =>
+  const updateItem = (id: number, key: keyof AgendaItem, value: string) =>
     setItems((prev) => {
       const idx = prev.findIndex((i) => i.id === id);
       if (idx === -1) return prev;
@@ -59,31 +264,119 @@ export default function CreateAgendaPage() {
       arr[idx] = { ...current, [key]: value };
 
       // If endTime changes and next card has empty startTime, auto-fill it
-      if (key === "endTime") {
-        const next = arr[idx + 1];
-        if (next && !next.startTime) {
-          arr[idx + 1] = { ...next, startTime: value };
-        }
+    if (key === "endTime") {
+      const next = arr[idx + 1];
+      if (next && !next.startTime) {
+        arr[idx + 1] = { ...next, startTime: value };
       }
-      return arr;
-    });
+    }
+    return arr;
+  });
 
-  const removeItem = (id: number) =>
-    setItems((prev) => (prev.length === 1 ? prev : prev.filter((it) => it.id !== id)));
+  const removeItem = async (id: number) => {
+    const { token } = getSession();
 
-  // Silent submit 
-  const handleSave = () => {
-    // Prepare payload for backend (one record per item)
-    // Example mapping to your WeddingAgenda model:
-    // items.map(i => ({
-    //   eventId,
-    //   Activity: i.activity,
-    //   Day: date ? new Date(date) : null,
-    //   startTime: date && i.startTime ? new Date(`${date}T${i.startTime}:00`) : null,
-    //   endTime: date && i.endTime ? new Date(`${date}T${i.endTime}:00`) : null,
-    //   location: i.location,
-    //   notes: i.note,
-    // }));
+    if (id < 0) {
+      setItems((prev) => (prev.length === 1 ? prev : prev.filter((it) => it.id !== id)));
+      toast.success("Item removed");
+      return;
+    }
+
+    if (!token) {
+      toast.error("Please login to continue.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${BASE_URL}/agenda/delete-item/${id}`, {
+        method: 'DELETE',
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to delete item: ${response.status}`);
+      }
+
+      setItems((prev) => (prev.length === 1 ? prev : prev.filter((it) => it.id !== id)));
+      toast.success("Item deleted successfully");
+      
+    } catch (error) {
+      console.error("Error deleting item:", error);
+      toast.error("Failed to delete item");
+    }
+  };
+
+  const handleSave = async () => {
+    const { token } = getSession();
+    const eventId = getEventId();
+
+    if (!eventId || !token) {
+      toast.error("Please select an event and login to continue.");
+      return;
+    }
+
+    // Filter out completely empty items
+    const validItems = items.filter(item => 
+      item.activity.trim() || item.note.trim() || item.startTime || item.endTime || item.location.trim()
+    );
+
+    if (validItems.length === 0) {
+      toast.error("Please add at least one agenda item");
+      return;
+    }
+
+    // Validate time ranges for all items
+  const timeErrors: string[] = [];
+  
+  validItems.forEach((item, index) => {
+    if (item.startTime && item.endTime) {
+      const error = validateTimeRange(item.startTime, item.endTime);
+      if (error) {
+        timeErrors.push(`Item ${index + 1}: ${error}`);
+      }
+    }
+  });
+  
+  if (timeErrors.length > 0) {
+    toast.error(timeErrors.join(', '));
+    return;
+  }
+
+    try {
+      const payload = {
+        eventId,
+        items: transformToApiFormat(validItems, date || "")
+      };
+
+      console.log('Saving payload:', payload);
+
+      const response = await fetch(`${BASE_URL}/agenda/save`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Backend error:', errorText);
+        throw new Error(`Failed to save agenda: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('Save successful:', result);
+      
+      toast.success("Agenda saved successfully!");
+      
+    } catch (error) {
+      console.error("Save agenda error:", error);
+      toast.error("Failed to save agenda");
+    }
   };
 
   const exportPDF = () => {
@@ -98,12 +391,12 @@ export default function CreateAgendaPage() {
     const centerX = pageWidth / 2;
     doc.text(header, centerX, 18, { align: "center" });
 
-    // Meta
+    // Meta - show formatted date (DD/MM/YYYY)
     doc.setFont("helvetica", "normal");
     doc.setFontSize(11);
     doc.setTextColor(96, 96, 96);
     const metaY = 26;
-    const metaLines = [`Date: ${date || "-"}`];
+    const metaLines = [`Date: ${displayDate || "-"}`];
     metaLines.forEach((line, i) => doc.text(line, 14, metaY + i * 6));
 
     // Table (Activity, Note, Start, End, Location)
@@ -121,25 +414,41 @@ export default function CreateAgendaPage() {
       body,
       startY: metaY + metaLines.length * 6 + 6,
       styles: { fontSize: 10, cellPadding: 3 },
-      headStyles: { fillColor: [130, 48, 90], textColor: 255 }, // purple-600
+      headStyles: { fillColor: [130, 48, 90], textColor: 255 },
       alternateRowStyles: { fillColor: [245, 245, 245] },
-      margin: { left: 14, right: 14 }, // 14 mm
+      margin: { left: 14, right: 14 },
       columnStyles: {
-        0: { cellWidth: 48 }, // Activity
-        1: { cellWidth: pageWidth - 14 - 14 - 25 - 25 - 40 - 48 }, // Note flex
-        2: { cellWidth: 25 }, // Start
-        3: { cellWidth: 25 }, // End
-        4: { cellWidth: 40 }, // Location
+        0: { cellWidth: 48 },
+        1: { cellWidth: pageWidth - 14 - 14 - 25 - 25 - 40 - 48 },
+        2: { cellWidth: 25 },
+        3: { cellWidth: 25 },
+        4: { cellWidth: 40 },
       },
     });
 
-    doc.save(`agenda-${date || "untitled"}.pdf`);
+    doc.save(`agenda-${displayDate || "untitled"}.pdf`);
   };
+
+  if (loading) {
+    return (
+      <CustomerMainLayout>
+        <div className="max-w-5xl pb-24">
+          <div className="flex justify-center items-center py-20">
+            <div className="text-center">
+              <Loader className="animate-spin text-4xl text-purple-600 mx-auto mb-4" />
+              <p className="text-gray-600">Loading your Tasklist...</p>
+            </div>
+          </div>
+        </div>
+      </CustomerMainLayout>
+    );
+  }
 
   return (
     <CustomerMainLayout>
       <div className="max-w-5xl pb-24">
         <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-800 to-pink-800 bg-clip-text text-transparent mb-1">Event Day Timeline</h1>
+        
         {/* Top bar with Date on the right */}
         <div className="mt-4 mb-2 flex items-center justify-between gap-4">
           <DefaultButton
@@ -150,12 +459,9 @@ export default function CreateAgendaPage() {
           />
           <div className="flex items-center gap-2">
             <label className="text-md text-gray-600 mr-2">Date:</label>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="px-2 py-1 border-0 border-b border-gray-400 focus:outline-none focus:border-brand-violet"
-            />
+            <div className="px-2 py-1 text-gray-900 border-0 border-b border-gray-400">
+              {displayDate || "No date set"}
+            </div>
           </div>
         </div>
 
@@ -163,6 +469,7 @@ export default function CreateAgendaPage() {
         <div className="space-y-4">
           {items.map((it) => {
             const invalidEnd = it.startTime && it.endTime && it.endTime < it.startTime;
+            
             return (
               <div key={it.id} className="rounded-xl bg-gradient-to-r from-brand-violet to-brand-pink p-[1px]">
                 <div className="bg-white rounded-[inherit] p-5">
@@ -201,11 +508,17 @@ export default function CreateAgendaPage() {
                         type="time"
                         value={it.endTime}
                         onChange={(e) => updateItem(it.id, "endTime", e.target.value)}
-                        className={`w-full px-2 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-purple-400 ${invalidEnd ? "border-red-400" : "border-gray-200"
-                          }`}
-                        aria-invalid={invalidEnd || undefined}
-                        title={invalidEnd ? "End time must be after start time" : ""}
+                        className={`w-full px-2 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-purple-400 ${
+                           it.startTime && it.endTime && validateTimeRange(it.startTime, it.endTime) 
+                           ? "border-red-400 bg-red-50" 
+                           : "border-purple-300"
+                        }`}
                       />
+                      {it.startTime && it.endTime && validateTimeRange(it.startTime, it.endTime) && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {validateTimeRange(it.startTime, it.endTime)}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <label className="block text-sm text-gray-600 mb-1">Location</label>
@@ -253,3 +566,4 @@ export default function CreateAgendaPage() {
     </CustomerMainLayout>
   );
 }
+

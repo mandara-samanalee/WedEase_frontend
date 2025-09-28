@@ -6,7 +6,7 @@ import { Header } from "@/components/Checklist/HeaderSection";
 import { TaskList } from "@/components/Checklist/TaskList";
 import { Task, SubTask, Bucket } from "@/components/Checklist/ChecklistTypes";
 import DefaultButton from "@/components/DefaultButton";
-import { Plus } from "lucide-react";
+import { Plus, Loader } from "lucide-react";
 import toast from "react-hot-toast";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;

@@ -294,7 +294,7 @@ export default function ViewEventPage() {
         <div className="max-w-4xl mx-auto py-2">
           <div className="flex justify-center items-center h-64">
             <div className="text-center">
-              <Loader className="animate-spin text-4xl text-purple-600 mx-auto mb-4" />
+              <Loader className="animate-spin w-12 h-12 text-purple-600 mx-auto mb-4" />
               <p className="text-gray-600">Loading your event...</p>
             </div>
           </div>

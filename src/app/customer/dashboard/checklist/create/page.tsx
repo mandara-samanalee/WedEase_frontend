@@ -159,7 +159,7 @@ export default function ChecklistPage() {
             ...(subtask.id > 0 ? { id: subtask.id } : {}),
             subtask: subtask.text,
             status: subtask.status,
-            assignedTo: subttask.assignee,
+            assignedTo: subtask.assignee,
             bucket: subtask.bucket
           }))
         }))
@@ -273,11 +273,13 @@ export default function ChecklistPage() {
   };
 
   // Helper function to transform API response
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const transformApiResponse = (apiTasks: any[]): Task[] => {
     return apiTasks.map(task => ({
       id: task.id,
       title: task.taskTitle,
       description: task.description || "",
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       subtasks: task.subtasks.map((subtask: any) => ({
         id: subtask.id,
         text: subtask.subtask,
@@ -319,7 +321,7 @@ export default function ChecklistPage() {
 
   const bucketCount = (key: Bucket) => tasks.reduce((n, t) => n + t.subtasks.filter((s) => s.bucket === key).length, 0);
 
-   if (loading) {
+  if (loading) {
     return (
       <CustomerMainLayout>
         <div className="max-w-5xl pb-24 md:pb-32">

@@ -1,15 +1,76 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import CustomerMainLayout from "@/components/CustomerLayout/CustomerMainLayout";
 import CustomerSidebar from "@/components/CustomerLayout/CustomerSidebar";
-import { Search, Filter, MapPin, Clock, Users, Phone, Mail, Globe } from "lucide-react"; // Added Phone, Mail, Globe
-import { SERVICES } from "@/data/services"; 
+import { Search, Filter, MapPin, Clock, Users, Phone, Mail, Globe } from "lucide-react";
+
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+// Define the Service interface based on your API response
+interface Package {
+  id: number;
+  packageName: string;
+  price: number;
+  features: string;
+  serviceId: string;
+}
+
+interface Photo {
+  id: number;
+  imageUrl: string;
+  serviceId: string;
+}
+
+interface Vendor {
+  id: number;
+  userId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  address: string;
+  city: string;
+  contactNo: string;
+  image: string | null;
+}
+
+interface Service {
+  id: number;
+  serviceId: string;
+  serviceName: string;
+  category: string;
+  description: string;
+  capacity: string;
+  isActive: boolean;
+  latitude: number;
+  longitude: number;
+  country: string;
+  state: string;
+  district: string;
+  city: string;
+  address: string;
+  vendorId: string;
+  packages: Package[];
+  photos: Photo[];
+  vendor: Vendor;
+}
+
+interface ApiResponse {
+  code: number;
+  success: boolean;
+  message: string;
+  data: Service[];
+}
 
 export default function ServiceBrowsePage() {
+  // State for services
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   // Filter state (shared with sidebar)
-  const [priceRange, setPriceRange] = useState<[number, number]>([50, 300000]); // adjust upper bound if needed
+  const [priceRange, setPriceRange] = useState<[number, number]>([50, 300000]); 
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [minRating, setMinRating] = useState<number | null>(null);
 
@@ -17,8 +78,64 @@ export default function ServiceBrowsePage() {
   const [sortBy, setSortBy] = useState("priceAsc");
   const [searchQuery, setSearchQuery] = useState("");
 
+  // Fetch services from API
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`${BASE_URL}/service/all`);
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch services: ${response.status}`);
+        }
+        
+        const result: ApiResponse = await response.json();
+        
+        if (result.success && result.data) {
+          setServices(result.data);
+          setError(null);
+        } else {
+          throw new Error(result.message || "Failed to load services");
+        }
+      } catch (err) {
+        console.error("Error fetching services:", err);
+        setError(err instanceof Error ? err.message : "Failed to load services");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchServices();
+  }, []);
+
+  // Transform API data to match the expected format for filtering and display
+  const transformedServices = useMemo(() => {
+    return services.map(service => ({
+      id: service.id, 
+      serviceId: service.serviceId,
+      title: service.serviceName,
+      description: service.description,
+      category: service.category,
+      provider: `${service.vendor.firstName} ${service.vendor.lastName}`,
+      // Use the lowest package price as the service price, or 0 if no packages
+      price: service.packages.length > 0 ? Math.min(...service.packages.map(p => p.price)) : 0,
+      rating: 4.5, // Default rating 
+      location: `${service.city}, ${service.district}`,
+      duration: "", 
+      capacity: service.capacity || undefined,
+      image: service.photos.length > 0 ? service.photos[0].imageUrl : undefined,
+      contactDetails: {
+        phone: service.vendor.contactNo,
+        email: service.vendor.email,
+        website: undefined 
+      },
+      // Include original service data for detailed view
+      originalService: service
+    }));
+  }, [services]);
+
   const filtered = useMemo(() => {
-    return SERVICES
+    return transformedServices
       .filter(s => s.rating >= (minRating ?? 0))
       .filter(s => {
         const p = s.price ?? 0;
@@ -46,7 +163,7 @@ export default function ServiceBrowsePage() {
             return 0;
         }
       });
-  }, [selectedCategories, searchQuery, sortBy, minRating, priceRange]);
+  }, [transformedServices, selectedCategories, searchQuery, sortBy, minRating, priceRange]);
 
   /* const renderStars = (rating: number) =>
     [...Array(5)].map((_, i) => (
@@ -60,6 +177,69 @@ export default function ServiceBrowsePage() {
         }
       />
     )); */
+
+  // Loading state
+  if (loading) {
+    return (
+      <CustomerMainLayout>
+        <div className="min-h-screen flex">
+          <CustomerSidebar
+            activeSection="service"
+            serviceFilters={{
+              priceRange,
+              setPriceRange,
+              selectedCategories,
+              setSelectedCategories,
+              minRating,
+              setMinRating
+            }}
+          />
+          <main className="flex-1 p-8 pt-2 flex items-center justify-center">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading services...</p>
+            </div>
+          </main>
+        </div>
+      </CustomerMainLayout>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <CustomerMainLayout>
+        <div className="min-h-screen flex">
+          <CustomerSidebar
+            activeSection="service"
+            serviceFilters={{
+              priceRange,
+              setPriceRange,
+              selectedCategories,
+              setSelectedCategories,
+              minRating,
+              setMinRating
+            }}
+          />
+          <main className="flex-1 p-8 pt-2 flex items-center justify-center">
+            <div className="text-center">
+              <div className="text-6xl mb-4">❌</div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Failed to load services
+              </h3>
+              <p className="text-gray-600 mb-6">{error}</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium"
+              >
+                Try Again
+              </button>
+            </div>
+          </main>
+        </div>
+      </CustomerMainLayout>
+    );
+  }
 
   return (
     <CustomerMainLayout>
@@ -176,144 +356,166 @@ export default function ServiceBrowsePage() {
 
           {/* Services List */}
           <div className="space-y-6">
-            {filtered.map(service => (
-              <div
-                key={service.id}
-                className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 overflow-hidden"
-              >
-                <div className="flex flex-col lg:flex-row">
-                  {/* Image (clickable) */}
-                  <Link
-                    href={`/customer/service/${service.id}`}
-                    className="lg:w-80 h-64 lg:h-auto bg-gray-100 flex-shrink-0 group relative block"
-                  >
-                    {service.image ? (
-                      <img
-                        src={service.image}
-                        alt={service.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-400">
-                        <div className="text-center">
-                          <div className="text-4xl mb-2">📷</div>
-                          <div className="text-sm">No image</div>
+            {filtered.map(service => {
+              // Find the original service to access packages and photos
+              const originalService = services.find(s => s.serviceId === service.serviceId);
+              
+              return (
+                <div
+                  key={service.serviceId}
+                  className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 overflow-hidden"
+                >
+                  <div className="flex flex-col lg:flex-row">
+                    {/* Image (clickable) */}
+                    <Link
+                      href={`/customer/service/${encodeURIComponent(service.serviceId)}`}
+                      className="lg:w-80 h-64 lg:h-auto bg-gray-100 flex-shrink-0 group relative block"
+                    >
+                      {service.image ? (
+                        <img
+                          src={service.image}
+                          alt={service.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-400">
+                          <div className="text-center">
+                            <div className="text-4xl mb-2">📷</div>
+                            <div className="text-sm">No image</div>
+                          </div>
                         </div>
-                      </div>
-                    )}
-                    <span className="absolute inset-x-0 bottom-0 bg-black/40 text-white text-xs tracking-wide py-1 text-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      View Details
-                    </span>
-                  </Link>
+                      )}
+                      <span className="absolute inset-x-0 bottom-0 bg-black/40 text-white text-xs tracking-wide py-1 text-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        View Details
+                      </span>
+                    </Link>
 
-                  {/* Content */}
-                  <div className="flex-1 p-6">
-                    <div className="flex flex-col h-full">
-                      {/* Header */}
-                      <div className="flex items-start justify-between gap-4 mb-3">
-                        <div className="flex-1">
-                          <h3 className="text-xl font-bold text-gray-900 mb-1">
-                            {service.title}
-                          </h3>
-                          <p className="text-sm font-medium text-purple-600 uppercase tracking-wide mb-1">
-                            {service.category}
-                          </p>
-                          <p className="text-gray-600">
-                            by{" "}
-                            <span className="font-medium text-gray-800">
-                              {service.provider}
+                    {/* Content */}
+                    <div className="flex-1 p-6">
+                      <div className="flex flex-col h-full">
+                        {/* Header */}
+                        <div className="flex items-start justify-between gap-4 mb-3">
+                          <div className="flex-1">
+                            <h3 className="text-xl font-bold text-gray-900 mb-1">
+                              {service.title}
+                            </h3>
+                            <p className="text-sm font-medium text-purple-600 uppercase tracking-wide mb-1">
+                              {service.category}
+                            </p>
+                            <p className="text-gray-600">
+                              by{" "}
+                              <span className="font-medium text-gray-800">
+                                {service.provider}
+                              </span>
+                            </p>
+                          </div>
+                          {/* Rating (if available) */}
+                          {/* <div className="flex items-center gap-1">
+                            {renderStars(service.rating)}
+                            <span className="text-xs font-medium text-gray-600 ml-1">
+                              {service.rating.toFixed(1)}
                             </span>
-                          </p>
+                          </div> */}
                         </div>
-                        {/* Rating (if available) */}
-                        {/* <div className="flex items-center gap-1">
-                          {renderStars(service.rating)}
-                          <span className="text-xs font-medium text-gray-600 ml-1">
-                            {service.rating.toFixed(1)}
-                          </span>
-                        </div> */}
-                      </div>
 
-                      {/* Description */}
-                      <p className="text-gray-700 mb-4 line-clamp-2 flex-1">
-                        {service.description}
-                      </p>
+                        {/* Description */}
+                        <p className="text-gray-700 mb-4 line-clamp-2 flex-1">
+                          {service.description || "No description available"}
+                        </p>
 
-                      {/* Meta */}
-                      <div className="flex flex-wrap gap-4 mb-4 text-sm text-gray-600">
-                        {service.location && (
-                          <div className="flex items-center gap-1">
-                            <MapPin size={14} className="text-purple-600" />
-                            {service.location}
-                          </div>
-                        )}
-                        {service.duration && (
-                          <div className="flex items-center gap-1">
-                            <Clock size={14} className="text-purple-600" />
-                            {service.duration}
-                          </div>
-                        )}
-                        {service.capacity && (
-                          <div className="flex items-center gap-1">
-                            <Users size={14} className="text-purple-600" />
-                            Up to {service.capacity} guests
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Contact Details */}
-                      <div className="flex flex-wrap gap-4 mb-4 text-sm text-gray-600">
-                        {service.contactDetails.phone && (
-                          <div className="flex items-center gap-1">
-                            <Phone size={14} className="text-purple-600" />
-                            {service.contactDetails.phone}
-                          </div>
-                        )}
-                        {service.contactDetails.email && (
-                          <div className="flex items-center gap-1">
-                            <Mail size={14} className="text-purple-600" />
-                            {service.contactDetails.email}
-                          </div>
-                        )}
-                        {service.contactDetails.website && (
-                          <div className="flex items-center gap-1">
-                            <Globe size={14} className="text-purple-600" />
-                            <a
-                              href={service.contactDetails.website}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-purple-600 hover:underline"
-                            >
-                              Website
-                            </a>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Footer */}
-                      <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                        <div className="flex items-center gap-4">
-                          {service.price !== undefined && (
-                            <div className="text-md font-bold text-purple-600">
-                              LKR {service.price.toLocaleString()}
+                        {/* Meta */}
+                        <div className="flex flex-wrap gap-4 mb-4 text-sm text-gray-600">
+                          {service.location && (
+                            <div className="flex items-center gap-1">
+                              <MapPin size={14} className="text-purple-600" />
+                              {service.location}
+                            </div>
+                          )}
+                          {service.duration && (
+                            <div className="flex items-center gap-1">
+                              <Clock size={14} className="text-purple-600" />
+                              {service.duration}
+                            </div>
+                          )}
+                          {service.capacity && (
+                            <div className="flex items-center gap-1">
+                              <Users size={14} className="text-purple-600" />
+                              Up to {service.capacity} guests
                             </div>
                           )}
                         </div>
-                        <div className="flex gap-3">
-                          <Link
-                            href={`/customer/service/${service.id}`}
-                            className="px-4 py-2 text-sm font-medium bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-                          >
-                            View Details
-                          </Link>
+
+                        {/* Packages */}
+                        {originalService && originalService.packages.length > 0 && (
+                          <div className="mb-4">
+                            <p className="text-sm font-medium text-gray-700 mb-2">Available Packages:</p>
+                            <div className="flex flex-wrap gap-2">
+                              {originalService.packages.map(pkg => (
+                                <span
+                                  key={pkg.id}
+                                  className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-medium"
+                                >
+                                  {pkg.packageName}: LKR {pkg.price.toLocaleString()}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Contact Details */}
+                        <div className="flex flex-wrap gap-4 mb-4 text-sm text-gray-600">
+                          {service.contactDetails.phone && (
+                            <div className="flex items-center gap-1">
+                              <Phone size={14} className="text-purple-600" />
+                              {service.contactDetails.phone}
+                            </div>
+                          )}
+                          {service.contactDetails.email && (
+                            <div className="flex items-center gap-1">
+                              <Mail size={14} className="text-purple-600" />
+                              {service.contactDetails.email}
+                            </div>
+                          )}
+                          {service.contactDetails.website && (
+                            <div className="flex items-center gap-1">
+                              <Globe size={14} className="text-purple-600" />
+                              <a
+                                href={service.contactDetails.website}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-purple-600 hover:underline"
+                              >
+                                Website
+                              </a>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Footer */}
+                        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                          <div className="flex items-center gap-4">
+                            {service.price !== undefined && service.price > 0 && (
+                              <div className="text-md font-bold text-purple-600">
+                                Starting from LKR {service.price.toLocaleString()}
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex gap-3">
+                            <Link
+                              href={`/customer/service/${encodeURIComponent(service.serviceId)}`}
+                              className="px-4 py-2 text-sm font-medium bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
+                            >
+                              View Details
+                            </Link>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
 
             {/* No Results */}
             {filtered.length === 0 && (
@@ -332,7 +534,7 @@ export default function ServiceBrowsePage() {
                     setPriceRange([50, 300000]);
                     setSearchQuery("");
                   }}
-                  className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium"
+                  className="bg-white text-purple-600 text-md font-bold"
                 >
                   Clear All Filters
                 </button>

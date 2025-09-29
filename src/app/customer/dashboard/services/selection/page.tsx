@@ -122,9 +122,6 @@ export default function ServicesSelectionPage() {
             <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-800 to-pink-800 bg-clip-text text-transparent mb-1">
               Service List
             </h1>
-            <p className="text-gray-600"> 
-              Services you added via Add to List or Book Now
-            </p>
           </div>
           <div className="flex gap-2">
             <Link
@@ -160,7 +157,7 @@ export default function ServicesSelectionPage() {
               </p>
               <Link
                 href="/customer/service/browse"
-                className="px-5 py-2 rounded-lg bg-purple-600 text-white text-sm font-medium hover:bg-purple-700"
+                className="bg-white text-purple-600 text-md font-bold"
               >
                 Browse Services
               </Link>
@@ -169,7 +166,7 @@ export default function ServicesSelectionPage() {
 
           {items.map((item) => {
             const statusInfo = getStatusDisplay(item.status);
-            const canChangeStatus = item.status === "interested"; // Only allow change if interested
+            const canChangeStatus = item.status === "interested"; // Only allow status change if "interested"
             return (
               <div key={item.id} className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
                 <div className="space-y-4">

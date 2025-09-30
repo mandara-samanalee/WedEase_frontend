@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import MainLayout from "@/components/VendorLayout/MainLayout";
-import { FaSpinner, FaPlus, FaSearch } from "react-icons/fa";
+import { FaPlus, FaSearch } from "react-icons/fa";
 import toast from "react-hot-toast";
 import ConfirmModal from "@/utils/confirmationModel";
 import { useRouter } from "next/navigation";
@@ -11,6 +11,7 @@ import ServiceCard from "@/components/Services/ServiceCard";
 import ServiceDetailsModal from "@/components/Services/ServiceDetailsModal";
 import { Service } from "@/components/Services/Types";
 import { GiDiamondRing } from "react-icons/gi";
+import { Loader } from "lucide-react";
 
 const MyServices: React.FC = () => {
     const router = useRouter();
@@ -210,7 +211,7 @@ const MyServices: React.FC = () => {
                 <div className="max-w-6xl mr-12">
                     <div className="flex justify-center items-center h-64">
                         <div className="text-center">
-                            <FaSpinner className="animate-spin text-4xl text-purple-600 mx-auto mb-4" />
+                            <Loader className="animate-spin w-12 h-12 text-purple-600 mx-auto mb-4" />
                             <p className="text-gray-600">Loading your services...</p>
                         </div>
                     </div>

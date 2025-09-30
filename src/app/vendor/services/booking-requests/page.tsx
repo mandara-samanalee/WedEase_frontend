@@ -6,8 +6,9 @@ import StatsCards from "@/components/BookingRequests/StatsCards";
 import FiltersBar from "@/components/BookingRequests/FiltersBar";
 import BookingCard from "@/components/BookingRequests/BookingCards";
 import BookingDetailsModal from "@/components/BookingRequests/BookingDetailModal";
+import { Loader } from "lucide-react";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 // Interface to match your API response
 interface ServiceWithBookings {
@@ -77,7 +78,7 @@ export default function BookedServicesPage() {
     try {
       const raw = localStorage.getItem("user") || localStorage.getItem("vendor") || "{}";
       const parsed = JSON.parse(raw);
-      return parsed?.userId || parsed?.id || parsed?.vendorId || parsed?._id || localStorage.getItem("vendorId") || null;
+      return parsed?.userId || parsed?.id || parsed?.vendorId || parsed?._id || null;
     } catch {
       return localStorage.getItem("vendorId") || null;
     }
@@ -240,8 +241,8 @@ export default function BookedServicesPage() {
         <div className="max-w-full mr-24">
           <div className="flex justify-center items-center h-[60vh]">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4" />
-              <div className="text-lg text-gray-600">Loading booking requests...</div>
+              <Loader className="animate-spin w-12 h-12 text-purple-600 mx-auto mb-4" />
+              <div className="text-gray-600">Loading booking requests...</div>
             </div>
           </div>
         </div>

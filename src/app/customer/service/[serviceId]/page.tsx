@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { MapPin, Users, ArrowLeft, Camera } from "lucide-react";
+import { MapPin, Users, ArrowLeft, Camera, Loader } from "lucide-react";
 import CustomerMainLayout from "@/components/CustomerLayout/CustomerMainLayout";
+import ServiceReviews from "@/components/Services/ServiceReviews";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 export interface Package {
@@ -29,6 +31,7 @@ export interface Review {
 }
 
 export interface Service {
+  serviceId: string;
   id: string;
   serviceName: string;
   category: string;
@@ -134,6 +137,7 @@ export default function ServiceDetailsPage({ params }: { params: Promise<{ servi
             reviews: apiService.reviews || [],
             isActive: !!apiService.isActive,
             createdDate: apiService.createdAt || new Date().toISOString(),
+            serviceId: ""
           };
 
           setService(transformedService);
@@ -236,7 +240,7 @@ export default function ServiceDetailsPage({ params }: { params: Promise<{ servi
           </Link>
           <div className="flex items-center justify-center py-12">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+              <Loader className="animate-spin w-12 h-12 text-purple-600 mx-auto mb-4" />
               <p className="text-gray-600">Loading service details...</p>
             </div>
           </div>
@@ -368,6 +372,16 @@ export default function ServiceDetailsPage({ params }: { params: Promise<{ servi
                 </p>
               </div>
             </div>
+
+            {/* Reviews section */}
+            <ServiceReviews serviceId={service.serviceId || service.id} initialReviews={service.reviews?.map((r: any) => ({
+              id: r.id,
+              customerName: r.customer?.firstName ? `${r.customer.firstName} ${r.customer.lastName}` : r.customerName || "Anonymous",
+              rating: r.rating ?? r.ratingValue ?? 5,
+              comment: r.comment ?? r.text ?? "",
+              createdAt: r.createdAt,
+              avatarUrl: r.customer?.image || null,
+            }))} />
 
             <div className="pt-6 border-t border-gray-100 flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
               <div className="text-xs text-gray-500">Service added on {new Date(service.createdDate).toLocaleDateString()}</div>

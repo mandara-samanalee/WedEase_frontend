@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import CustomerMainLayout from "@/components/CustomerLayout/CustomerMainLayout";
 import Link from "next/link";
-import { Trash2, CheckCircle2, Clock4, ArrowLeft, MapPin, Phone, Calendar, Mail, Globe, Loader } from "lucide-react";
+import { Trash2, CheckCircle2, Clock4, ArrowLeft, MapPin, Phone, Calendar, Mail, Globe, Loader, Hourglass } from "lucide-react";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -20,7 +20,7 @@ type Booking = {
   contactNumber?: string;
   email?: string;
   website?: string;
-  location?: string;
+  locationFull?: string;
   serviceId?: string;
   customerId?: string;
   bookingDate?: string;
@@ -131,7 +131,17 @@ export default function ServicesSelectionPage() {
           contactNumber: vendor.contactNo || b.contactNumber || undefined,
           email: vendor.email || b.email || undefined,
           website: b.website || undefined,
+          // short location (kept for compatibility) and full address
           location: svc.address || svc.city || b.location || "Not specified",
+          locationFull: [
+            svc.address,
+            svc.city,
+            (svc).distric || (svc).district,
+            (svc).state || (svc).province,
+            svc.country,
+          ]
+            .filter(Boolean)
+            .join(", ") || svc.address || b.location || "Not specified",
           serviceId: svc.serviceId || b.serviceId,
           customerId: b.customerId,
           bookingDate: b.bookingDate,
@@ -254,7 +264,7 @@ export default function ServicesSelectionPage() {
             <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-800 to-pink-800 bg-clip-text text-transparent mb-1">
               My Bookings
             </h1>
-            <p className="text-sm text-gray-600">Manage your service bookings</p>
+            <p className="text-gray-600">Manage your service bookings</p>
           </div>
           <div className="flex gap-2">
             <Link
@@ -285,7 +295,9 @@ export default function ServicesSelectionPage() {
 
           {!loading && !error && !bookings.length && (
             <div className="col-span-full p-10 text-center">
-              <div className="text-4xl mb-2">🗂️</div>
+              <div className="mb-2">
+                <Hourglass className="animate-spin w-12 h-12 text-purple-600 mx-auto" />
+              </div>
               <p className="text-gray-600 mb-4">No bookings found. Browse services and make your first booking!</p>
               <Link href="/customer/service/browse" className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
                 Browse Services
@@ -300,10 +312,18 @@ export default function ServicesSelectionPage() {
             return (
               <div key={booking.id} className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
                 <div className="space-y-4">
+                  <div className="flex items-start justify-between">
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900">{booking.name}</h3>
-                    <p className="text-sm text-gray-600">{booking.provider} • {booking.category}</p>
+                    <p className="text-sm text-gray-600">{booking.provider}</p>
                   </div>
+                  
+                  <div>
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100">
+                      {booking.category}
+                    </span>
+                  </div>
+                </div>
 
                   <div className="space-y-2 text-sm">
                     <div className="flex items-center gap-2">
@@ -336,8 +356,8 @@ export default function ServicesSelectionPage() {
                       </div>
                     )}
                     <div className="flex items-center gap-2">
-                      <MapPin size={14} className="text-gray-500" />
-                      <span>{booking.location}</span>
+                      <MapPin size={18} className="text-gray-500 mb-4" />
+                      <span>{booking.locationFull}</span>
                     </div>
                     {booking.price !== undefined && (
                       <div className="text-purple-600 font-medium">LKR {booking.price.toLocaleString()}</div>

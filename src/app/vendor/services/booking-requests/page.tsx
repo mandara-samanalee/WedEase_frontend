@@ -105,12 +105,16 @@ export default function BookedServicesPage() {
     }
   };
 
-  // Transform API data to BookingRequest array (include all statuses)
+  // Transform API data to BookingRequest array 
   const transformBookings = useCallback((servicesData: ServiceWithBookings[]): BookingRequest[] => {
     const out: BookingRequest[] = [];
     servicesData.forEach((svc) => {
       const basePrice = svc.packages && svc.packages.length ? svc.packages[0].price : 0;
       svc.bookings.forEach((b) => {
+
+        // skip INTERESTED bookings
+        if (String(b.status).toUpperCase() === "INTERESTED") return;
+
         out.push({
           id: b.id,
           customerName: `${b.customer?.firstName || ""} ${b.customer?.lastName || ""}`.trim() || "Customer",

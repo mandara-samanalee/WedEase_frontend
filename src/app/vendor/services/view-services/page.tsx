@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import MainLayout from "@/components/VendorLayout/MainLayout";
-import { FaPlus, FaSearch } from "react-icons/fa";
+import { FaPlus, FaSearch, } from "react-icons/fa";
 import toast from "react-hot-toast";
 import ConfirmModal from "@/utils/confirmationModel";
 import { useRouter } from "next/navigation";
@@ -12,6 +12,84 @@ import ServiceDetailsModal from "@/components/Services/ServiceDetailsModal";
 import { Service } from "@/components/Services/Types";
 import { GiDiamondRing } from "react-icons/gi";
 import { Loader } from "lucide-react";
+
+// Add Booking interface based on the actual API response
+interface Booking {
+  id: string;
+  serviceId: string;
+  customerId: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  confirmedAt: string | null;
+  cancelledAt: string | null;
+  customer: {
+    id: number;
+    userId: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    address: string | null;
+    city: string | null;
+    distric: string | null;
+    province: string | null;
+    country: string | null;
+    contactNo: string | null;
+    image: string | null;
+    createdAt: string;
+    weddingEventId: string | null;
+  };
+  packageName?: string;
+  price?: number;
+  eventDate?: string;
+  review?: Review;
+}
+
+interface Review {
+  id: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+  customerId: string;
+  serviceId: string;
+  customer?: {
+    firstName: string;
+    lastName: string;
+  };
+}
+
+interface VendorServiceWithBookings {
+  id: number;
+  serviceId: string;
+  serviceName: string;
+  category: string;
+  description: string;
+  capacity: string;
+  isActive: boolean;
+  latitude: number;
+  longitude: number;
+  country: string;
+  state: string;
+  district: string;
+  city: string;
+  address: string;
+  vendorId: string;
+  createdAt: string;
+  updatedAt: string;
+  bookings: Booking[];
+  packages: Array<{
+    id: number;
+    packageName: string;
+    price: number;
+    features: string;
+    serviceId: string;
+  }>;
+  photos: Array<{
+    id: number;
+    imageUrl: string;
+    serviceId: string;
+  }>;
+}
 
 const MyServices: React.FC = () => {
     const router = useRouter();
@@ -25,6 +103,8 @@ const MyServices: React.FC = () => {
     const [selectedService, setSelectedService] = useState<Service | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [allBookings, setAllBookings] = useState<Booking[]>([]);
+    const [, setServiceReviews] = useState<{[key: string]: Review[]}>({});
 
     const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -39,8 +119,6 @@ const MyServices: React.FC = () => {
             }
 
             const vendor = JSON.parse(userData);
-
-            // Check for both possible property names
             const vendorId = vendor.userId || vendor.userId;
 
             if (!vendorId) {
@@ -55,7 +133,31 @@ const MyServices: React.FC = () => {
         }
     };
 
-    const fetchServices = async () => {
+    // Fetch reviews for a specific service
+    const fetchServiceReviews = async (serviceId: string, token: string) => {
+        try {
+            const response = await fetch(`${BASE_URL}/review/service`, {
+                method: "POST",
+                headers: { 
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({ serviceId }),
+            });
+            
+            if (response.ok) {
+                const result = await response.json();
+                return Array.isArray(result.data) ? result.data : [];
+            }
+            return [];
+        } catch (err) {
+            console.error("Failed to fetch reviews for", serviceId, err);
+            return [];
+        }
+    };
+
+    // Fetch vendor services with bookings
+    const fetchVendorServicesWithBookings = async () => {
         const { vendorId, token } = getVendorId();
 
         if (!vendorId || !token) {
@@ -68,7 +170,7 @@ const MyServices: React.FC = () => {
             setLoading(true);
             setError(null);
 
-            const response = await fetch(`${BASE_URL}/service/getAll/${vendorId}`, {
+            const response = await fetch(`${BASE_URL}/booking/vendor/${vendorId}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -80,57 +182,122 @@ const MyServices: React.FC = () => {
                 if (response.status === 404) {
                     setServices([]);
                     setFilteredServices([]);
+                    setAllBookings([]);
                     setLoading(false);
                     return;
                 }
-                throw new Error(`Failed to load Service details: ${response.status}`);
+                throw new Error(`Failed to load vendor data: ${response.status}`);
             }
 
             const result = await response.json();
-            const data = result.data;
+            const vendorServices: VendorServiceWithBookings[] = result.data;
 
-            if (!data || !Array.isArray(data) || data.length === 0) {
+            if (!vendorServices || !Array.isArray(vendorServices) || vendorServices.length === 0) {
                 setServices([]);
                 setFilteredServices([]);
+                setAllBookings([]);
                 setLoading(false);
                 return;
             }
 
-            // Correct transformation based on your API response
-            const transformedServices: Service[] = data.map((service) => ({
-                id: service.serviceId || service.id, // Use serviceId from API
-                serviceName: service.serviceName,
-                category: service.category,
-                description: service.description || "No description available",
-                capacity: service.capacity || "Not specified",
-                rating: 0, // Default since not in API
-                totalReviews: 0, // Default since not in API
-                bookingCount: 0, // Default since not in API
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                packages: service.packages ? service.packages.map((pkg: any) => ({
-                    name: pkg.packageName,
-                    price: pkg.price.toString(),
-                    features: pkg.features
-                })) : [],
-                location: {
-                    address: service.address || "",
-                    city: service.city || "",
-                    district: service.district || "",
-                    province: service.state || "", // Map state to province
-                    country: service.country || ""
-                },
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                photos: service.photos ? service.photos.map((photo: any) => photo.imageUrl) : [],
-                reviews: [], // Default empty array
-                isActive: service.isActive !== undefined ? service.isActive : true,
-                createdDate: service.createdAt || new Date().toISOString()
-            }));
+            // Extract all bookings and flatten them
+            const allBookingsData: Booking[] = [];
+            const reviewsMap: {[key: string]: Review[]} = {};
 
-            console.log("Transformed services:", transformedServices); 
+            // Process each service and fetch its reviews
+            for (const service of vendorServices) {
+                // Fetch reviews for this service
+                const reviews = await fetchServiceReviews(service.serviceId, token);
+                reviewsMap[service.serviceId] = reviews;
+
+                if (service.bookings && Array.isArray(service.bookings)) {
+                // Filter out bookings with "interested" status
+                const filteredBookings = service.bookings.filter(booking => 
+                    booking.status.toUpperCase() !== "INTERESTED"
+                );
+                     filteredBookings.forEach(booking => {
+                        // Add package information to booking if available
+                        const servicePackage = service.packages?.[0];
+                        // Find review for this booking if exists
+                        const bookingReview = reviews.find((review: Review) => 
+                            review.customerId === booking.customerId
+                        );
+
+                        allBookingsData.push({
+                            ...booking,
+                            packageName: servicePackage?.packageName || "Standard Package",
+                            price: servicePackage?.price || 0,
+                            eventDate: booking.createdAt,
+                            review: bookingReview
+                        });
+                    });
+                }
+            }
+
+            setAllBookings(allBookingsData);
+            setServiceReviews(reviewsMap);
+
+            // Transform to Service format
+            const transformedServices: Service[] = vendorServices.map((service) => {
+                // Filter out bookings with "INTERESTED" status for service count
+            const serviceBookings = (service.bookings || []).filter(booking => 
+            booking.status.toUpperCase() !== "INTERESTED"
+         );
+            const bookingCount = serviceBookings.length; 
+
+                // Calculate rating and review count 
+                const reviews = reviewsMap[service.serviceId] || [];
+                const totalReviews = reviews.length;
+                const rating = totalReviews ? 
+                    (reviews.reduce((sum: number, review: Review) => sum + (Number(review.rating) || 0), 0) / totalReviews) : 0;
+                const roundedRating = Math.round(rating * 10) / 10;
+
+                // Transform reviews for service details
+                const transformedReviews = reviews.map((review: Review) => ({
+                    id: review.id,
+                    customerName: `${review.customer?.firstName || 'Customer'} ${review.customer?.lastName || ''}`.trim() || 'Anonymous',
+                    rating: review.rating,
+                    comment: review.comment,
+                    date: review.createdAt
+                }));
+
+                return {
+                    id: service.serviceId,
+                    serviceId: service.serviceId,
+                    serviceName: service.serviceName,
+                    category: service.category,
+                    description: service.description || "No description available",
+                    capacity: service.capacity || "Not specified",
+                    rating: roundedRating,
+                    totalReviews: totalReviews,
+                    bookingCount: bookingCount,
+                    packages: service.packages ? service.packages.map(pkg => ({
+                        name: pkg.packageName,
+                        price: pkg.price.toString(),
+                        features: pkg.features
+                    })) : [],
+                    location: {
+                        address: service.address || "",
+                        city: service.city || "",
+                        district: service.district || "",
+                        province: service.state || "",
+                        country: service.country || ""
+                    },
+                    photos: service.photos ? service.photos.map(photo => photo.imageUrl) : [],
+                    reviews: transformedReviews,
+                    isActive: service.isActive !== undefined ? service.isActive : true,
+                    createdDate: service.createdAt || new Date().toISOString()
+                };
+            });
+
+            console.log("Transformed services:", transformedServices);
+            console.log("All bookings:", allBookingsData);
+            console.log("Service reviews:", reviewsMap);
+            
             setServices(transformedServices);
             setFilteredServices(transformedServices);
         } catch (error) {
-            console.error("Error fetching services:", error);
+            console.error("Error fetching vendor services:", error);
             setError("Failed to load services. Please try again.");
             toast.error("Failed to load services");
         } finally {
@@ -139,7 +306,7 @@ const MyServices: React.FC = () => {
     };
 
     useEffect(() => {
-        fetchServices();
+        fetchVendorServicesWithBookings();
     }, []);
 
     useEffect(() => {
@@ -202,7 +369,7 @@ const MyServices: React.FC = () => {
     };
 
     const handleRetry = () => {
-        fetchServices();
+        fetchVendorServicesWithBookings();
     };
 
     if (loading) {
@@ -312,6 +479,7 @@ const MyServices: React.FC = () => {
                     service={selectedService}
                     onClose={() => setShowDetailsModal(false)}
                     onEdit={handleEditService}
+                    bookings={allBookings}
                 />
 
                 <ConfirmModal

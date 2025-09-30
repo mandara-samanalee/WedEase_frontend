@@ -1,12 +1,15 @@
+// components/Services/ServiceDetailsModal.tsx
 import React from "react";
 import { FaStar } from "react-icons/fa";
 import { Service } from "./Types";
+import BookingDetails, { Booking } from "./BookingDetails";
 
 interface Props {
   open: boolean;
   service: Service | null;
   onClose: () => void;
   onEdit: (id: string) => void;
+  bookings: Booking[];
 }
 
 const renderStars = (rating: number) =>
@@ -17,12 +20,17 @@ const renderStars = (rating: number) =>
     />
   ));
 
-const ServiceDetailsModal: React.FC<Props> = ({ open, service, onClose, onEdit }) => {
+const ServiceDetailsModal: React.FC<Props> = ({ open, service, onClose, onEdit, bookings }) => {
   if (!open || !service) return null;
+
+  // Filter bookings for this specific service
+  const serviceBookings = bookings.filter(booking => 
+    booking.serviceId === service.id && booking.status.toUpperCase() !== "INTERESTED"
+  );
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-xl shadow-2xl max-w-6xl w-full max-h-[95vh] overflow-y-auto">
         <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-xl">
           <div className="flex justify-between items-center">
             <div>
@@ -56,7 +64,7 @@ const ServiceDetailsModal: React.FC<Props> = ({ open, service, onClose, onEdit }
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Total Bookings</label>
-                <p className="text-gray-900 font-semibold">{service.bookingCount}</p>
+                <p className="text-gray-900 font-semibold">{serviceBookings.length}</p>
               </div>
             </div>
           </div>
@@ -94,12 +102,17 @@ const ServiceDetailsModal: React.FC<Props> = ({ open, service, onClose, onEdit }
           </div>
 
           <div>
-            <h4 className="text-lg font-semibold text-gray-900 mb-4">Recent Reviews</h4>
+            <h4 className="text-lg font-semibold text-gray-900 mb-4">Booking Details</h4>
+            <BookingDetails bookings={serviceBookings} serviceName={service.serviceName} />
+          </div>
+
+          <div>
+            <h4 className="text-lg font-semibold text-gray-900 mb-4">All Reviews</h4>
             {service.reviews.length === 0 ? (
               <p className="text-gray-500 italic">No reviews yet.</p>
             ) : (
               <div className="space-y-4">
-                {service.reviews.slice(0, 3).map((review) => (
+                {service.reviews.map((review) => (
                   <div key={review.id} className="border border-gray-200 rounded-lg p-4">
                     <div className="flex justify-between items-start mb-2">
                       <div>
@@ -115,11 +128,6 @@ const ServiceDetailsModal: React.FC<Props> = ({ open, service, onClose, onEdit }
                     <p className="text-gray-700">{review.comment}</p>
                   </div>
                 ))}
-                {service.reviews.length > 3 && (
-                  <p className="text-center text-purple-600 font-medium">
-                    +{service.reviews.length - 3} more reviews
-                  </p>
-                )}
               </div>
             )}
           </div>

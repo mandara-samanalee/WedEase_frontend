@@ -21,6 +21,7 @@ export interface Review {
 }
 
 export interface Service {
+    serviceId: string;
     id: string;
     serviceName: string;
     category: string;

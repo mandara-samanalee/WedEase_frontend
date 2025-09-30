@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import CustomerMainLayout from "@/components/CustomerLayout/CustomerMainLayout";
 import CustomerSidebar from "@/components/CustomerLayout/CustomerSidebar";
-import { Search, Filter, MapPin, Clock, Users, Phone, Mail, Globe } from "lucide-react";
+import { Search, Filter, MapPin, Users, Phone, Mail, Globe, Star } from "lucide-react";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -68,9 +69,10 @@ export default function ServiceBrowsePage() {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [ratingsMap, setRatingsMap] = useState<Record<string, number>>({});
 
   // Filter state (shared with sidebar)
-  const [priceRange, setPriceRange] = useState<[number, number]>([50, 300000]); 
+  const [priceRange, setPriceRange] = useState<[number, number]>([50, 300000]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [minRating, setMinRating] = useState<number | null>(null);
 
@@ -84,13 +86,13 @@ export default function ServiceBrowsePage() {
       try {
         setLoading(true);
         const response = await fetch(`${BASE_URL}/service/all`);
-        
+
         if (!response.ok) {
           throw new Error(`Failed to fetch services: ${response.status}`);
         }
-        
+
         const result: ApiResponse = await response.json();
-        
+
         if (result.success && result.data) {
           setServices(result.data);
           setError(null);
@@ -108,10 +110,51 @@ export default function ServiceBrowsePage() {
     fetchServices();
   }, []);
 
+  // load average ratings for services
+  useEffect(() => {
+    if (!services.length) return;
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const results = await Promise.all(
+          services.map(async (s) => {
+            try {
+              const res = await fetch(`${BASE_URL}/review/service`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ serviceId: s.serviceId }),
+              });
+              if (!res.ok) return [s.serviceId, 0] as const;
+              const json = await res.json();
+              const items = Array.isArray(json.data) ? json.data : [];
+              const avg =
+                items.length > 0
+                  ? items.reduce((sum: number, r: any) => sum + (Number(r.rating) || 0), 0) / items.length
+                  : 0;
+              return [s.serviceId, Math.round(avg * 10) / 10] as const;
+            } catch (err) {
+              console.error(`Failed to fetch reviews for ${s.serviceId}`, err);
+              return [s.serviceId, 0] as const;
+            }
+          })
+        );
+
+        if (!cancelled) setRatingsMap(Object.fromEntries(results));
+      } catch (err) {
+        console.error("Failed to load ratings:", err);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [services]);
+
   // Transform API data to match the expected format for filtering and display
   const transformedServices = useMemo(() => {
     return services.map(service => ({
-      id: service.id, 
+      id: service.id,
       serviceId: service.serviceId,
       title: service.serviceName,
       description: service.description,
@@ -119,20 +162,20 @@ export default function ServiceBrowsePage() {
       provider: `${service.vendor.firstName} ${service.vendor.lastName}`,
       // Use the lowest package price as the service price, or 0 if no packages
       price: service.packages.length > 0 ? Math.min(...service.packages.map(p => p.price)) : 0,
-      rating: 4.5, // Default rating 
+      // use pre-fetched average rating when available, fallback to 0
+      rating: ratingsMap[service.serviceId] ?? 0,
       location: `${service.city}, ${service.district}`,
-      duration: "", 
       capacity: service.capacity || undefined,
       image: service.photos.length > 0 ? service.photos[0].imageUrl : undefined,
       contactDetails: {
         phone: service.vendor.contactNo,
         email: service.vendor.email,
-        website: undefined 
+        website: undefined
       },
       // Include original service data for detailed view
       originalService: service
     }));
-  }, [services]);
+  }, [services, ratingsMap]);
 
   const filtered = useMemo(() => {
     return transformedServices
@@ -164,19 +207,6 @@ export default function ServiceBrowsePage() {
         }
       });
   }, [transformedServices, selectedCategories, searchQuery, sortBy, minRating, priceRange]);
-
-  /* const renderStars = (rating: number) =>
-    [...Array(5)].map((_, i) => (
-      <Star
-        key={i}
-        size={14}
-        className={
-          i < Math.round(rating)
-            ? "fill-yellow-400 text-yellow-400"
-            : "text-gray-300"
-        }
-      />
-    )); */
 
   // Loading state
   if (loading) {
@@ -258,14 +288,14 @@ export default function ServiceBrowsePage() {
 
         <main className="flex-1 p-8 pt-2">
           {/* Header */}
-            <div className="mb-4">
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-800 to-pink-800 bg-clip-text text-transparent mb-1">
-                Browse Services
-              </h1>
-              <p className="text-gray-600">
-                Find the perfect vendors for your special day
-              </p>
-            </div>
+          <div className="mb-4">
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-800 to-pink-800 bg-clip-text text-transparent mb-1">
+              Browse Services
+            </h1>
+            <p className="text-gray-600">
+              Find the perfect vendors for your special day
+            </p>
+          </div>
 
           {/* Top bar */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4">
@@ -313,7 +343,7 @@ export default function ServiceBrowsePage() {
                   <option value="priceAsc">Price: Low to High</option>
                   <option value="priceDesc">Price: High to Low</option>
                   <option value="ratingDesc">Rating: High to Low</option>
-                  <option value="ratingAsc">Rating: Low to High</option> 
+                  <option value="ratingAsc">Rating: Low to High</option>
                 </select>
 
                 <div className="relative">
@@ -359,7 +389,7 @@ export default function ServiceBrowsePage() {
             {filtered.map(service => {
               // Find the original service to access packages and photos
               const originalService = services.find(s => s.serviceId === service.serviceId);
-              
+
               return (
                 <div
                   key={service.serviceId}
@@ -411,12 +441,22 @@ export default function ServiceBrowsePage() {
                             </p>
                           </div>
                           {/* Rating (if available) */}
-                          {/* <div className="flex items-center gap-1">
-                            {renderStars(service.rating)}
-                            <span className="text-xs font-medium text-gray-600 ml-1">
-                              {service.rating.toFixed(1)}
-                            </span>
-                          </div> */}
+                          {service.rating > 0 && (
+                            <div className="flex items-center gap-2">
+                              <div className="flex items-center">
+                                {Array.from({ length: 5 }).map((_, i) => (
+                                  <Star
+                                    key={i}
+                                    size={14}
+                                    className={i < Math.round(service.rating) ? "text-yellow-400 fill-yellow-400" : "text-gray-200"}
+                                  />
+                                ))}
+                              </div>
+                              <span className="text-xs font-medium text-gray-600 ml-1">
+                                {service.rating.toFixed(1)}
+                              </span>
+                            </div>
+                          )}
                         </div>
 
                         {/* Description */}
@@ -430,12 +470,6 @@ export default function ServiceBrowsePage() {
                             <div className="flex items-center gap-1">
                               <MapPin size={14} className="text-purple-600" />
                               {service.location}
-                            </div>
-                          )}
-                          {service.duration && (
-                            <div className="flex items-center gap-1">
-                              <Clock size={14} className="text-purple-600" />
-                              {service.duration}
                             </div>
                           )}
                           {service.capacity && (

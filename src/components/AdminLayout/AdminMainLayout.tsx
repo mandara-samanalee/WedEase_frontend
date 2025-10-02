@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import AdminNavbar from "@/components/AdminLayout/AdminNavbar";
 import AdminSidebar from "@/components/AdminLayout/AdminSidebar";
+import { Toaster } from "react-hot-toast";
 
 export default function AdminMainLayout({ children }: { children: React.ReactNode }) {
     const [activeSection, setActiveSection] = useState('dashboard');
@@ -13,6 +14,11 @@ export default function AdminMainLayout({ children }: { children: React.ReactNod
                 <AdminSidebar activeSection={activeSection} />
                 <main className="flex-1 ml-12 mt-12">
                     {children}
+                    <Toaster
+                        position="top-right"
+                        containerStyle={{ top: "2.5rem", right: "1.25rem" }}
+                        toastOptions={{ duration: 4500 }}
+                    />
                 </main>
             </div>
         </div>

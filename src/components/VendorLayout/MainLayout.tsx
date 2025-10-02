@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import Navbar from "@/components/VendorLayout/Navbar";
 import Sidebar from "@/components/VendorLayout/Sidebar";
-//import PageBottom from "@/components/MainLayout/PageBottom";
+import { Toaster } from "react-hot-toast";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const [activeSection, setActiveSection] = useState('services');
@@ -13,7 +13,12 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       <div className="flex flex-1">
         <Sidebar activeSection={activeSection} />
         <main className="flex-1 ml-12 mt-12">
-        {children}
+          {children}
+          <Toaster
+            position="top-right"
+            containerStyle={{ top: "2.5rem", right: "1.25rem" }}
+            toastOptions={{ duration: 4500 }}
+          />
         </main>
       </div>
       {/* <PageBottom /> */}

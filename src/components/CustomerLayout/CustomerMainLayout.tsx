@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from "react";
 import CustomerNavbar from "@/components/CustomerLayout/CustomerNavbar"; 
 import CustomerSidebar from "@/components/CustomerLayout/CustomerSidebar"; 
-import { usePathname } from "next/navigation"; 
+import { usePathname } from "next/navigation";
+import { Toaster } from "react-hot-toast";
 
 export default function CustomerMainLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -31,6 +32,11 @@ export default function CustomerMainLayout({ children }: { children: React.React
           }
           >
           {children}
+          <Toaster
+            position="top-right"
+            containerStyle={{ top: "2.5rem", right: "1.25rem" }}
+            toastOptions={{ duration: 4500 }}
+          />
         </main>
       </div>
     </div>

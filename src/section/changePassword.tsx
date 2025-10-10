@@ -19,7 +19,6 @@ export default function ChangePasswordForm() {
 
 
     const handlePasswordUpdate = async () => {
-        // Inline validation only
         const errors = validatePasswords(newPassword, confirmPassword);
         setPwErrors(errors);
         if (Object.keys(errors).length > 0) return;

@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import ConfirmModal from "@/utils/confirmationModel";
 import MainLayout from "@/components/VendorLayout/MainLayout";
+import { Loader } from "lucide-react";
 
 export default function EditProfile() {
     const [profileImage, setProfileImage] = useState<string | null>(null);
@@ -263,7 +264,10 @@ export default function EditProfile() {
             </div>
 
             {loadingProfile ? (
-                <p className="text-sm text-gray-500">Loading profile...</p>
+                <div className="flex flex-col items-center justify-center py-12">
+                    <Loader className="animate-spin w-12 h-12 text-purple-600 mx-auto mb-4" />
+                    <p className="text-gray-600">Loading profile...</p>
+                </div>
             ) : (
                 <div className="space-y-6">
                     <div className="flex gap-4">

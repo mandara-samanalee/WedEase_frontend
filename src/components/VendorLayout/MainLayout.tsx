@@ -17,11 +17,10 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
           <Toaster
             position="top-right"
             containerStyle={{ top: "2.5rem", right: "1.25rem" }}
-            toastOptions={{ duration: 4500 }}
+            toastOptions={{ duration: 4000 }}
           />
         </main>
       </div>
-      {/* <PageBottom /> */}
     </div>
   );
 }

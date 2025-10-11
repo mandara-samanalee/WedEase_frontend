@@ -1,3 +1,5 @@
+'use client'
+import Image from "next/image";
 import { FaUserCircle } from "react-icons/fa";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -13,6 +15,7 @@ export default function Navbar({ activeSection, setActiveSection }: NavbarProps)
     const [mounted, setMounted] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
     const [userEmail, setUserEmail] = useState<string>("");
+    const [userImage, setUserImage] = useState<string>("");
     const menuRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
@@ -37,9 +40,13 @@ export default function Navbar({ activeSection, setActiveSection }: NavbarProps)
             if (raw) {
                 const parsed = JSON.parse(raw);
                 const email = parsed.email || parsed.user.email || "";
+                const image = parsed.image || parsed.user?.image || "";
                 if (email) setUserEmail(email);
+                if (image) setUserImage(image);
             }
-        } catch { /* silent */ }
+        } catch (error) {
+            console.error("Error loading admin email:", error);
+        }
     }, [mounted]);
 
     const handleNavigation = (section: string) => {
@@ -103,7 +110,19 @@ export default function Navbar({ activeSection, setActiveSection }: NavbarProps)
                         onClick={() => setMenuOpen(o => !o)}
                         className="flex items-center group p-1"
                     >
-                        <FaUserCircle className="text-3xl text-purple-700 group-hover:text-purple-900 transition" />
+                        {userImage ? (
+                            <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-purple-700 group-hover:border-purple-900 transition">
+                                <Image
+                                    src={userImage}
+                                    alt="user Profile"
+                                    fill
+                                    className="object-cover"
+                                    sizes="40px"
+                                />
+                            </div>
+                        ) : (
+                            <FaUserCircle className="text-3xl text-purple-700 group-hover:text-purple-900 transition" />
+                        )}
                     </button>
 
                     {menuOpen && (

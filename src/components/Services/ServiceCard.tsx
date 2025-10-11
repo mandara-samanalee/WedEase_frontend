@@ -1,32 +1,73 @@
 import React, { useState } from "react";
-import { FaEdit, FaEye, FaStar, FaMapMarkerAlt, FaUsers } from "react-icons/fa";
+import { FaEye, FaStar, FaMapMarkerAlt, FaUsers, FaTrash } from "react-icons/fa";
 import { GiDiamondRing } from "react-icons/gi";
 import { Service } from "./Types";
 import ConfirmDisableModal from "./ConfirmDisableModal";
+import ConfirmModal from "@/utils/confirmationModel";
 import toast from "react-hot-toast";
 
 interface Props {
   service: Service;
   openDetailsModal: (s: Service) => void;
-  handleEditService: (id: string) => void;
+  onDeleteSuccess: (serviceId: string) => void;
   toggleServiceStatus: (id: string) => void;
 }
 
-const ServiceCard: React.FC<Props> = ({ service, openDetailsModal, handleEditService, toggleServiceStatus }) => {
-  const [showDeactivateModal, setShowDeactivateModal] = useState(false);
+const ServiceCard: React.FC<Props> = ({ service, openDetailsModal, onDeleteSuccess, toggleServiceStatus }) => {
+  const [showStatusModal, setShowStatusModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [loadingToggle, setLoadingToggle] = useState(false);
+  const [loadingDelete, setLoadingDelete] = useState(false);
 
-  const handleDisableClick = () => {
-    setShowDeactivateModal(true);
+  const handleToggleStatusClick = () => {
+    setShowStatusModal(true);
   };
 
-  const confirmDeactivate = async () => {
+  const handleDeleteClick = () => {
+    setShowDeleteModal(true);
+  };
 
+  const confirmDelete = async () => {
     const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
-
     const token = typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
 
-    const newIsActive = !service.isActive; 
+    setLoadingDelete(true);
+    try {
+      const res = await fetch(`${BASE_URL}/service/delete`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          serviceId: service.id,
+        }),
+      });
+
+      if (!res.ok) {
+        const text = await res.text().catch(() => "");
+        console.error("Failed to delete service:", res.status, text);
+        toast.error("Failed to delete service");
+        setLoadingDelete(false);
+        setShowDeleteModal(false);
+        return;
+      }
+
+      toast.success("Service deleted successfully");
+      onDeleteSuccess(service.id);
+      setShowDeleteModal(false);
+    } catch (error) {
+      console.error("Network error deleting service:", error);
+      toast.error("Network error. Please try again.");
+    } finally {
+      setLoadingDelete(false);
+    }
+  };
+
+  const confirmStatusChange = async () => {
+    const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
+    const newIsActive = !service.isActive;
 
     setLoadingToggle(true);
     try {
@@ -34,8 +75,7 @@ const ServiceCard: React.FC<Props> = ({ service, openDetailsModal, handleEditSer
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          ...(token ? { 
-            Authorization: `Bearer ${token}` } : {}),
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({
           serviceId: service.id,
@@ -47,28 +87,30 @@ const ServiceCard: React.FC<Props> = ({ service, openDetailsModal, handleEditSer
         const text = await res.text().catch(() => "");
         console.error("Failed to update service status:", res.status, text);
         toast.error("Failed to update service status");
-      } else {
-        toggleServiceStatus(service.id);
-        toast.success(`Service ${newIsActive ? "activated" : "deactivated"} successfully`);
+        setLoadingToggle(false);
+        setShowStatusModal(false);
+        return;
       }
+
+      toggleServiceStatus(service.id);
+      toast.success(`Service ${newIsActive ? "activated" : "deactivated"} successfully`);
+      setShowStatusModal(false);
     } catch (error) {
       console.error("Network error updating service status:", error);
       toast.error("Network error. Please try again.");
     } finally {
       setLoadingToggle(false);
-      setShowDeactivateModal(false);
     }
   };
 
-  // show clear labels 
   const statusLabel = service.isActive ? "Enabled" : "Disabled";
   const cardStateClasses = service.isActive ? "" : "opacity-80 filter grayscale";
+  const toggleButtonLabel = service.isActive ? 'Deactivate Service' : 'Activate Service';
 
   return (
     <>
       <div className={`mt-6 bg-white rounded-xl shadow-lg border border-purple-100 overflow-hidden hover:shadow-xl transition-all duration-300 group ${cardStateClasses}`}>
         <div className="relative h-48 bg-gradient-to-r from-purple-400 to-pink-400">
-          {/* Show first photo if available, otherwise show default icon */}
           {service.photos && service.photos.length > 0 ? (
             <img
               src={service.photos[0]}
@@ -132,42 +174,66 @@ const ServiceCard: React.FC<Props> = ({ service, openDetailsModal, handleEditSer
             </p>
           </div>
 
-          <div className="flex gap-2">
+          <div className="space-y-2">
+            <div className="flex gap-2">
+              <button
+                onClick={() => openDetailsModal(service)}
+                className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-300 flex items-center justify-center gap-2 text-sm font-medium shadow-md"
+              >
+                <FaEye className="w-4 h-4" />
+                View Details
+              </button>
+              
+              <button
+                onClick={handleDeleteClick}
+                disabled={loadingDelete}
+                className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex items-center justify-center shadow-md disabled:opacity-50"
+                title="Delete Service"
+              >
+                <FaTrash className="w-4 h-4" />
+              </button>
+            </div>
+
             <button
-              onClick={() => openDetailsModal(service)}
-              className="flex-1 bg-purple-100 text-purple-700 py-2 px-4 rounded-lg hover:bg-purple-200 transition-colors flex items-center justify-center gap-2"
-              aria-label="View service"
+              onClick={handleToggleStatusClick}
+              disabled={loadingToggle || loadingDelete}
+              className={`w-full px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                service.isActive
+                  ? 'bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50'
+                  : 'bg-green-100 text-green-700 hover:bg-green-200 disabled:opacity-50'
+              }`}
             >
-              <FaEye className="w-4 h-4" />
-              View
-            </button>
-            <button
-              onClick={() => handleEditService(service.id)}
-              className="flex-1 bg-blue-100 text-blue-700 py-2 px-4 rounded-lg hover:bg-blue-200 transition-colors flex items-center justify-center gap-2"
-              aria-label="Edit service"
-            >
-              <FaEdit className="w-4 h-4" />
-              Edit
-            </button>
-            <button
-              onClick={handleDisableClick}
-              className={`px-4 py-2 rounded-lg transition-colors ${service.isActive ? 'bg-orange-100 text-orange-700 hover:bg-orange-200' : 'bg-green-100 text-green-700 hover:bg-green-200'}`}
-              disabled={loadingToggle}
-              aria-pressed={!service.isActive}
-              aria-label={service.isActive ? "Disable service" : "Enable service"}
-            >
-              {service.isActive ? 'Disable' : 'Enable'}
+              {toggleButtonLabel}
             </button>
           </div>
         </div>
       </div>
 
       <ConfirmDisableModal
-        open={showDeactivateModal}
-        onClose={() => setShowDeactivateModal(false)}
-        onConfirm={confirmDeactivate}
+        open={showStatusModal}
+        onClose={() => setShowStatusModal(false)}
+        onConfirm={confirmStatusChange}
         serviceName={service.serviceName}
         targetState={service.isActive ? "inactive" : "active"}
+      />
+
+      <ConfirmModal
+        open={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={confirmDelete}
+        title="Delete Service"
+        message={
+          <div>
+            <p className="mb-2">
+              Are you sure you want to permanently delete <strong className="text-gray-900">&quot;{service.serviceName}&quot;</strong>?
+            </p>
+            <p className="text-red-600 font-medium">This action cannot be undone.</p>
+          </div>
+        }
+        confirmText={loadingDelete ? "Deleting..." : "Delete Permanently"}
+        cancelText="Cancel"
+        variant="danger"
+        disableOutsideClose={loadingDelete}
       />
     </>
   );

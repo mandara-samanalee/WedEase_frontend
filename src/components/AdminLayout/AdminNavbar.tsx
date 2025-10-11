@@ -1,3 +1,5 @@
+'use client'
+import Image from "next/image";
 import { FaUserCircle } from "react-icons/fa";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -13,6 +15,7 @@ export default function AdminNavbar({ activeSection, setActiveSection }: AdminNa
     const [mounted, setMounted] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
     const [adminEmail, setAdminEmail] = useState<string>("");
+    const [adminImage, setAdminImage] = useState<string>("");
     const menuRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
@@ -33,14 +36,16 @@ export default function AdminNavbar({ activeSection, setActiveSection }: AdminNa
     useEffect(() => {
         if (!mounted) return;
         try {
-            const raw = localStorage.getItem("admin");
+            const raw = localStorage.getItem("user");
             if (raw) {
                 const parsed = JSON.parse(raw);
-                const email = parsed.email || parsed.admin?.email || "admin@wedease.com";
+                const email = parsed.email || parsed.user?.email;
+                const image = parsed.image || parsed.user?.image || "";
                 if (email) setAdminEmail(email);
+                if (image) setAdminImage(image);
             }
-        } catch { 
-            setAdminEmail("admin@wedease.com");
+        } catch (error) {
+            console.error("Error loading admin email:", error);
         }
     }, [mounted]);
 
@@ -55,8 +60,8 @@ export default function AdminNavbar({ activeSection, setActiveSection }: AdminNa
 
     // logout function
     const handleLogout = () => {
-        localStorage.removeItem("adminToken");
-        localStorage.removeItem("admin");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
         window.location.href = "/login";
     };
 
@@ -105,13 +110,25 @@ export default function AdminNavbar({ activeSection, setActiveSection }: AdminNa
                         onClick={() => setMenuOpen(o => !o)}
                         className="flex items-center group p-1"
                     >
-                        <FaUserCircle className="text-3xl text-purple-700 group-hover:text-purple-900 transition" />
+                        {adminImage ? (
+                            <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-purple-700 group-hover:border-purple-900 transition">
+                                <Image
+                                    src={adminImage}
+                                    alt="Admin Profile"
+                                    fill
+                                    className="object-cover"
+                                    sizes="40px"
+                                />
+                            </div>
+                        ) : (
+                            <FaUserCircle className="text-3xl text-purple-700 group-hover:text-purple-900 transition" />
+                        )}
                     </button>
 
                     {menuOpen && (
                         <div className="absolute right-0 mt-2 w-48 rounded-lg shadow-lg ring-1 ring-black/5 bg-white/90 backdrop-blur-sm border border-purple-100">
                             <div className="px-4 py-3 border-b border-purple-100">
-                                <p className="text-sm font-semibold text-purple-800">Administrator</p>
+                                <p className="text-sm font-semibold text-purple-800">System Administrator</p>
                                 <p className="text-xs text-purple-500 truncate">{adminEmail || "—"}</p>
                             </div>
                             <ul className="py-1 text-sm">

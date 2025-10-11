@@ -44,7 +44,7 @@ try {
       } else if (data.user.role === 'ADMIN') {
       window.location.href = '/admin/dashboard/overview';
       } else {
-      window.location.href = '/login'; // fallback
+      window.location.href = '/login'; 
       }
 
     } catch (err) {

@@ -1,10 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState, useEffect } from "react";
 import MainLayout from "@/components/VendorLayout/MainLayout";
-import { FaPlus, FaSearch, } from "react-icons/fa";
+import { FaPlus, FaSearch } from "react-icons/fa";
 import toast from "react-hot-toast";
-import ConfirmModal from "@/utils/confirmationModel";
 import { useRouter } from "next/navigation";
 import StatsCards from "@/components/Services/StatsCards";
 import ServiceCard from "@/components/Services/ServiceCard";
@@ -13,7 +13,15 @@ import { Service } from "@/components/Services/Types";
 import { GiDiamondRing } from "react-icons/gi";
 import { Loader } from "lucide-react";
 
-// Add Booking interface based on the actual API response
+interface Review {
+  id: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+  customerId: string;
+  serviceId: string;
+}
+
 interface Booking {
   id: string;
   serviceId: string;
@@ -39,23 +47,18 @@ interface Booking {
     createdAt: string;
     weddingEventId: string | null;
   };
-  packageName?: string;
-  price?: number;
-  eventDate?: string;
   review?: Review;
 }
 
-interface Review {
-  id: string;
+interface ServiceReview {
+  id: number;
+  serviceId: string;
+  customerId: string;
+  bookingId: string;
   rating: number;
   comment: string;
   createdAt: string;
-  customerId: string;
-  serviceId: string;
-  customer?: {
-    firstName: string;
-    lastName: string;
-  };
+  updatedAt: string;
 }
 
 interface VendorServiceWithBookings {
@@ -89,6 +92,7 @@ interface VendorServiceWithBookings {
     imageUrl: string;
     serviceId: string;
   }>;
+  reviews?: ServiceReview[];
 }
 
 const MyServices: React.FC = () => {
@@ -99,12 +103,10 @@ const MyServices: React.FC = () => {
     const [categoryFilter, setCategoryFilter] = useState("all");
     const [statusFilter, setStatusFilter] = useState("all");
     const [showDetailsModal, setShowDetailsModal] = useState(false);
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [selectedService, setSelectedService] = useState<Service | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [allBookings, setAllBookings] = useState<Booking[]>([]);
-    const [, setServiceReviews] = useState<{[key: string]: Review[]}>({});
+    const [vendorServicesData, setVendorServicesData] = useState<VendorServiceWithBookings[]>([]);
 
     const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -133,33 +135,8 @@ const MyServices: React.FC = () => {
         }
     };
 
-    // Fetch reviews for a specific service
-    const fetchServiceReviews = async (serviceId: string, token: string) => {
-        try {
-            const response = await fetch(`${BASE_URL}/review/service`, {
-                method: "POST",
-                headers: { 
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                body: JSON.stringify({ serviceId }),
-            });
-            
-            if (response.ok) {
-                const result = await response.json();
-                return Array.isArray(result.data) ? result.data : [];
-            }
-            return [];
-        } catch (err) {
-            console.error("Failed to fetch reviews for", serviceId, err);
-            return [];
-        }
-    };
-
-    // Fetch vendor services with bookings
     const fetchVendorServicesWithBookings = async () => {
         const { vendorId, token } = getVendorId();
-
         if (!vendorId || !token) {
             toast.error("Vendor ID not found. Please login again.");
             setLoading(false);
@@ -182,7 +159,6 @@ const MyServices: React.FC = () => {
                 if (response.status === 404) {
                     setServices([]);
                     setFilteredServices([]);
-                    setAllBookings([]);
                     setLoading(false);
                     return;
                 }
@@ -195,71 +171,56 @@ const MyServices: React.FC = () => {
             if (!vendorServices || !Array.isArray(vendorServices) || vendorServices.length === 0) {
                 setServices([]);
                 setFilteredServices([]);
-                setAllBookings([]);
                 setLoading(false);
                 return;
             }
 
-            // Extract all bookings and flatten them
-            const allBookingsData: Booking[] = [];
-            const reviewsMap: {[key: string]: Review[]} = {};
-
-            // Process each service and fetch its reviews
-            for (const service of vendorServices) {
-                // Fetch reviews for this service
-                const reviews = await fetchServiceReviews(service.serviceId, token);
-                reviewsMap[service.serviceId] = reviews;
-
-                if (service.bookings && Array.isArray(service.bookings)) {
-                // Filter out bookings with "interested" status
-                const filteredBookings = service.bookings.filter(booking => 
-                    booking.status.toUpperCase() !== "INTERESTED"
-                );
-                     filteredBookings.forEach(booking => {
-                        // Add package information to booking if available
-                        const servicePackage = service.packages?.[0];
-                        // Find review for this booking if exists
-                        const bookingReview = reviews.find((review: Review) => 
-                            review.customerId === booking.customerId
+            const servicesWithReviews = await Promise.all(
+                vendorServices.map(async (service) => {
+                    try {
+                        const reviewResponse = await fetch(
+                            `${BASE_URL}/review/service`,
+                            {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${token}`,
+                                },
+                                body: JSON.stringify({
+                                    serviceId: service.serviceId
+                                })
+                            }
                         );
 
-                        allBookingsData.push({
-                            ...booking,
-                            packageName: servicePackage?.packageName || "Standard Package",
-                            price: servicePackage?.price || 0,
-                            eventDate: booking.createdAt,
-                            review: bookingReview
-                        });
-                    });
-                }
-            }
+                        if (reviewResponse.ok) {
+                            const reviewResult = await reviewResponse.json();
+                            return {
+                                ...service,
+                                reviews: reviewResult.data || [],
+                            };
+                        }
+                        return { ...service, reviews: [] };
+                    } catch (error) {
+                        console.error(`Error fetching reviews for ${service.serviceId}:`, error);
+                        return { ...service, reviews: [] };
+                    }
+                })
+            );
 
-            setAllBookings(allBookingsData);
-            setServiceReviews(reviewsMap);
+            setVendorServicesData(servicesWithReviews);
 
-            // Transform to Service format
-            const transformedServices: Service[] = vendorServices.map((service) => {
-                // Filter out bookings with "INTERESTED" status for service count
-            const serviceBookings = (service.bookings || []).filter(booking => 
-            booking.status.toUpperCase() !== "INTERESTED"
-         );
-            const bookingCount = serviceBookings.length; 
+            const transformedServices: Service[] = servicesWithReviews.map((service) => {
+                const validBookings = (service.bookings || []).filter(booking => 
+                    booking.status.toUpperCase() !== "INTERESTED"
+                );
 
-                // Calculate rating and review count 
-                const reviews = reviewsMap[service.serviceId] || [];
-                const totalReviews = reviews.length;
-                const rating = totalReviews ? 
-                    (reviews.reduce((sum: number, review: Review) => sum + (Number(review.rating) || 0), 0) / totalReviews) : 0;
+                const apiReviews = service.reviews || [];
+                const totalReviews = apiReviews.length;
+                
+                const rating = totalReviews > 0
+                    ? apiReviews.reduce((sum: any, review: { rating: any; }) => sum + review.rating, 0) / totalReviews
+                    : 0;
                 const roundedRating = Math.round(rating * 10) / 10;
-
-                // Transform reviews for service details
-                const transformedReviews = reviews.map((review: Review) => ({
-                    id: review.id,
-                    customerName: `${review.customer?.firstName || 'Customer'} ${review.customer?.lastName || ''}`.trim() || 'Anonymous',
-                    rating: review.rating,
-                    comment: review.comment,
-                    date: review.createdAt
-                }));
 
                 return {
                     id: service.serviceId,
@@ -270,7 +231,7 @@ const MyServices: React.FC = () => {
                     capacity: service.capacity || "Not specified",
                     rating: roundedRating,
                     totalReviews: totalReviews,
-                    bookingCount: bookingCount,
+                    bookingCount: validBookings.length,
                     packages: service.packages ? service.packages.map(pkg => ({
                         name: pkg.packageName,
                         price: pkg.price.toString(),
@@ -284,15 +245,11 @@ const MyServices: React.FC = () => {
                         country: service.country || ""
                     },
                     photos: service.photos ? service.photos.map(photo => photo.imageUrl) : [],
-                    reviews: transformedReviews,
+                    reviews: [],
                     isActive: service.isActive !== undefined ? service.isActive : true,
                     createdDate: service.createdAt || new Date().toISOString()
                 };
             });
-
-            console.log("Transformed services:", transformedServices);
-            console.log("All bookings:", allBookingsData);
-            console.log("Service reviews:", reviewsMap);
             
             setServices(transformedServices);
             setFilteredServices(transformedServices);
@@ -329,34 +286,14 @@ const MyServices: React.FC = () => {
         setFilteredServices(filtered);
     }, [services, searchTerm, categoryFilter, statusFilter]);
 
-    const handleDeleteService = async () => {
-        if (!selectedService) return;
-
-        try {
-            setServices(prev => prev.filter(service => service.id !== selectedService.id));
-            toast.success("Service deleted successfully");
-            setShowDeleteModal(false);
-            setSelectedService(null);
-        } catch (error) {
-            console.error("Error deleting service:", error);
-            toast.error("Failed to delete service");
-        }
-    };
-
-    const toggleServiceStatus = async (serviceId: string) => {
-        try {
-            setServices(prev =>
-                prev.map(service =>
-                    service.id === serviceId
-                        ? { ...service, isActive: !service.isActive }
-                        : service
-                )
-            );
-            toast.success("Service status updated successfully");
-        } catch (error) {
-            console.error("Error updating service status:", error);
-            toast.error("Failed to update service status");
-        }
+    const toggleServiceStatus = (serviceId: string) => {
+        setServices(prev =>
+            prev.map(service =>
+                service.id === serviceId
+                    ? { ...service, isActive: !service.isActive }
+                    : service
+            )
+        );
     };
 
     const openDetailsModal = (service: Service) => {
@@ -364,12 +301,8 @@ const MyServices: React.FC = () => {
         setShowDetailsModal(true);
     };
 
-    const handleEditService = (serviceId: string) => {
-        router.push(`/vendor/services/edit/${serviceId}`);
-    };
-
-    const handleRetry = () => {
-        fetchVendorServicesWithBookings();
+    const handleDeleteSuccess = (serviceId: string) => {
+        setServices(prevServices => prevServices.filter(s => s.id !== serviceId));
     };
 
     if (loading) {
@@ -397,7 +330,7 @@ const MyServices: React.FC = () => {
                             <h3 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Services</h3>
                             <p className="text-gray-600 mb-4">{error}</p>
                             <button
-                                onClick={handleRetry}
+                                onClick={fetchVendorServicesWithBookings}
                                 className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors"
                             >
                                 Try Again
@@ -467,8 +400,8 @@ const MyServices: React.FC = () => {
                                 key={service.id}
                                 service={service}
                                 openDetailsModal={openDetailsModal}
-                                handleEditService={handleEditService}
                                 toggleServiceStatus={toggleServiceStatus}
+                                onDeleteSuccess={handleDeleteSuccess}
                             />
                         ))
                     )}
@@ -478,19 +411,7 @@ const MyServices: React.FC = () => {
                     open={showDetailsModal}
                     service={selectedService}
                     onClose={() => setShowDetailsModal(false)}
-                    onEdit={handleEditService}
-                    bookings={allBookings}
-                />
-
-                <ConfirmModal
-                    open={showDeleteModal}
-                    onClose={() => setShowDeleteModal(false)}
-                    title="Delete Service"
-                    message={`Are you sure you want to permanently delete "${selectedService?.serviceName}"? This action cannot be undone.`}
-                    confirmText="Delete"
-                    cancelText="Cancel"
-                    variant="danger"
-                    onConfirm={handleDeleteService}
+                    vendorService={selectedService ? vendorServicesData.find(vs => vs.serviceId === selectedService.id) : null}
                 />
             </div>
         </MainLayout>

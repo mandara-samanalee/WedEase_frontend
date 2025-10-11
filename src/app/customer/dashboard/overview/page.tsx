@@ -3,108 +3,120 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import CustomerMainLayout from "@/components/CustomerLayout/CustomerMainLayout";
-import { FileText, Calendar, CheckSquare, Users, Briefcase, CircleDollarSign, Heart, Sparkles, Gift } from "lucide-react";
+import { FileText, Calendar, CheckSquare, Users, Briefcase, CircleDollarSign, Heart, Sparkles, Gift, Loader } from "lucide-react";
+import toast from "react-hot-toast";
 
-type ChecklistItem = { id?: number; title?: string; done?: boolean };
-type Service = { booked?: boolean; status?: string };
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+interface EventDetails {
+  title: string;
+  groomName: string;
+  brideName: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  location: string;
+  description: string;
+  guestCount: number;
+}
+
+interface GuestResponseCounts {
+  confirmed: number;
+  pending: number;
+  declined: number;
+  invited: number;
+  prelisted: number;
+}
+
+interface BookedServicesSummary {
+  totalBookings: number;
+  accepted: number;
+  pending: number;
+  completed: number;
+}
+
+interface BudgetSummary {
+  totalBudget: number;
+  allocatedBudget: number;
+  spentBudget: number;
+  remainingBudget: number;
+}
+
+interface DashboardData {
+  eventDetails: EventDetails;
+  totalGuests: number;
+  guestResponseCounts: GuestResponseCounts;
+  taskCompletedPercentage: string;
+  bookedServicesSummary: BookedServicesSummary;
+  budgetSummary: BudgetSummary;
+  timelineTaskCount: number;
+  completedChecklistTasks: number;
+}
 
 export default function DashboardOverviewPage() {
-  const [eventTitle, setEventTitle] = useState<string>("Your Dream Wedding");
-  const [eventDate, setEventDate] = useState<string>("-");
-  const [guestCount, setGuestCount] = useState<number>(0);
-  const [rsvpCounts, setRsvpCounts] = useState<Record<string, number>>({});
-  const [budgetTotal, setBudgetTotal] = useState<number>(0);
-  const [budgetAllocated, setBudgetAllocated] = useState<number>(0);
-  const [budgetActual, setBudgetActual] = useState<number>(0);
-  const [agendaCount, setAgendaCount] = useState<number>(0);
-  const [checklistDone, setChecklistDone] = useState<number>(0);
-  const [checklistTotal, setChecklistTotal] = useState<number>(0);
-  const [servicesCount, setServicesCount] = useState<number>(0);
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const getUserId = () => {
+    try {
+      const userData = localStorage.getItem("user");
+      if (userData) {
+        const user = JSON.parse(userData);
+        return user?.userId || user?.id || null;
+      }
+    } catch (error) {
+      console.error("Error getting user ID:", error);
+    }
+    return null;
+  };
+
+  const getToken = () => localStorage.getItem("token") || "";
+
+  const fetchDashboardData = async () => {
+    setLoading(true);
+    try {
+      const userId = getUserId();
+      const token = getToken();
+
+      if (!userId) {
+        toast.error("User ID not found. Please login again.");
+        setLoading(false);
+        return;
+      }
+
+      const response = await fetch(`${BASE_URL}/customer/get-event-details/${userId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch dashboard data: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      if (result.status && result.data) {
+        setDashboardData(result.data);
+      } else {
+        toast.error("Failed to load dashboard data");
+      }
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+      toast.error("Failed to load dashboard data");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    try {
-      // Event
-      const eventRaw = localStorage.getItem("wedeaseEvent") || localStorage.getItem("event") || localStorage.getItem("weddingEvent");
-      if (eventRaw) {
-        try {
-          const ev = JSON.parse(eventRaw);
-          setEventTitle(ev?.title || ev?.name || "Your Dream Wedding");
-          setEventDate(ev?.date || ev?.day || "-");
-        } catch {
-          // if it's a simple string
-          setEventTitle(eventRaw);
-        }
-      }
-    } catch {}
-
-    try {
-      // Guests / RSVPs
-      const raw = localStorage.getItem("wedeaseGuests");
-      const arr = raw ? JSON.parse(raw) : [];
-      if (Array.isArray(arr)) {
-        setGuestCount(arr.length);
-        const byStatus: Record<string, number> = {};
-        interface Guest { status?: string }
-        arr.forEach((g: Guest) => {
-          const s = (g?.status || "unknown").toString();
-          byStatus[s] = (byStatus[s] || 0) + 1;
-        });
-        setRsvpCounts(byStatus);
-      }
-    } catch {}
-
-    try {
-      // Budget
-      const total = Number(localStorage.getItem("weddingBudget") || 0) || 0;
-      setBudgetTotal(total);
-      const catsRaw = localStorage.getItem("weddingCategoriesV2");
-      const cats = catsRaw ? JSON.parse(catsRaw) : [];
-      interface Category { allocated?: number; actual?: number; }
-      if (Array.isArray(cats)) {
-        const allocated = cats.reduce((s: number, c: Category) => s + (Number(c?.allocated) || 0), 0);
-        const actual = cats.reduce((s: number, c: Category) => s + (Number(c?.actual) || 0), 0);
-        setBudgetAllocated(allocated);
-        setBudgetActual(actual);
-      }
-    } catch {}
-
-    try {
-      // Agenda 
-      const aRaw = localStorage.getItem("weddingAgenda") || localStorage.getItem("wedeaseAgenda") || localStorage.getItem("agendaItems");
-      const agenda = aRaw ? JSON.parse(aRaw) : [];
-      setAgendaCount(Array.isArray(agenda) ? agenda.length : 0);
-    } catch {}
-
-    try {
-      // Checklist
-      const cRaw = localStorage.getItem("weddingChecklist") || localStorage.getItem("wedeaseChecklist") || localStorage.getItem("checklist");
-      const checklist = cRaw ? JSON.parse(cRaw) : [];
-      if (Array.isArray(checklist)) {
-        setChecklistTotal(checklist.length);
-        setChecklistDone(checklist.filter((it: ChecklistItem) => it?.done).length);
-      }
-    } catch {}
-
-    try {
-      // Services
-      const vRaw =
-        localStorage.getItem("wedeaseServices") ||
-        localStorage.getItem("Services") ||
-        localStorage.getItem("weddingServices");
-      const services: Service[] = vRaw ? JSON.parse(vRaw) : [];
-      if (Array.isArray(services)) {
-        setServicesCount(
-          services.filter((s) => s?.booked || s?.status === "booked").length
-        );
-      }
-    } catch {}
+    fetchDashboardData();
   }, []);
 
-  const checklistPct = checklistTotal ? Math.round((checklistDone / checklistTotal) * 100) : 0;
-  const budgetUtilPct = budgetTotal ? Math.round((budgetActual / budgetTotal) * 100) : 0;
-
   const formatDate = (dateStr: string) => {
-    if (dateStr === "-" || !dateStr) return "Coming Soon";
+    if (!dateStr) return "Coming Soon";
     try {
       const date = new Date(dateStr);
       return date.toLocaleDateString('en-US', { 
@@ -113,14 +125,14 @@ export default function DashboardOverviewPage() {
         day: 'numeric' 
       });
     } catch {
-      return dateStr;
+      return "Coming Soon";
     }
   };
 
   const getDaysUntilWedding = () => {
-    if (eventDate === "-" || !eventDate) return null;
+    if (!dashboardData?.eventDetails?.date) return null;
     try {
-      const wedding = new Date(eventDate);
+      const wedding = new Date(dashboardData.eventDetails.date);
       const today = new Date();
       const diffTime = wedding.getTime() - today.getTime();
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -130,7 +142,44 @@ export default function DashboardOverviewPage() {
     }
   };
 
+  if (loading) {
+    return (
+      <CustomerMainLayout>
+        <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-100 flex items-center justify-center">
+          <div className="text-center">
+            <Loader className="animate-spin w-12 h-12 text-purple-600 mx-auto mb-4" />
+            <p className="text-gray-600">Loading your wedding dashboard...</p>
+          </div>
+        </div>
+      </CustomerMainLayout>
+    );
+  }
+
+  if (!dashboardData) {
+    return (
+      <CustomerMainLayout>
+        <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-100 flex items-center justify-center">
+          <div className="text-center bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-xl">
+            <div className="text-red-500 text-6xl mb-4">⚠️</div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">Unable to Load Dashboard</h3>
+            <p className="text-gray-600 mb-4">There was an error loading your wedding details.</p>
+            <button
+              onClick={fetchDashboardData}
+              className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-2 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      </CustomerMainLayout>
+    );
+  }
+
   const daysLeft = getDaysUntilWedding();
+  const checklistPct = parseFloat(dashboardData.taskCompletedPercentage);
+  const budgetUtilPct = dashboardData.budgetSummary.totalBudget 
+    ? Math.round((dashboardData.budgetSummary.spentBudget / dashboardData.budgetSummary.totalBudget) * 100) 
+    : 0;
 
   return (
     <CustomerMainLayout>
@@ -154,8 +203,11 @@ export default function DashboardOverviewPage() {
             </div>
             
             <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 border border-pink-200 shadow-xl">
-              <h2 className="text-3xl font-bold text-gray-800 mb-2">{eventTitle}</h2>
-              <p className="text-xl text-gray-600 mb-4">{formatDate(eventDate)}</p>
+              <h2 className="text-3xl font-bold text-gray-800 mb-2">{dashboardData.eventDetails.title}</h2>
+              <p className="text-lg text-gray-600 mb-2">
+                {dashboardData.eventDetails.groomName} & {dashboardData.eventDetails.brideName}
+              </p>
+              <p className="text-xl text-gray-600 mb-4">{formatDate(dashboardData.eventDetails.date)}</p>
               {daysLeft !== null && (
                 <div className="inline-flex items-center gap-2 bg-gradient-to-r from-rose-400 to-pink-500 text-white px-6 py-3 rounded-full font-semibold shadow-lg">
                   <Sparkles className="w-5 h-5" />
@@ -171,7 +223,7 @@ export default function DashboardOverviewPage() {
               <div className="flex items-center gap-4">
                 <Users className="w-8 h-8" />
                 <div>
-                  <div className="text-2xl font-bold">{guestCount}</div>
+                  <div className="text-2xl font-bold">{dashboardData.totalGuests}</div>
                   <div className="text-rose-100">Total Guests</div>
                 </div>
               </div>
@@ -191,7 +243,7 @@ export default function DashboardOverviewPage() {
               <div className="flex items-center gap-4">
                 <Briefcase className="w-8 h-8" />
                 <div>
-                  <div className="text-2xl font-bold">{servicesCount}</div>
+                  <div className="text-2xl font-bold">{dashboardData.bookedServicesSummary.totalBookings}</div>
                   <div className="text-emerald-100">Services Booked</div>
                 </div>
               </div>
@@ -209,10 +261,16 @@ export default function DashboardOverviewPage() {
                 <div>
                   <h3 className="text-2xl font-bold text-gray-800 mb-2">Event Details</h3>
                   <div className="space-y-2">
-                    <div className="font-semibold text-gray-700">{eventTitle}</div>
+                    <div className="font-semibold text-gray-700">{dashboardData.eventDetails.title}</div>
                     <div className="text-gray-600 flex items-center gap-2">
                       <Gift className="w-4 h-4" />
-                      {formatDate(eventDate)}
+                      {formatDate(dashboardData.eventDetails.date)}
+                    </div>
+                    <div className="text-gray-600 text-sm">
+                      📍 {dashboardData.eventDetails.location}
+                    </div>
+                    <div className="text-gray-600 text-sm">
+                      👥 {dashboardData.eventDetails.guestCount} guests expected
                     </div>
                   </div>
                 </div>
@@ -237,15 +295,19 @@ export default function DashboardOverviewPage() {
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600">Total Budget</span>
-                      <span className="font-bold text-emerald-600">LKR {budgetTotal.toLocaleString()}</span>
+                      <span className="font-bold text-emerald-600">LKR {dashboardData.budgetSummary.totalBudget.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600">Allocated</span>
-                      <span className="font-semibold text-gray-700">LKR {budgetAllocated.toLocaleString()}</span>
+                      <span className="font-semibold text-gray-700">LKR {dashboardData.budgetSummary.allocatedBudget.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600">Spent</span>
-                      <span className="font-semibold text-gray-700">LKR {budgetActual.toLocaleString()}</span>
+                      <span className="font-semibold text-gray-700">LKR {dashboardData.budgetSummary.spentBudget.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between items-center pt-2 border-t border-gray-200">
+                      <span className="text-gray-600">Remaining</span>
+                      <span className="font-bold text-green-600">LKR {dashboardData.budgetSummary.remainingBudget.toLocaleString()}</span>
                     </div>
                     
                     {/* Budget Progress Bar */}
@@ -285,20 +347,24 @@ export default function DashboardOverviewPage() {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-2xl font-bold text-gray-800 mb-3">Guest Responses</h3>
-                  <div className="text-3xl font-bold text-purple-600 mb-2">{guestCount} Guests</div>
+                  <div className="text-3xl font-bold text-purple-600 mb-2">{dashboardData.totalGuests} Guests</div>
                   
-                  <div className="grid grid-cols-3 gap-3 text-center">
-                    <div className="bg-green-50 rounded-xl p-3 border border-green-200">
-                      <div className="text-lg font-bold text-green-600">{rsvpCounts["confirmed"] || 0}</div>
+                  <div className="grid grid-cols-2 gap-2 text-center">
+                    <div className="bg-green-50 rounded-xl p-2 border border-green-200">
+                      <div className="text-lg font-bold text-green-600">{dashboardData.guestResponseCounts.confirmed}</div>
                       <div className="text-xs text-green-700">Confirmed</div>
                     </div>
-                    <div className="bg-yellow-50 rounded-xl p-3 border border-yellow-200">
-                      <div className="text-lg font-bold text-yellow-600">{rsvpCounts["pending"] || 0}</div>
+                    <div className="bg-yellow-50 rounded-xl p-2 border border-yellow-200">
+                      <div className="text-lg font-bold text-yellow-600">{dashboardData.guestResponseCounts.pending}</div>
                       <div className="text-xs text-yellow-700">Pending</div>
                     </div>
-                    <div className="bg-red-50 rounded-xl p-3 border border-red-200">
-                      <div className="text-lg font-bold text-red-600">{rsvpCounts["declined"] || 0}</div>
+                    <div className="bg-red-50 rounded-xl p-2 border border-red-200">
+                      <div className="text-lg font-bold text-red-600">{dashboardData.guestResponseCounts.declined}</div>
                       <div className="text-xs text-red-700">Declined</div>
+                    </div>
+                    <div className="bg-blue-50 rounded-xl p-2 border border-blue-200">
+                      <div className="text-lg font-bold text-blue-600">{dashboardData.guestResponseCounts.invited}</div>
+                      <div className="text-xs text-blue-700">Invited</div>
                     </div>
                   </div>
                 </div>
@@ -312,7 +378,7 @@ export default function DashboardOverviewPage() {
               </Link>
             </div>
 
-            {/* Agenda Card */}
+            {/* Timeline/Agenda Card */}
             <div className="group bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-amber-200 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
               <div className="flex items-start gap-4 mb-6">
                 <div className="p-3 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-lg group-hover:scale-110 transition-transform duration-300">
@@ -320,7 +386,7 @@ export default function DashboardOverviewPage() {
                 </div>
                 <div>
                   <h3 className="text-2xl font-bold text-gray-800 mb-2">Wedding Timeline</h3>
-                  <div className="text-3xl font-bold text-amber-600 mb-2">{agendaCount} Events</div>
+                  <div className="text-3xl font-bold text-amber-600 mb-2">{dashboardData.timelineTaskCount} Agenda Items</div>
                   <p className="text-gray-600">Perfect day scheduling</p>
                 </div>
               </div>
@@ -342,7 +408,7 @@ export default function DashboardOverviewPage() {
                 <div className="flex-1">
                   <h3 className="text-2xl font-bold text-gray-800 mb-3">Wedding Checklist</h3>
                   <div className="flex items-center gap-3 mb-4">
-                    <span className="text-2xl font-bold text-blue-600">{checklistDone}/{checklistTotal}</span>
+                    <span className="text-2xl font-bold text-blue-600">{dashboardData.completedChecklistTasks}</span>
                     <span className="text-gray-600">tasks completed</span>
                   </div>
                   
@@ -372,7 +438,7 @@ export default function DashboardOverviewPage() {
                       />
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-lg font-bold text-blue-600">{checklistPct}%</span>
+                      <span className="text-lg font-bold text-blue-600">{checklistPct.toFixed(0)}%</span>
                     </div>
                   </div>
                 </div>
@@ -394,10 +460,20 @@ export default function DashboardOverviewPage() {
                 </div>
                 <div>
                   <h3 className="text-2xl font-bold text-gray-800 mb-2">Wedding Services</h3>
-                  <div className="text-3xl font-bold text-violet-600 mb-2">{servicesCount}</div>
-                  <p className="text-gray-600">Services booked</p>
-                  <div className="mt-3 text-sm text-gray-500">
-                    Photographers, caterers, venues & more
+                  <div className="text-3xl font-bold text-violet-600 mb-2">{dashboardData.bookedServicesSummary.totalBookings}</div>
+                  <div className="space-y-1 text-sm text-gray-600">
+                    <div className="flex items-center justify-between">
+                      <span>✓ Accepted:</span>
+                      <span className="font-semibold text-green-600">{dashboardData.bookedServicesSummary.accepted}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>⏳ Pending:</span>
+                      <span className="font-semibold text-yellow-600">{dashboardData.bookedServicesSummary.pending}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>✔ Completed:</span>
+                      <span className="font-semibold text-purple-600">{dashboardData.bookedServicesSummary.completed}</span>
+                    </div>
                   </div>
                 </div>
               </div>

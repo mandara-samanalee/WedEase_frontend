@@ -5,7 +5,7 @@ import CustomerMainLayout from "@/components/CustomerLayout/CustomerMainLayout";
 import { Guest } from "@/components/RSVP/GuestTypes";
 import { RSVPStats } from "@/components/RSVP/RSVPStats";
 import DefaultButton from "@/components/DefaultButton";
-import { FileText, Download } from "lucide-react";
+import { FileText, Download, Loader } from "lucide-react";
 import toast from "react-hot-toast";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
@@ -256,9 +256,14 @@ export default function RSVPResponsesPage() {
 
         <RSVPStats guests={guests} />
 
-        {loading && (
-          <div className="text-sm text-gray-500">Loading guests...</div>
-        )}
+        <div className="max-w-4xl mx-auto py-2">
+                    <div className="flex justify-center items-center h-64">
+                    <div className="text-center">
+                    <Loader className="animate-spin w-12 h-12 text-purple-600 mx-auto mb-4" />
+                    <p className="text-gray-600">Loading Guest Responses...</p>
+                    </div>
+                </div>
+              </div>
 
         {!loading && (
           <div className="space-y-8">

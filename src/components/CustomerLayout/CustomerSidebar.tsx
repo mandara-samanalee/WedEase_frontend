@@ -1,5 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { FaUser, FaLock, FaCalendar, FaList, FaCheckSquare, FaUsers, FaChevronDown, FaChevronRight, FaDonate, FaIdCard, FaBriefcase } from "react-icons/fa";
+import { FaUser, FaLock, FaCalendar, FaList, FaCheckSquare, FaUsers, FaChevronDown, FaChevronRight, FaDonate, FaIdCard } from "react-icons/fa";
+import { IoSparkles } from "react-icons/io5";
 import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 
@@ -138,7 +140,7 @@ export default function CustomerSidebar({ activeSection, serviceFilters }: Custo
           </div>
         </div>
 
-{/* Categories */}
+      {/* Categories */}
         <div className="mb-8">
           <h4 className="font-medium mb-3 text-xs text-gray-700 uppercase tracking-wide">Category</h4>
           <div className="space-y-1">
@@ -265,8 +267,8 @@ export default function CustomerSidebar({ activeSection, serviceFilters }: Custo
                 onClick={() => toggleSection('services')}
                 className="flex items-center gap-3 px-4 py-3 w-full text-left font-semibold text-m text-gray-700 hover:bg-purple-50 hover:text-purple-700"
               >
-                <FaBriefcase className="text-2xl" />
-                Services
+                <IoSparkles className="text-2xl" />
+                Bookings
                 {expandedSections.services ? <FaChevronDown className="ml-auto" /> : <FaChevronRight className="ml-auto" />}
               </button>
               {expandedSections.services && (
@@ -279,7 +281,7 @@ export default function CustomerSidebar({ activeSection, serviceFilters }: Custo
                         : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
                     }`}
                   >
-                    Service List
+                    Booking List
                   </a>
                 </div>
               )}

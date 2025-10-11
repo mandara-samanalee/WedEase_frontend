@@ -1,5 +1,5 @@
 import React from "react";
-import { X, User, Mail, Phone, MapPin, Calendar, Clock, DollarSign } from "lucide-react";
+import { X, User, Mail, Phone, MapPin, Calendar, Users, Package, Image as ImageIcon } from "lucide-react";
 import { BookingRequest } from "./Types";
 
 interface Props {
@@ -16,132 +16,182 @@ const formatDate = (dateStr: string) =>
     day: "numeric",
   });
 
-const formatTime = (timeStr: string) => {
-  const [hours, minutes] = timeStr.split(":");
-  const date = new Date();
-  date.setHours(parseInt(hours), parseInt(minutes));
-  return date.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  });
+const getStatusStyles = (status?: string) => {
+  if (!status) return { bg: "bg-gray-100", text: "text-gray-800", border: "border-gray-300" };
+  
+  switch (status.toLowerCase()) {
+    case "pending":
+      return { bg: "bg-yellow-100", text: "text-yellow-800", border: "border-yellow-300" };
+    case "confirmed":
+      return { bg: "bg-green-100", text: "text-green-800", border: "border-green-300" };
+    case "completed":
+      return { bg: "bg-purple-100", text: "text-purple-800", border: "border-purple-300" };
+    case "cancelled":
+      return { bg: "bg-red-100", text: "text-red-800", border: "border-red-300" };
+    default:
+      return { bg: "bg-gray-100", text: "text-gray-800", border: "border-gray-300" };
+  }
 };
 
 const BookingDetailsModal: React.FC<Props> = ({ open, booking, onClose }) => {
   if (!open || !booking) return null;
 
+  const styles = getStatusStyles(booking.status);
+  const statusLabel = booking.status.charAt(0).toUpperCase() + booking.status.slice(1);
+
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-4 border-b border-gray-200">
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="sticky top-0 bg-gradient-to-r from-purple-600 to-pink-600 p-6 text-white z-10">
           <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-bold text-gray-900">{booking.serviceName}</h2>
-              <p className="text-gray-600 text-sm">{booking.serviceType}</p>
+            <div className="flex-1">
+              <h2 className="text-2xl font-bold mb-1">{booking.serviceName}</h2>
+              <p className="text-purple-100 text-sm">{booking.serviceType}</p>
             </div>
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
-              <X className="w-5 h-5" />
+            <button
+              onClick={onClose}
+              className="text-white hover:bg-white/20 p-2 rounded-full transition-colors"
+            >
+              <X className="w-6 h-6" />
             </button>
+          </div>
+          <div className="mt-4">
+            <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold border-2 ${styles.border} ${styles.bg} ${styles.text}`}>
+              {statusLabel}
+            </span>
           </div>
         </div>
 
-        <div className="p-4 space-y-4">
+        <div className="p-6 space-y-6">
+          {/* Customer Information */}
           <div>
-            <h3 className="text-md font-semibold text-gray-900 mb-3">Customer Information</h3>
-            <div className="grid grid-cols-1 gap-3">
-              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                <User className="w-4 h-4 text-gray-600" />
+            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <User className="w-5 h-5 text-purple-600" />
+              Customer Information
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {booking.customerImage && (
+                <div className="md:col-span-2 flex justify-center mb-2">
+                  <img
+                    src={booking.customerImage}
+                    alt={booking.customerName}
+                    className="w-24 h-24 rounded-full object-cover border-4 border-purple-200 shadow-lg"
+                  />
+                </div>
+              )}
+              <div className="flex items-start gap-3 p-4 bg-purple-50 rounded-lg border border-purple-100">
+                <User className="w-5 h-5 text-purple-600 mt-0.5" />
                 <div>
-                  <p className="text-xs text-gray-600">Name</p>
-                  <p className="font-medium text-sm">{booking.customerName}</p>
+                  <p className="text-xs text-gray-600 mb-1">Full Name</p>
+                  <p className="font-semibold text-gray-900">{booking.customerName}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                <Mail className="w-4 h-4 text-gray-600" />
+              <div className="flex items-start gap-3 p-4 bg-purple-50 rounded-lg border border-purple-100">
+                <Mail className="w-5 h-5 text-purple-600 mt-0.5" />
                 <div>
-                  <p className="text-xs text-gray-600">Email</p>
-                  <p className="font-medium text-sm">{booking.customerEmail}</p>
+                  <p className="text-xs text-gray-600 mb-1">Email Address</p>
+                  <p className="font-semibold text-gray-900 break-all">{booking.customerEmail}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                <Phone className="w-4 h-4 text-gray-600" />
+              <div className="flex items-start gap-3 p-4 bg-purple-50 rounded-lg border border-purple-100">
+                <Phone className="w-5 h-5 text-purple-600 mt-0.5" />
                 <div>
-                  <p className="text-xs text-gray-600">Phone</p>
-                  <p className="font-medium text-sm">{booking.customerPhone}</p>
+                  <p className="text-xs text-gray-600 mb-1">Phone Number</p>
+                  <p className="font-semibold text-gray-900">{booking.customerPhone}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                <MapPin className="w-4 h-4 text-gray-600" />
+              <div className="flex items-start gap-3 p-4 bg-purple-50 rounded-lg border border-purple-100">
+                <MapPin className="w-5 h-5 text-purple-600 mt-0.5" />
                 <div>
-                  <p className="text-xs text-gray-600">Address</p>
-                  <p className="font-medium text-sm">{booking.customerAddress}</p>
+                  <p className="text-xs text-gray-600 mb-1">Customer Address</p>
+                  <p className="font-semibold text-gray-900">{booking.customerAddress}</p>
                 </div>
               </div>
             </div>
           </div>
 
+          {/* Event Details */}
           <div>
-            <h3 className="text-md font-semibold text-gray-900 mb-3">Event Details</h3>
-            <div className="grid grid-cols-1 gap-3">
-              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                <Calendar className="w-4 h-4 text-gray-600" />
+            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-pink-600" />
+              Event Details
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex items-start gap-3 p-4 bg-pink-50 rounded-lg border border-pink-100">
+                <Calendar className="w-5 h-5 text-pink-600 mt-0.5" />
                 <div>
-                  <p className="text-xs text-gray-600">Event Date</p>
-                  <p className="font-medium text-sm">{formatDate(booking.eventDate)}</p>
+                  <p className="text-xs text-gray-600 mb-1">Requested Date</p>
+                  <p className="font-semibold text-gray-900">{formatDate(booking.createdAt)}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                <Clock className="w-4 h-4 text-gray-600" />
+              <div className="flex items-start gap-3 p-4 bg-pink-50 rounded-lg border border-pink-100">
+                <MapPin className="w-5 h-5 text-pink-600 mt-0.5" />
                 <div>
-                  <p className="text-xs text-gray-600">Event Time</p>
-                  <p className="font-medium text-sm">{formatTime(booking.eventTime)}</p>
+                  <p className="text-xs text-gray-600 mb-1">Event Location</p>
+                  <p className="font-semibold text-gray-900">{booking.eventLocation}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                <MapPin className="w-4 h-4 text-gray-600" />
-                <div>
-                  <p className="text-xs text-gray-600">Venue</p>
-                  <p className="font-medium text-sm">{booking.eventLocation}</p>
+              {booking.guestCount !== undefined && booking.guestCount > 0 && (
+                <div className="flex items-start gap-3 p-4 bg-pink-50 rounded-lg border border-pink-100">
+                  <Users className="w-5 h-5 text-pink-600 mt-0.5" />
+                  <div>
+                    <p className="text-xs text-gray-600 mb-1">Guest Capacity</p>
+                    <p className="font-semibold text-gray-900">{booking.guestCount} guests</p>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                <User className="w-4 h-4 text-gray-600" />
-                <div>
-                  <p className="text-xs text-gray-600">Guest Count</p>
-                  <p className="font-medium text-sm">{booking.guestCount}</p>
-                </div>
-              </div>
+              )}
             </div>
           </div>
 
-          <div>
-            <h3 className="text-md font-semibold text-gray-900 mb-3">Booking Details</h3>
-            <div className="grid grid-cols-1 gap-3">
-              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                <DollarSign className="w-4 h-4 text-gray-600" />
-                <div>
-                  <p className="text-xs text-gray-600">Total Amount</p>
-                  <p className="font-medium text-md">LKR{booking.totalAmount}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                <Calendar className="w-4 h-4 text-gray-600" />
-                <div>
-                  <p className="text-xs text-gray-600">Booking Date</p>
-                  <p className="font-medium text-sm">{formatDate(booking.bookingDate || booking.createdAt)}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {booking.specialRequests && (
+          {/* Packages */}
+          {booking.packages && booking.packages.length > 0 && (
             <div>
-              <h3 className="text-md font-semibold text-gray-900 mb-3">Special Requests</h3>
-              <div className="p-3 bg-gray-50 rounded-lg">
-                <p className="text-gray-800 text-sm">{booking.specialRequests}</p>
+              <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <Package className="w-5 h-5 text-blue-600" />
+                Available Packages
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {booking.packages.map((pkg) => (
+                  <div key={pkg.id} className="p-4 bg-blue-50 rounded-lg border border-blue-100">
+                    <h4 className="font-bold text-gray-900 mb-2">{pkg.packageName}</h4>
+                    <p className="text-lg font-bold text-blue-600 mb-2">LKR {pkg.price.toLocaleString()}</p>
+                    <p className="text-sm text-gray-700">{pkg.features}</p>
+                  </div>
+                ))}
               </div>
             </div>
           )}
+
+          {/* Service Photos */}
+          {booking.photos && booking.photos.length > 0 && (
+            <div>
+              <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <ImageIcon className="w-5 h-5 text-green-600" />
+                Service Gallery
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {booking.photos.map((photo, index) => (
+                  <img
+                    key={index}
+                    src={photo}
+                    alt={`Service ${index + 1}`}
+                    className="w-full h-40 object-cover rounded-lg shadow-md hover:shadow-xl transition-shadow"
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="border-t border-gray-200 p-6 bg-gray-50">
+          <button
+            onClick={onClose}
+            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-6 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all font-semibold shadow-md"
+          >
+            Close
+          </button>
         </div>
       </div>
     </div>

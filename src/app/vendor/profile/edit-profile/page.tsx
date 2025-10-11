@@ -131,7 +131,7 @@ export default function EditProfile() {
 
         try {
             setDeleting(true);
-            const endpoint = `${BASE_URL}/user/delete-account/${userId}`;
+            const endpoint = `${BASE_URL}/vendor/delete-account/${userId}`;
             const res = await fetch(endpoint, {
                 method: "DELETE",
                 headers: {

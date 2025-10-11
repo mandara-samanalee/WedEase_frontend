@@ -1,94 +1,89 @@
+import { JSX } from 'react';
 import { Guest } from './GuestTypes';
+import { Users, UserCheck, Mail, Baby, Heart, UserCircle2 } from 'lucide-react';
 
 export function RSVPStats({ guests }: { guests: Guest[] }) {
   const total = guests.length;
-  //const prelisted = guests.filter(g => g.responseStatus === 'PRELISTED').length;
   const invited = guests.filter(g => g.responseStatus === 'INVITED').length;
   const accepted = guests.filter(g => g.responseStatus === 'ACCEPTED').length;
-  //const pending = guests.filter(g => g.responseStatus === 'PENDING').length;
-  //const declined = guests.filter(g => g.responseStatus === 'DECLINED').length;
   const children = guests.reduce((n, g) => n + (g.childCount || 0), 0);
   const brideSide = guests.filter(g => g.side === 'Bride').length;
   const groomSide = guests.filter(g => g.side === 'Groom').length;
   const male = guests.filter(g => g.Gender === 'Male').length;
   const female = guests.filter(g => g.Gender === 'Female').length;
 
-  type Metric = { label: string; value: number | string; tone: string };
+  type Metric = { 
+    label: string; 
+    value: number | string; 
+    gradient: string;
+    iconBg: string;
+    icon: JSX.Element;
+  };
 
   const metrics: Metric[] = [
-    { label: 'Total Guests', value: total, tone: 'purple' },
-    //{ label: 'Pre-listed', value: prelisted, tone: 'gray' },
-    { label: 'Invited', value: invited, tone: 'blue' },
-    { label: 'Accepted', value: accepted, tone: 'green' },
-    //{ label: 'Pending', value: pending, tone: 'amber' },
-    //{ label: 'Declined', value: declined, tone: 'rose' },
-    { label: 'Children', value: children, tone: 'amber' },
-    { label: 'Bride / Groom', value: `${brideSide}/${groomSide}`, tone: 'indigo' },
-    { label: 'Male / Female', value: `${male}/${female}`, tone: 'cyan' },
+    { 
+      label: 'Total Guests', 
+      value: total, 
+      gradient: 'from-purple-50 to-purple-100',
+      iconBg: 'from-purple-400 to-purple-600',
+      icon: <Users className="w-6 h-6" />
+    },
+    { 
+      label: 'Invited', 
+      value: invited, 
+      gradient: 'from-blue-50 to-blue-100',
+      iconBg: 'from-blue-400 to-blue-600',
+      icon: <Mail className="w-6 h-6" />
+    },
+    { 
+      label: 'Accepted', 
+      value: accepted, 
+      gradient: 'from-green-50 to-green-100',
+      iconBg: 'from-green-400 to-green-600',
+      icon: <UserCheck className="w-6 h-6" />
+    },
+    { 
+      label: 'Children', 
+      value: children, 
+      gradient: 'from-amber-50 to-amber-100',
+      iconBg: 'from-amber-400 to-amber-600',
+      icon: <Baby className="w-6 h-6" />
+    },
+    { 
+      label: 'Bride / Groom', 
+      value: `${brideSide}/${groomSide}`, 
+      gradient: 'from-pink-50 to-pink-100',
+      iconBg: 'from-pink-400 to-pink-600',
+      icon: <Heart className="w-6 h-6" />
+    },
+    { 
+      label: 'Male / Female', 
+      value: `${male}/${female}`, 
+      gradient: 'from-indigo-50 to-indigo-100',
+      iconBg: 'from-indigo-400 to-indigo-600',
+      icon: <UserCircle2 className="w-6 h-6" />
+    },
   ];
 
-  const toneStyles: Record<string, string> = {
-    purple: 'from-purple-50/90 via-white to-white border-purple-200/70',
-    green: 'from-emerald-50/90 via-white to-white border-emerald-200/70',
-    rose: 'from-rose-50/90 via-white to-white border-rose-200/70',
-    amber: 'from-amber-50/90 via-white to-white border-amber-200/70',
-    indigo: 'from-indigo-50/90 via-white to-white border-indigo-200/70',
-    cyan: 'from-cyan-50/90 via-white to-white border-cyan-200/70',
-    blue: 'from-blue-50/90 via-white to-white border-blue-200/70',
-    gray: 'from-gray-50/90 via-white to-white border-gray-200/70',
-    pink: 'from-pink-50/90 via-white to-white border-pink-200/70',
-  };
-
-  const glowRing: Record<string, string> = {
-    purple: 'group-hover:ring-purple-300/60',
-    green: 'group-hover:ring-emerald-300/60',
-    rose: 'group-hover:ring-rose-300/60',
-    amber: 'group-hover:ring-amber-300/60',
-    indigo: 'group-hover:ring-indigo-300/60',
-    cyan: 'group-hover:ring-cyan-300/60',
-    blue: 'group-hover:ring-blue-300/60',
-    gray: 'group-hover:ring-gray-300/60',
-    pink: 'group-hover:ring-pink-300/60',
-  };
-
-  const badgeDot: Record<string, string> = {
-    purple: 'bg-purple-400',
-    green: 'bg-emerald-400',
-    rose: 'bg-rose-400',
-    amber: 'bg-amber-400',
-    indigo: 'bg-indigo-400',
-    cyan: 'bg-cyan-400',
-    blue: 'bg-blue-400',
-    gray: 'bg-gray-400',
-    pink: 'bg-pink-400',
-  };
-
   return (
-    <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+    <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
       {metrics.map(m => (
         <div
           key={m.label}
-          className={[
-            'group relative overflow-hidden rounded-xl border backdrop-blur-sm',
-            'bg-gradient-to-br',
-            toneStyles[m.tone],
-            'shadow-sm hover:shadow-md transition-all',
-            'ring-1 ring-transparent',
-            glowRing[m.tone]
-          ].join(' ')}
+          className={`bg-gradient-to-br ${m.gradient} rounded-xl shadow-md p-5 border-2 border-white/50 hover:shadow-lg transition-all duration-300 transform hover:scale-105`}
         >
-          {/* soft decorative radial highlight */}
-          <div className="pointer-events-none absolute -top-6 -right-6 h-24 w-24 rounded-full bg-white/40 blur-2xl opacity-0 group-hover:opacity-40 transition-opacity" />
-          <div className="relative px-4 py-3 flex flex-col gap-1">
-            <div className="flex items-center gap-2">
-              <span className={['h-2.5 w-2.5 rounded-full shadow-inner', badgeDot[m.tone]].join(' ')} />
-              <p className="text-[11px] font-semibold tracking-wide text-gray-600 uppercase select-none">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">
                 {m.label}
               </p>
+              <p className="text-2xl font-bold text-gray-900">
+                {m.value}
+              </p>
             </div>
-            <p className="text-xl font-bold tracking-tight text-gray-900">
-              {m.value}
-            </p>
+            <div className={`bg-gradient-to-br ${m.iconBg} p-3 rounded-xl text-white shadow-lg`}>
+              {m.icon}
+            </div>
           </div>
         </div>
       ))}

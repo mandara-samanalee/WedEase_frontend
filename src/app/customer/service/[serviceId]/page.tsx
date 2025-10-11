@@ -6,6 +6,7 @@ import Link from "next/link";
 import { MapPin, Users, ArrowLeft, Camera, Loader } from "lucide-react";
 import CustomerMainLayout from "@/components/CustomerLayout/CustomerMainLayout";
 import ServiceReviews from "@/components/Services/ServiceReviews";
+import toast from "react-hot-toast";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 export interface Package {
@@ -167,7 +168,7 @@ export default function ServiceDetailsPage({ params }: { params: Promise<{ servi
 
       const { userId: customerId, token } = getSession();
       if (!customerId) {
-        alert("You must be logged in to book a service.");
+        toast.error("You must be logged in to book a service.");
         setSaving(false);
         return;
       }
@@ -215,16 +216,16 @@ export default function ServiceDetailsPage({ params }: { params: Promise<{ servi
         localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
 
         if (status === "PENDING") {
-          alert("Service booked successfully! Waiting for vendor confirmation.");
+          toast.success("Service booked successfully! Waiting for vendor confirmation.");
         } else {
-          alert("Service added to your interested list!");
+          toast.success("Service added to your interested list!");
         }
       } else {
-        alert(`Failed to ${status === "PENDING" ? "book" : "save"} service: ${result.message}`);
+        toast.error(`Failed to ${status === "PENDING" ? "book" : "save"} service: ${result.message}`);
       }
     } catch (error) {
       console.error("Failed to save service:", error);
-      alert("Failed to save service. Please try again.");
+      toast.error("Failed to save service. Please try again.");
     } finally {
       setSaving(false);
     }

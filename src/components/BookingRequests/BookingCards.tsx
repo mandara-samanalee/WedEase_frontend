@@ -1,111 +1,121 @@
 import React from "react";
-import { Calendar, Clock, Check, X } from "lucide-react";
+import { Calendar, User, Eye, CheckCircle, XCircle, Check } from "lucide-react";
 import { BookingRequest } from "./Types";
 
 interface Props {
   booking: BookingRequest;
   onView: (b: BookingRequest) => void;
-  onUpdateStatus: (bookingId: string, status: "accepted" | "declined") => void;
+  onUpdateStatus: (bookingId: string, status: "confirmed" | "cancelled" | "completed") => void;
 }
 
-const getStatusColor = (status?: string) => {
-  if (!status) return "bg-gray-100 text-gray-800 border-gray-200";
+const getStatusStyles = (status?: string) => {
+  if (!status) return { bg: "bg-gray-100", text: "text-gray-800", border: "border-gray-300", dot: "bg-gray-500" };
+  
   switch (status.toLowerCase()) {
     case "pending":
-      return "bg-yellow-100 text-yellow-800 border-yellow-200";
-    case "accepted":
+      return { bg: "bg-yellow-50", text: "text-yellow-800", border: "border-yellow-300", dot: "bg-yellow-500" };
     case "confirmed":
-      return "bg-green-100 text-green-800 border-green-200";
-    case "declined":
+      return { bg: "bg-green-50", text: "text-green-800", border: "border-green-300", dot: "bg-green-500" };
+    case "completed":
+      return { bg: "bg-purple-50", text: "text-purple-800", border: "border-purple-300", dot: "bg-purple-500" };
     case "cancelled":
-      return "bg-red-100 text-red-800 border-red-200";
+      return { bg: "bg-red-50", text: "text-red-800", border: "border-red-300", dot: "bg-red-500" };
     default:
-      return "bg-gray-100 text-gray-800 border-gray-200";
+      return { bg: "bg-gray-100", text: "text-gray-800", border: "border-gray-300", dot: "bg-gray-500" };
   }
 };
 
 const formatDate = (dateStr?: string) =>
   dateStr
-    ? new Date(dateStr).toLocaleDateString(undefined, {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
+    ? new Date(dateStr).toLocaleDateString("en-US", {
+        month: "short",
         day: "numeric",
+        year: "numeric",
       })
     : "N/A";
 
 const BookingCard: React.FC<Props> = ({ booking, onView, onUpdateStatus }) => {
-  // defensive defaults for potentially undefined fields
-  const statusRaw = (booking?.status ?? "pending").toString();
-  const status = statusRaw ? statusRaw.toLowerCase() : "pending";
-  const statusLabel = status.length ? status.charAt(0).toUpperCase() + status.slice(1) : "Pending";
+  const status = (booking?.status ?? "pending").toString().toLowerCase();
+  const statusLabel = status.charAt(0).toUpperCase() + status.slice(1);
+  const styles = getStatusStyles(status);
 
   const serviceName = booking?.serviceName ?? "Unnamed Service";
+  const serviceType = booking?.serviceType ?? "";
   const customerName = booking?.customerName ?? "Customer";
-  const eventDate = booking?.eventDate;
-  const totalAmount = booking?.totalAmount ?? 0;
-  const eventLocation = booking?.eventLocation ?? "Not specified";
+  const requestedDate = booking?.createdAt;
 
   return (
-    <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
-      <div className="p-4">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+    <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
+      <div className="p-5">
+        {/* Header */}
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-4">
           <div className="flex-1">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-3">
-              <h3 className="text-md font-semibold text-gray-900">{serviceName}</h3>
-              <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(status)}`}>
+            <div className="flex items-center gap-3 mb-2">
+              <h3 className="text-lg font-bold text-gray-900">{serviceName}</h3>
+              <span className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${styles.border} ${styles.bg} ${styles.text} flex items-center gap-1.5`}>
+                <span className={`w-2 h-2 rounded-full ${styles.dot} animate-pulse`}></span>
                 {statusLabel}
               </span>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3 text-sm text-gray-600">
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                <span className="font-medium">{customerName}</span>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                <span>{formatDate(eventDate)}</span>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4" />
-                <span className="font-medium">LKR {Number(totalAmount).toLocaleString()}</span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <Clock className="w-4 h-4" />
-              <span>{eventLocation}</span>
-            </div>
+            {serviceType && <p className="text-sm text-gray-600">{serviceType}</p>}
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-2">
+          <div className="flex flex-wrap gap-2">
             <button
               onClick={() => onView(booking)}
-              className="inline-flex items-center gap-2 px-3 py-2 rounded-lg transition w-[160px] text-sm bg-purple-600 text-white hover:bg-purple-700"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all shadow-md font-medium"
             >
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" aria-hidden />
+              <Eye className="w-4 h-4" />
               View Details
             </button>
 
             {status === "pending" && (
-              <div className="flex gap-2">
+              <>
                 <button
-                  onClick={() => onUpdateStatus(booking.id, "accepted")}
-                  className="inline-flex items-center gap-2 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition w-[110px] text-sm"
+                  onClick={() => onUpdateStatus(booking.id, "confirmed")}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition-all shadow-md font-medium"
                 >
-                  <Check className="w-4 h-4" /> Accept
+                  <CheckCircle className="w-4 h-4" />
+                  Confirm
                 </button>
                 <button
-                  onClick={() => onUpdateStatus(booking.id, "declined")}
-                  className="inline-flex items-center gap-2 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition w-[110px] text-sm"
+                  onClick={() => onUpdateStatus(booking.id, "cancelled")}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition-all shadow-md font-medium"
                 >
-                  <X className="w-4 h-4" /> Decline
+                  <XCircle className="w-4 h-4" />
+                  Cancel
                 </button>
-              </div>
+              </>
             )}
+
+            {status === "confirmed" && (
+              <button
+                onClick={() => onUpdateStatus(booking.id, "completed")}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 transition-all shadow-md font-medium"
+              >
+                <Check className="w-4 h-4" />
+                Mark Complete
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Booking Info */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg border border-purple-100">
+            <User className="w-5 h-5 text-purple-600" />
+            <div>
+              <p className="text-xs text-gray-600">Customer Name</p>
+              <p className="text-sm font-semibold text-gray-900">{customerName}</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-100">
+            <Calendar className="w-5 h-5 text-blue-600" />
+            <div>
+              <p className="text-xs text-gray-600">Requested Date</p>
+              <p className="text-sm font-semibold text-gray-900">{formatDate(requestedDate)}</p>
+            </div>
           </div>
         </div>
       </div>

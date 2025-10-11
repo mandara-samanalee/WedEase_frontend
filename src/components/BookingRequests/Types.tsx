@@ -4,15 +4,21 @@ export interface BookingRequest {
   customerEmail: string;
   customerPhone: string;
   customerAddress: string;
+  customerImage?: string | null;
   serviceName: string;
   serviceType: string;
-  bookingDate?: string;
-  eventDate: string;
-  eventTime: string;
   eventLocation: string;
-  totalAmount: number;
-  status: "pending" | "accepted" | "declined";
-  specialRequests?: string;
+  status: "pending" | "confirmed" | "cancelled" | "completed";
   guestCount?: number;
   createdAt: string;
+  confirmedAt?: string | null;
+  cancelledAt?: string | null;
+  packages?: Array<{
+    id: number;
+    packageName: string;
+    price: number;
+    features: string;
+    serviceId: string;
+  }>;
+  photos?: string[];
 }

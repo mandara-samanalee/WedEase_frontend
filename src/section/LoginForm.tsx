@@ -23,6 +23,7 @@ try {
         },
         body: JSON.stringify({ email, password }),
       });
+      console.log('Backend URL:', process.env.NEXT_PUBLIC_BACKEND_URL);
 
     const data = await response.json();
 

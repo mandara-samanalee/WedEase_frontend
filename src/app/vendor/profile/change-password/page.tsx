@@ -1,5 +1,5 @@
 import MainLayout from "@/components/VendorLayout/MainLayout";
-import ChangePasswordForm from "../../../../section/ChangePassword";
+import ChangePasswordForm from "@/utils/changePassword";
 
 export default function PasswordChangePage() {
     return (

@@ -22,7 +22,7 @@ export type PickedAddress = {
   district: string;
   city: string;
   addressLine: string;
-  raw?: any;
+  raw?: Record<string, unknown>;
 };
 
 type MapProps = {

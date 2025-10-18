@@ -182,7 +182,7 @@ export default function BookedServicesPage() {
         const past = new Date(dateStr);
         const diffTime = Math.abs(now.getTime() - past.getTime());
         const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-        
+
         if (diffDays === 0) return "Today";
         if (diffDays === 1) return "Yesterday";
         return `${diffDays} days ago`;
@@ -248,13 +248,13 @@ export default function BookedServicesPage() {
                         </div>
                     ) : accepted.map((booking) => {
                         return (
-                            <div 
-                                key={booking.bookingId} 
+                            <div
+                                key={booking.bookingId}
                                 className="bg-white border-2 border-green-200 rounded-2xl shadow-lg hover:shadow-xl transition-all p-6 relative overflow-hidden"
                             >
                                 {/* Decorative Corner */}
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-100 to-emerald-100 rounded-bl-full opacity-30"></div>
-                                
+
                                 {/* Header Section */}
                                 <div className="relative flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-6">
                                     <div className="flex-1">
@@ -268,7 +268,14 @@ export default function BookedServicesPage() {
                                                 Confirmed
                                             </span>
                                         </div>
-                                        
+
+                                        {/* Service ID Badge */}
+                                        <div className="ml-1 mb-3">
+                                            <span className="text-sm font-mono bg-gray-100 text-gray-700 px-2.5 py-1 rounded-md border border-gray-300 inline-block">
+                                                Service ID: {booking.serviceId}
+                                            </span>
+                                        </div>
+
                                         {/* Days Ago Badge */}
                                         {booking.confirmedAt && (
                                             <div className="flex items-center gap-2 text-sm">

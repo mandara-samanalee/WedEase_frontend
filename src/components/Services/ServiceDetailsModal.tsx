@@ -146,7 +146,7 @@ const ServiceDetailsModal: React.FC<Props> = ({ open, service, onClose, vendorSe
       ].filter(part => part && part.trim() !== '');
       return addressParts.length > 0 ? addressParts.join(', ') : 'Not provided';
     }
-    
+
     const addressParts = [
       service.location.address,
       service.location.city,
@@ -157,7 +157,7 @@ const ServiceDetailsModal: React.FC<Props> = ({ open, service, onClose, vendorSe
     return addressParts.length > 0 ? addressParts.join(', ') : 'Not provided';
   };
 
-  const validBookings = vendorService?.bookings?.filter(booking => 
+  const validBookings = vendorService?.bookings?.filter(booking =>
     booking.customer && booking.status.toUpperCase() !== 'INTERESTED'
   ) || [];
 
@@ -168,7 +168,7 @@ const ServiceDetailsModal: React.FC<Props> = ({ open, service, onClose, vendorSe
     const booking = validBookings.find(b => b.id === review.bookingId);
     return {
       ...review,
-      customerName: booking 
+      customerName: booking
         ? `${booking.customer.firstName} ${booking.customer.lastName}`
         : 'Anonymous Customer',
     };
@@ -195,15 +195,17 @@ const ServiceDetailsModal: React.FC<Props> = ({ open, service, onClose, vendorSe
         <div className="sticky top-0 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-5 rounded-t-xl z-10">
           <div className="flex justify-between items-start">
             <div className="flex-1">
-              <h3 className="text-2xl font-bold mb-1">{vendorService?.serviceName || service.serviceName}</h3>
-              <div className="flex items-center gap-4 text-sm">
+              <div className="flex items-center gap-3 mb-2 flex-wrap">
+                <h3 className="text-2xl font-bold">{vendorService?.serviceName || service.serviceName}</h3>
+                <span className="text-xs font-mono bg-white/20 px-3 py-1.5 rounded-full border border-white/30">
+                  Service ID: {vendorService?.serviceId || service.serviceId}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-4 text-sm flex-wrap">
                 <span className="flex items-center gap-1 bg-white/20 px-3 py-1 rounded-full">
                   <FaTag />
                   {vendorService?.category || service.category}
-                </span>
-                <span className="flex items-center gap-1 bg-white/20 px-3 py-1 rounded-full">
-                  <FaMapMarkerAlt />
-                  {vendorService?.city || service.location.city}, {vendorService?.district || service.location.district}
                 </span>
                 {totalReviews > 0 && (
                   <span className="flex items-center gap-1 bg-white/20 px-3 py-1 rounded-full">
@@ -213,8 +215,8 @@ const ServiceDetailsModal: React.FC<Props> = ({ open, service, onClose, vendorSe
                 )}
               </div>
             </div>
-            <button 
-              onClick={onClose} 
+            <button
+              onClick={onClose}
               className="text-white hover:bg-white/20 rounded-full p-2 transition-colors"
               aria-label="Close modal"
             >
@@ -231,7 +233,7 @@ const ServiceDetailsModal: React.FC<Props> = ({ open, service, onClose, vendorSe
                 <FaImages className="text-purple-600" />
                 Service Gallery ({photos.length} photos)
               </h4>
-              
+
               {/* Main Image */}
               <div className="relative h-96 rounded-lg overflow-hidden mb-4 bg-gray-200">
                 <Image
@@ -250,11 +252,10 @@ const ServiceDetailsModal: React.FC<Props> = ({ open, service, onClose, vendorSe
                   <button
                     key={photo.id}
                     onClick={() => setSelectedImageIndex(index)}
-                    className={`relative w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all ${
-                      selectedImageIndex === index 
-                        ? 'border-purple-600 scale-105' 
-                        : 'border-gray-300 hover:border-purple-400'
-                    }`}
+                    className={`relative w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all ${selectedImageIndex === index
+                      ? 'border-purple-600 scale-105'
+                      : 'border-gray-300 hover:border-purple-400'
+                      }`}
                   >
                     <Image
                       src={photo.imageUrl}
@@ -329,8 +330,8 @@ const ServiceDetailsModal: React.FC<Props> = ({ open, service, onClose, vendorSe
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {packages.map((pkg) => (
-                  <div 
-                    key={pkg.id} 
+                  <div
+                    key={pkg.id}
                     className="border-2 border-purple-200 rounded-lg p-5 bg-gradient-to-br from-purple-50 to-pink-50 hover:shadow-lg transition-shadow"
                   >
                     <div className="flex justify-between items-start mb-3">
@@ -466,7 +467,7 @@ const ServiceDetailsModal: React.FC<Props> = ({ open, service, onClose, vendorSe
                               <p className="text-sm font-medium text-gray-900">{booking.customer.email}</p>
                             </div>
                           </div>
-                          
+
                           {booking.customer.contactNo ? (
                             <div className="flex items-center gap-2">
                               <FaPhone className="text-gray-400 w-4 h-4" />
@@ -553,8 +554,8 @@ const ServiceDetailsModal: React.FC<Props> = ({ open, service, onClose, vendorSe
 
         {/* Footer Actions */}
         <div className="sticky bottom-0 bg-gray-50 px-6 py-4 border-t border-gray-200 rounded-b-xl flex justify-end gap-3">
-          <button 
-            onClick={onClose} 
+          <button
+            onClick={onClose}
             className="px-6 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors font-medium"
           >
             Close

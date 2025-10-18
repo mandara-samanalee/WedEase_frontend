@@ -43,9 +43,9 @@ interface Vendor {
     contactNo: string;
     isActive: boolean;
     joinDate: string;
-    address?: string;  
-    city?: string;     
-    province?: string; 
+    address?: string;
+    city?: string;
+    province?: string;
     country?: string;
     services: Service[];
 }
@@ -72,19 +72,19 @@ const VendorDetailsModal: React.FC<VendorDetailsModalProps> = ({ vendor, onClose
             vendor.city,
             vendor.province,
             vendor.country
-        ].filter(Boolean); 
-        
+        ].filter(Boolean);
+
         return parts.length > 0 ? parts.join(', ') : 'Not provided';
     };
 
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[95vh] overflow-y-auto">
-                <div className="px-6 py-4 border-b border-gray-200 sticky top-0 bg-white">
+            <div className="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[95vh] overflow-hidden flex flex-col">
+                <div className="px-6 py-4 border-b border-gray-200 bg-white">
                     <h3 className="text-xl font-semibold text-gray-900">Vendor Profile</h3>
                 </div>
-                
-                <div className="px-6 py-6 space-y-8">
+
+                <div className="px-6 py-6 space-y-8 overflow-y-auto">
                     {/* Vendor Basic Information */}
                     <div>
                         <h4 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">Vendor Information</h4>
@@ -111,11 +111,10 @@ const VendorDetailsModal: React.FC<VendorDetailsModalProps> = ({ vendor, onClose
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700">Status</label>
-                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                    vendor.isActive
+                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${vendor.isActive
                                         ? 'bg-green-100 text-green-800'
                                         : 'bg-red-100 text-red-800'
-                                }`}>
+                                    }`}>
                                     {vendor.isActive ? 'Active' : 'Inactive'}
                                 </span>
                             </div>
@@ -143,9 +142,16 @@ const VendorDetailsModal: React.FC<VendorDetailsModalProps> = ({ vendor, onClose
                                             <div className="space-y-4">
                                                 <div>
                                                     <h5 className="text-lg font-medium text-gray-900">{service.serviceName}</h5>
-                                                    <p className="text-sm text-purple-600 font-medium">{service.category}</p>
+                                                    <div className="flex items-center gap-2 mt-2">
+                                                        <span className="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                                            Service ID: {service.id}
+                                                        </span>
+                                                        <span className="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">
+                                                            {service.category}
+                                                        </span>
+                                                    </div>
                                                 </div>
-                                                
+
                                                 <div>
                                                     <label className="block text-sm font-medium text-gray-700">Description</label>
                                                     <p className="text-sm text-gray-900">{service.description || 'No description provided'}</p>
@@ -209,8 +215,8 @@ const VendorDetailsModal: React.FC<VendorDetailsModalProps> = ({ vendor, onClose
                                                         <div className="grid grid-cols-2 gap-2">
                                                             {service.photos.slice(0, 4).map((photo, index) => (
                                                                 <div key={index} className="aspect-square bg-gray-200 rounded-lg overflow-hidden">
-                                                                    <img 
-                                                                        src={photo} 
+                                                                    <img
+                                                                        src={photo}
                                                                         alt={`${service.serviceName} - Photo ${index + 1}`}
                                                                         className="w-full h-full object-cover"
                                                                         onError={(e) => {
@@ -265,7 +271,7 @@ const VendorDetailsModal: React.FC<VendorDetailsModalProps> = ({ vendor, onClose
                     </div>
                 </div>
 
-                <div className="px-6 py-4 border-t border-gray-200 flex justify-end sticky bottom-0 bg-white">
+                <div className="px-6 py-4 border-t border-gray-200 flex justify-end bg-white">
                     <button
                         onClick={onClose}
                         className="px-6 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"

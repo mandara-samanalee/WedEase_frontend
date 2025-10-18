@@ -309,6 +309,9 @@ export default function ServiceDetailsPage({ params }: { params: Promise<{ servi
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div className="flex items-center gap-4 flex-wrap">
                 <span className="text-sm font-medium text-purple-700">Category: {service.category}</span>
+                <span className="text-xs font-mono bg-purple-100 text-purple-700 px-3 py-1 rounded-full border border-purple-200">
+                Service ID: {serviceId}
+              </span>
               </div>
               {startingPrice > 0 && <div className="text-xl font-bold text-purple-600">Starting from LKR {startingPrice.toLocaleString()}</div>}
             </div>

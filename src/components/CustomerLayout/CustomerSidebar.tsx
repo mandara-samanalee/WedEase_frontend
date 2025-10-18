@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { FaUser, FaLock, FaCalendar, FaList, FaCheckSquare, FaUsers, FaChevronDown, FaChevronRight, FaDonate, FaIdCard } from "react-icons/fa";
+import { FaUser, FaLock, FaCalendar, FaList, FaCheckSquare, FaUsers, FaChevronDown, FaChevronRight, FaDonate, FaIdCard, FaBell } from "react-icons/fa";
 import { IoSparkles } from "react-icons/io5";
 import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 
-const BASE_URL= process.env.NEXT_PUBLIC_BACKEND_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 interface ServiceFilters {
   priceRange: [number, number];
@@ -22,32 +22,33 @@ interface CustomerSidebarProps {
 }
 
 // categories loaded from backend (fallback to a few defaults)
-const DEFAULT_CATEGORIES = ["Catering","Poruwa","Photography & Videography","Decorations","Music & Entertainment","Transportation","Floral Arrangements","Wedding Planning","Other"];
+const DEFAULT_CATEGORIES = ["Catering", "Poruwa", "Photography & Videography", "Decorations", "Music & Entertainment", "Transportation", "Floral Arrangements", "Wedding Planning", "Other"];
 
 export default function CustomerSidebar({ activeSection, serviceFilters }: CustomerSidebarProps) {
   const pathname = usePathname();
 
-// categories state + fetch must be inside component 
+  // categories state + fetch must be inside component 
   const [categories, setCategories] = useState<string[]>(["All", ...DEFAULT_CATEGORIES]);
   useEffect(() => {
     let mounted = true;
     (async () => {
       try {
-        const res = await fetch(`${BASE_URL}/category/all`, { headers: { 
-          "Content-Type": "application/json" 
-        } 
-      });
+        const res = await fetch(`${BASE_URL}/category/all`, {
+          headers: {
+            "Content-Type": "application/json"
+          }
+        });
         const json = await res.json();
         const raw = Array.isArray(json) ? json : json?.data ?? json?.categories ?? [];
         const names = (raw || [])
-        .map((c: any) => { 
-          const rawName = (c.name ?? c.categoryName ?? "").toString().trim();
-          if (!rawName) return "";
-          return rawName.charAt(0).toUpperCase() + rawName.slice(1);
-        })
-        .filter(Boolean);
+          .map((c: any) => {
+            const rawName = (c.name ?? c.categoryName ?? "").toString().trim();
+            if (!rawName) return "";
+            return rawName.charAt(0).toUpperCase() + rawName.slice(1);
+          })
+          .filter(Boolean);
         //const unique = Array.from(new Set(["All", ...names, ...DEFAULT_CATEGORIES]));
-         // prefer API categories; fall back to defaults only when API returns none
+        // prefer API categories; fall back to defaults only when API returns none
         const unique = names.length ? Array.from(new Set(["All", ...names])) : ["All", ...DEFAULT_CATEGORIES];
         if (mounted) setCategories(unique);
       } catch (err) {
@@ -65,13 +66,13 @@ export default function CustomerSidebar({ activeSection, serviceFilters }: Custo
     rsvp: false,
     services: false,
   });
-  
+
   const currentSection = pathname.startsWith('/customer/dashboard') ? 'dashboard'
     : pathname.startsWith('/customer/service') ? 'service'
-    : pathname.startsWith('/customer/profile') ? 'profile'
-    : activeSection;
+      : pathname.startsWith('/customer/profile') ? 'profile'
+        : activeSection;
 
-    // Early exit: hide entirely on vendor routes
+  // Early exit: hide entirely on vendor routes
   if (pathname.startsWith('/vendor/')) {
     return null;
   }
@@ -88,7 +89,7 @@ export default function CustomerSidebar({ activeSection, serviceFilters }: Custo
       //minRating, setMinRating
     } = serviceFilters;
 
-     // Scale for price slider (0-300 corresponds to 0-300,000 LKR)
+    // Scale for price slider (0-300 corresponds to 0-300,000 LKR)
     const scale = 1000;
 
     const toggleCategory = (cat: string) => {
@@ -140,7 +141,7 @@ export default function CustomerSidebar({ activeSection, serviceFilters }: Custo
           </div>
         </div>
 
-      {/* Categories */}
+        {/* Categories */}
         <div className="mb-8">
           <h4 className="font-medium mb-3 text-xs text-gray-700 uppercase tracking-wide">Category</h4>
           <div className="space-y-1">
@@ -163,10 +164,9 @@ export default function CustomerSidebar({ activeSection, serviceFilters }: Custo
             })}
           </div>
         </div>
-        </div>
+      </div>
     );
   };
-      
 
   const renderSidebarContent = () => {
     switch (currentSection) {
@@ -176,11 +176,10 @@ export default function CustomerSidebar({ activeSection, serviceFilters }: Custo
             {/* Overview (no sub-sections) */}
             <a
               href="/customer/dashboard/overview"
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-m transition-all ${
-                pathname === '/customer/dashboard/overview' ? 'bg-purple-600 text-white shadow-sm' : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
-              }`}
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-m transition-all ${pathname === '/customer/dashboard/overview' ? 'bg-purple-600 text-white shadow-sm' : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
+                }`}
             >
-              <FaIdCard className="text-2xl" />
+              <FaIdCard className="text-xl" />
               Overview
             </a>
             {/* Wedding Event */}
@@ -189,7 +188,7 @@ export default function CustomerSidebar({ activeSection, serviceFilters }: Custo
                 onClick={() => toggleSection('weddingEvent')}
                 className="flex items-center gap-3 px-4 py-3 w-full text-left font-semibold text-m text-gray-700 hover:bg-purple-50 hover:text-purple-700"
               >
-                <FaCalendar className="text-2xl" />
+                <FaCalendar className="text-xl" />
                 Wedding Event
                 {expandedSections.weddingEvent ? <FaChevronDown className="ml-auto" /> : <FaChevronRight className="ml-auto" />}
               </button>
@@ -197,17 +196,15 @@ export default function CustomerSidebar({ activeSection, serviceFilters }: Custo
                 <div className="ml-6">
                   <a
                     href="/customer/dashboard/wedding-event/create"
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-m transition-all ${
-                      pathname === '/customer/dashboard/wedding-event/create' ? 'bg-purple-600 text-white shadow-sm' : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
-                    }`}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-m transition-all ${pathname === '/customer/dashboard/wedding-event/create' ? 'bg-purple-600 text-white shadow-sm' : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
+                      }`}
                   >
                     Create Event
                   </a>
                   <a
                     href="/customer/dashboard/wedding-event/view"
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-m transition-all ${
-                      pathname === '/customer/dashboard/wedding-event/view' ? 'bg-purple-600 text-white shadow-sm' : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
-                    }`}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-m transition-all ${pathname === '/customer/dashboard/wedding-event/view' ? 'bg-purple-600 text-white shadow-sm' : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
+                      }`}
                   >
                     View Event
                   </a>
@@ -220,7 +217,7 @@ export default function CustomerSidebar({ activeSection, serviceFilters }: Custo
                 onClick={() => toggleSection('agenda')}
                 className="flex items-center gap-3 px-4 py-3 w-full text-left font-semibold text-m text-gray-700 hover:bg-purple-50 hover:text-purple-700"
               >
-                <FaList className="text-2xl" />
+                <FaList className="text-xl" />
                 Agenda
                 {expandedSections.agenda ? <FaChevronDown className="ml-auto" /> : <FaChevronRight className="ml-auto" />}
               </button>
@@ -228,9 +225,8 @@ export default function CustomerSidebar({ activeSection, serviceFilters }: Custo
                 <div className="ml-6">
                   <a
                     href="/customer/dashboard/agenda/create"
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-m transition-all ${
-                      pathname === '/customer/dashboard/agenda/create' ? 'bg-purple-600 text-white shadow-sm' : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
-                    }`}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-m transition-all ${pathname === '/customer/dashboard/agenda/create' ? 'bg-purple-600 text-white shadow-sm' : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
+                      }`}
                   >
                     Create Agenda
                   </a>
@@ -244,7 +240,7 @@ export default function CustomerSidebar({ activeSection, serviceFilters }: Custo
                 onClick={() => toggleSection('checklist')}
                 className="flex items-center gap-3 px-4 py-3 w-full text-left font-semibold text-m text-gray-700 hover:bg-purple-50 hover:text-purple-700"
               >
-                <FaCheckSquare className="text-2xl" />
+                <FaCheckSquare className="text-xl" />
                 Checklist
                 {expandedSections.checklist ? <FaChevronDown className="ml-auto" /> : <FaChevronRight className="ml-auto" />}
               </button>
@@ -252,12 +248,11 @@ export default function CustomerSidebar({ activeSection, serviceFilters }: Custo
                 <div className="ml-6">
                   <a
                     href="/customer/dashboard/checklist/create"
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-m transition-all ${
-                      pathname === '/customer/dashboard/checklist/create' ? 'bg-purple-600 text-white shadow-sm' : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
-                    }`}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-m transition-all ${pathname === '/customer/dashboard/checklist/create' ? 'bg-purple-600 text-white shadow-sm' : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
+                      }`}
                   >
                     Create Checklist
-                  </a>  
+                  </a>
                 </div>
               )}
             </div>
@@ -267,7 +262,7 @@ export default function CustomerSidebar({ activeSection, serviceFilters }: Custo
                 onClick={() => toggleSection('services')}
                 className="flex items-center gap-3 px-4 py-3 w-full text-left font-semibold text-m text-gray-700 hover:bg-purple-50 hover:text-purple-700"
               >
-                <IoSparkles className="text-2xl" />
+                <IoSparkles className="text-xl" />
                 Bookings
                 {expandedSections.services ? <FaChevronDown className="ml-auto" /> : <FaChevronRight className="ml-auto" />}
               </button>
@@ -275,11 +270,10 @@ export default function CustomerSidebar({ activeSection, serviceFilters }: Custo
                 <div className="ml-6">
                   <a
                     href="/customer/dashboard/services/selection"
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-m transition-all ${
-                      pathname === '/customer/dashboard/services/selection'
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-m transition-all ${pathname === '/customer/dashboard/services/selection'
                         ? 'bg-purple-600 text-white shadow-sm'
                         : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
-                    }`}
+                      }`}
                   >
                     Booking List
                   </a>
@@ -292,7 +286,7 @@ export default function CustomerSidebar({ activeSection, serviceFilters }: Custo
                 onClick={() => toggleSection('budget')}
                 className="flex items-center gap-3 px-4 py-3 w-full text-left font-semibold text-m text-gray-700 hover:bg-purple-50 hover:text-purple-700"
               >
-                <FaDonate className="text-2xl" />
+                <FaDonate className="text-xl" />
                 Budget
                 {expandedSections.budget ? <FaChevronDown className="ml-auto" /> : <FaChevronRight className="ml-auto" />}
               </button>
@@ -300,13 +294,12 @@ export default function CustomerSidebar({ activeSection, serviceFilters }: Custo
                 <div className="ml-6">
                   <a
                     href="/customer/dashboard/budget/allocation"
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-m transition-all ${
-                      pathname === '/customer/dashboard/budget/allocation' ? 'bg-purple-600 text-white shadow-sm' : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
-                    }`}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-m transition-all ${pathname === '/customer/dashboard/budget/allocation' ? 'bg-purple-600 text-white shadow-sm' : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
+                      }`}
                   >
                     Budget Allocation
                   </a>
-                  
+
                 </div>
               )}
             </div>
@@ -316,7 +309,7 @@ export default function CustomerSidebar({ activeSection, serviceFilters }: Custo
                 onClick={() => toggleSection('rsvp')}
                 className="flex items-center gap-3 px-4 py-3 w-full text-left font-semibold text-m text-gray-700 hover:bg-purple-50 hover:text-purple-700"
               >
-                <FaUsers className="text-2xl" />
+                <FaUsers className="text-xl" />
                 RSVP
                 {expandedSections.rsvp ? <FaChevronDown className="ml-auto" /> : <FaChevronRight className="ml-auto" />}
               </button>
@@ -324,23 +317,30 @@ export default function CustomerSidebar({ activeSection, serviceFilters }: Custo
                 <div className="ml-6">
                   <a
                     href="/customer/dashboard/rsvp/guest-list"
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-m transition-all ${
-                      pathname === '/customer/dashboard/rsvp/guest-list' ? 'bg-purple-600 text-white shadow-sm' : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
-                    }`}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-m transition-all ${pathname === '/customer/dashboard/rsvp/guest-list' ? 'bg-purple-600 text-white shadow-sm' : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
+                      }`}
                   >
-
-                    Guest List 
+                    Guest List
                   </a>
+
                   <a
                     href="/customer/dashboard/rsvp/responses"
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-m transition-all ${
-                      pathname === '/customer/dashboard/rsvp/responses' ? 'bg-purple-600 text-white shadow-sm' : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
-                    }`}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-m transition-all ${pathname === '/customer/dashboard/rsvp/responses' ? 'bg-purple-600 text-white shadow-sm' : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
+                      }`}
                   >
                     Responses
                   </a>
                 </div>
               )}
+
+              <a
+                href="/customer/dashboard/notifications"
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-m transition-all ${pathname === '/customer/dashboard/notifications' ? 'bg-purple-600 text-white shadow-sm' : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
+                  }`}
+              >
+                <FaBell className="text-xl" />
+                Notification Center
+              </a>
             </div>
           </>
         );
@@ -352,18 +352,16 @@ export default function CustomerSidebar({ activeSection, serviceFilters }: Custo
           <>
             <a
               href="/customer/profile/edit-profile"
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-m transition-all ${
-                pathname === '/customer/profile/edit-profile' ? 'bg-purple-600 text-white shadow-sm' : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
-              }`}
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-m transition-all ${pathname === '/customer/profile/edit-profile' ? 'bg-purple-600 text-white shadow-sm' : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
+                }`}
             >
               <FaUser className="text-m" />
               Profile
             </a>
             <a
               href="/customer/profile/change-password"
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-m transition-all ${
-                pathname === '/customer/profile/change-password' ? 'bg-purple-600 text-white shadow-sm' : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
-              }`}
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-m transition-all ${pathname === '/customer/profile/change-password' ? 'bg-purple-600 text-white shadow-sm' : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
+                }`}
             >
               <FaLock className="text-m" />
               Change Password

@@ -1,4 +1,4 @@
-import { FaUser, FaLock, FaCalendar } from "react-icons/fa";
+import { FaUser, FaLock, FaCalendar, FaBell } from "react-icons/fa";
 import { MdAssignmentInd, MdHomeRepairService } from "react-icons/md";
 import { HiBookmark } from "react-icons/hi";
 import React from "react";
@@ -27,7 +27,7 @@ export default function Sidebar({ activeSection }: SidebarProps) {
                                 : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
                                 }`}
                         >
-                            <MdAssignmentInd className="text-2xl" />
+                            <MdAssignmentInd className="text-xl" />
                             Service Profile
                         </a>
 
@@ -38,7 +38,7 @@ export default function Sidebar({ activeSection }: SidebarProps) {
                                 : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
                                 }`}
                         >
-                            <MdHomeRepairService className="text-2xl" />
+                            <MdHomeRepairService className="text-xl" />
                             View Services
                         </a>
 
@@ -49,7 +49,7 @@ export default function Sidebar({ activeSection }: SidebarProps) {
                                 : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
                                 }`}
                         >
-                            <HiBookmark className="text-2xl" />
+                            <HiBookmark className="text-xl" />
                             Booking Requests
                         </a>
 
@@ -60,8 +60,19 @@ export default function Sidebar({ activeSection }: SidebarProps) {
                                 : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
                                 }`}
                         >
-                            <FaCalendar className="text-lg" />
+                            <FaCalendar className="text-xl" />
                             Booking Details
+                        </a>
+
+                        <a
+                            href="/vendor/services/notifications"
+                            className={`flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-m transition-all ${pathname === '/vendor/services/notifications'
+                                ? 'bg-purple-600 text-white shadow-sm'
+                                : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
+                                }`}
+                        >
+                            <FaBell className="text-xl" />
+                            Notification Center
                         </a>
                     </>
                 );

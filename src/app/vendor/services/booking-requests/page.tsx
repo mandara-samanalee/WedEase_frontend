@@ -9,6 +9,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 interface BookingRequest {
   id: string;
+  serviceId: string;
   customerName: string;
   customerEmail: string;
   customerPhone: string;
@@ -129,6 +130,7 @@ export default function BookedServicesPage() {
 
         out.push({
           id: b.id,
+          serviceId: svc.serviceId,
           customerName: `${b.customer?.firstName || ""} ${b.customer?.lastName || ""}`.trim() || "Customer",
           customerEmail: b.customer?.email || "Not provided",
           customerPhone: b.customer?.contactNo || "Not provided",
@@ -152,7 +154,7 @@ export default function BookedServicesPage() {
     try {
       const vendorId = getVendorId();
       const token = getToken();
-      
+
       if (!vendorId) {
         toast.error("Vendor ID not found");
         setBookings([]);
@@ -191,13 +193,13 @@ export default function BookedServicesPage() {
 
   useEffect(() => {
     let filtered = bookings;
-  // Filter out confirmed bookings
+    // Filter out confirmed bookings
     filtered = filtered.filter((b) => b.status !== "confirmed");
-    
+
     if (selectedStatus !== "all") {
       filtered = filtered.filter((b) => b.status === selectedStatus);
     }
-    
+
     if (searchTerm) {
       const q = searchTerm.toLowerCase();
       filtered = filtered.filter(
@@ -207,7 +209,7 @@ export default function BookedServicesPage() {
           (b.serviceType || "").toLowerCase().includes(q)
       );
     }
-    
+
     setFilteredBookings(filtered);
   }, [bookings, selectedStatus, searchTerm]);
 
@@ -255,37 +257,37 @@ export default function BookedServicesPage() {
   const getStatusStyles = (status: string) => {
     switch (status) {
       case "pending":
-        return { 
-          bg: "bg-gradient-to-r from-yellow-100 to-amber-100", 
-          text: "text-yellow-700", 
+        return {
+          bg: "bg-gradient-to-r from-yellow-100 to-amber-100",
+          text: "text-yellow-700",
           border: "border-yellow-200",
           dot: "bg-yellow-500"
         };
       case "confirmed":
-        return { 
-          bg: "bg-gradient-to-r from-green-100 to-emerald-100", 
-          text: "text-green-700", 
+        return {
+          bg: "bg-gradient-to-r from-green-100 to-emerald-100",
+          text: "text-green-700",
           border: "border-green-200",
           dot: "bg-green-500"
         };
       case "completed":
-        return { 
-          bg: "bg-gradient-to-r from-purple-100 to-violet-100", 
-          text: "text-purple-700", 
+        return {
+          bg: "bg-gradient-to-r from-purple-100 to-violet-100",
+          text: "text-purple-700",
           border: "border-purple-200",
           dot: "bg-purple-500"
         };
       case "cancelled":
-        return { 
-          bg: "bg-gradient-to-r from-red-100 to-rose-100", 
-          text: "text-red-700", 
+        return {
+          bg: "bg-gradient-to-r from-red-100 to-rose-100",
+          text: "text-red-700",
           border: "border-red-200",
           dot: "bg-red-500"
         };
       default:
-        return { 
-          bg: "bg-gray-100", 
-          text: "text-gray-700", 
+        return {
+          bg: "bg-gray-100",
+          text: "text-gray-700",
           border: "border-gray-200",
           dot: "bg-gray-500"
         };
@@ -409,11 +411,10 @@ export default function BookedServicesPage() {
                 <button
                   key={status}
                   onClick={() => setSelectedStatus(status)}
-                  className={`px-4 py-2.5 rounded-lg text-sm font-semibold transition-all ${
-                    selectedStatus === status
-                      ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md transform scale-105"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
+                  className={`px-4 py-2.5 rounded-lg text-sm font-semibold transition-all ${selectedStatus === status
+                    ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md transform scale-105"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
                 >
                   {status.charAt(0).toUpperCase() + status.slice(1)}
                 </button>
@@ -442,22 +443,30 @@ export default function BookedServicesPage() {
               const statusLabel = booking.status.charAt(0).toUpperCase() + booking.status.slice(1);
 
               return (
-                <div 
-                  key={booking.id} 
+                <div
+                  key={booking.id}
                   className="bg-white border-2 border-purple-200 rounded-2xl shadow-lg hover:shadow-xl transition-all p-6"
                 >
                   {/* Header Section */}
                   <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-5">
                     <div className="flex-1">
-                      <div className="flex flex-wrap items-center gap-3 mb-3">
-                        <h3 className="text-xl font-bold text-gray-900">{booking.serviceName}</h3>
-                        <span className="text-sm font-semibold text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
-                          {booking.serviceType}
-                        </span>
-                        <span className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-bold border-2 ${statusStyles.border} ${statusStyles.bg} ${statusStyles.text}`}>
-                          <span className={`w-2.5 h-2.5 rounded-full ${statusStyles.dot} animate-pulse`}></span>
-                          {statusLabel}
-                        </span>
+                      <div className="mb-3">
+                        <div className="flex flex-wrap items-center gap-3 mb-2">
+                          <h3 className="text-xl font-bold text-gray-900">{booking.serviceName}</h3>
+                          <span className="text-sm font-semibold text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
+                            {booking.serviceType}
+                          </span>
+                          <span className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-bold border-2 ${statusStyles.border} ${statusStyles.bg} ${statusStyles.text}`}>
+                            <span className={`w-2.5 h-2.5 rounded-full ${statusStyles.dot} animate-pulse`}></span>
+                            {statusLabel}
+                          </span>
+                        </div>
+                        {/* Service ID Badge */}
+                        <div className="ml-1">
+                          <span className="text-sm font-mono bg-gray-100 text-gray-700 px-2.5 py-1 rounded-md border border-gray-300 inline-block">
+                            Service ID: {booking.serviceId}
+                          </span>
+                        </div>
                       </div>
                     </div>
 
@@ -570,7 +579,7 @@ export default function BookedServicesPage() {
             })
           )}
         </div>
-        </div>
-    </MainLayout>
+      </div>
+    </MainLayout >
   );
 }

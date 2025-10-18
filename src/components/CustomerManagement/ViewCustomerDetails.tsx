@@ -229,6 +229,7 @@ const ViewCustomerModal: React.FC<UserProps> = ({ user, onClose }) => {
                                 bookingList.map((booking, idx) => {
                                     const svcName = booking.service?.serviceName || "Unknown service";
                                     const category = booking.service?.category || "";
+                                    const serviceId = booking.serviceId || "";
                                     const date = booking.createdAt || "";
                                     const status = booking.status || "UNKNOWN";
                                     return (
@@ -236,13 +237,20 @@ const ViewCustomerModal: React.FC<UserProps> = ({ user, onClose }) => {
                                             <div className="flex justify-between items-start mb-2">
                                                 <div>
                                                     <h5 className="font-medium text-gray-900">{svcName}</h5>
-                                                    <p className="text-sm text-purple-600">{category}</p>
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                                           Service ID: {serviceId}
+                                                        </span>
+                                                        <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">
+                                                            {category}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                                 <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(status)}`}>
                                                     {status}
                                                 </span>
                                             </div>
-                                            <div className="text-sm text-gray-600">
+                                            <div className="text-sm text-gray-600 mt-2">
                                                 Booking Date: {date ? new Date(date).toLocaleDateString() : "—"}
                                             </div>
                                         </div>

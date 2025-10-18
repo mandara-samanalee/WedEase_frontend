@@ -26,7 +26,7 @@ export default function AdminSidebar({ activeSection }: AdminSidebarProps) {
                                 : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
                                 }`}
                         >
-                            <MdDashboard className="text-2xl" />
+                            <MdDashboard className="text-xl" />
                             Dashboard Overview
                         </a>
 
@@ -37,7 +37,7 @@ export default function AdminSidebar({ activeSection }: AdminSidebarProps) {
                                 : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
                                 }`}
                         >
-                            <MdCategory className="text-2xl" />
+                            <MdCategory className="text-xl" />
                             Service Categories
                         </a>
 
@@ -48,7 +48,7 @@ export default function AdminSidebar({ activeSection }: AdminSidebarProps) {
                                 : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
                                 }`}
                         >
-                            <MdStore className="text-2xl" />
+                            <MdStore className="text-xl" />
                             Vendor Management
                         </a>
 
@@ -59,7 +59,7 @@ export default function AdminSidebar({ activeSection }: AdminSidebarProps) {
                                 : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
                                 }`}
                         >
-                            <FaUsers className="text-lg" />
+                            <FaUsers className="text-xl" />
                             Customer Management
                         </a>
                     </>

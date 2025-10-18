@@ -138,6 +138,13 @@ const ServiceCard: React.FC<Props> = ({ service, openDetailsModal, onDeleteSucce
           <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-purple-700 transition-colors">
             {service.serviceName}
           </h3>
+
+          <div className="mb-3">
+            <span className="text-xs font-mono bg-purple-100 text-purple-700 px-2.5 py-1 rounded-md border border-purple-200 inline-block">
+            Service ID: {service.serviceId}
+            </span>
+          </div>
+
           <p className="text-gray-600 text-sm mb-4 line-clamp-2">
             {service.description || "No description available"}
           </p>
@@ -183,7 +190,7 @@ const ServiceCard: React.FC<Props> = ({ service, openDetailsModal, onDeleteSucce
                 <FaEye className="w-4 h-4" />
                 View Details
               </button>
-              
+
               <button
                 onClick={handleDeleteClick}
                 disabled={loadingDelete}
@@ -197,11 +204,10 @@ const ServiceCard: React.FC<Props> = ({ service, openDetailsModal, onDeleteSucce
             <button
               onClick={handleToggleStatusClick}
               disabled={loadingToggle || loadingDelete}
-              className={`w-full px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                service.isActive
+              className={`w-full px-4 py-2 rounded-lg text-sm font-medium transition-colors ${service.isActive
                   ? 'bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50'
                   : 'bg-green-100 text-green-700 hover:bg-green-200 disabled:opacity-50'
-              }`}
+                }`}
             >
               {toggleButtonLabel}
             </button>

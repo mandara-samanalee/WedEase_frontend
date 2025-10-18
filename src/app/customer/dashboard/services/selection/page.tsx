@@ -144,7 +144,7 @@ export default function ServicesSelectionPage() {
           updatedAt: b.updatedAt,
           confirmedAt: b.confirmedAt,
           cancelledAt: b.cancelledAt,
-          completedAt: b.completedAt, 
+          completedAt: b.completedAt,
           contactNumber: vendor.contactNo || b.contactNumber || undefined,
           email: vendor.email || b.email || undefined,
           website: b.website || undefined,
@@ -249,8 +249,8 @@ export default function ServicesSelectionPage() {
     }
   };
 
-  const removeItem = async (id: string) => { 
-      await deleteBooking(id);
+  const removeItem = async (id: string) => {
+    await deleteBooking(id);
   };
 
   const togglePackages = (bookingId: string) => {
@@ -263,37 +263,37 @@ export default function ServicesSelectionPage() {
   const getStatusDisplay = (status: string) => {
     switch (status) {
       case "confirmed":
-        return { 
-          text: "Confirmed", 
-          color: "bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 border-green-200", 
+        return {
+          text: "Confirmed",
+          color: "bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 border-green-200",
           icon: <CheckCircle2 size={14} className="text-green-600" />,
           dot: "bg-green-500"
         };
       case "completed":
-        return { 
-          text: "Completed", 
-          color: "bg-gradient-to-r from-purple-100 to-violet-100 text-purple-700 border-purple-200", 
+        return {
+          text: "Completed",
+          color: "bg-gradient-to-r from-purple-100 to-violet-100 text-purple-700 border-purple-200",
           icon: <CircleCheck size={14} className="text-purple-600" />,
           dot: "bg-purple-500"
         };
       case "declined":
-        return { 
-          text: "Declined", 
-          color: "bg-gradient-to-r from-red-100 to-rose-100 text-red-700 border-red-200", 
+        return {
+          text: "Declined",
+          color: "bg-gradient-to-r from-red-100 to-rose-100 text-red-700 border-red-200",
           icon: <XCircle size={14} className="text-red-600" />,
           dot: "bg-red-500"
         };
       case "pending":
-        return { 
-          text: "Pending", 
-          color: "bg-gradient-to-r from-blue-100 to-sky-100 text-blue-700 border-blue-200", 
+        return {
+          text: "Pending",
+          color: "bg-gradient-to-r from-blue-100 to-sky-100 text-blue-700 border-blue-200",
           icon: <Clock size={14} className="text-blue-600" />,
           dot: "bg-blue-500"
         };
       default:
-        return { 
-          text: "Interested", 
-          color: "bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-700 border-amber-200", 
+        return {
+          text: "Interested",
+          color: "bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-700 border-amber-200",
           icon: <Hourglass size={14} className="text-amber-600" />,
           dot: "bg-amber-500"
         };
@@ -349,9 +349,9 @@ export default function ServicesSelectionPage() {
           {/* Header */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-800 to-pink-800 bg-clip-text text-transparent mb-1">
-                  My Bookings
-                </h1>
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-800 to-pink-800 bg-clip-text text-transparent mb-1">
+                My Bookings
+              </h1>
               <p className="text-gray-600">Manage your service bookings</p>
             </div>
             <Link
@@ -386,13 +386,13 @@ export default function ServicesSelectionPage() {
             {!loading && !error && !bookings.length && (
               <div className="col-span-full p-16 text-center bg-white rounded-3xl border-2 border-purple-200 shadow-xl">
                 <div className="mb-6">
-                  <Hourglass className="w-20 h-20 text-purple-400 mx-auto mb-4 animate-pulse" />
+                  <Hourglass className="w-16 h-16 text-purple-400 mx-auto mb-4 animate-pulse" />
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-3">No bookings yet</h3>
-                <p className="text-gray-600 mb-8 text-lg">Browse our services and make your first booking to get started!</p>
-                <Link 
-                  href="/customer/service/browse" 
-                  className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all shadow-lg hover:shadow-xl font-semibold text-lg transform hover:scale-105"
+                <h3 className="text-xl font-bold text-gray-900 mb-3">No bookings yet</h3>
+                <p className="text-gray-600 mb-8 text-md">Browse our services and make your first booking to get started!</p>
+                <Link
+                  href="/customer/service/browse"
+                  className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all shadow-md hover:shadow-lg font-semibold text-lg"
                 >
                   <Sparkles size={20} />
                   Browse Services
@@ -409,8 +409,8 @@ export default function ServicesSelectionPage() {
               const dateDisplay = getDateDisplay(booking);
 
               return (
-                <div 
-                  key={booking.id} 
+                <div
+                  key={booking.id}
                   className="bg-white border-2 border-purple-200 rounded-3xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 overflow-hidden"
                 >
                   <div className="space-y-5">
@@ -422,6 +422,11 @@ export default function ServicesSelectionPage() {
                           <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
                           {booking.provider}
                         </p>
+                        {booking.serviceId && (
+                          <p className="text-xs font-mono text-gray-500 mt-1.5 bg-gray-100 px-2 py-1 rounded-md inline-block border border-gray-200">
+                            Service ID: {booking.serviceId}
+                          </p>
+                        )}
                       </div>
                       <span className="inline-flex items-center px-4 py-2 rounded-full text-xs font-bold bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-700 border-2 border-emerald-200 shadow-sm">
                         {booking.category}
@@ -441,10 +446,10 @@ export default function ServicesSelectionPage() {
                         <div className="flex items-center gap-2 text-sm text-gray-600 pl-1">
                           <Calendar size={16} className="text-purple-500" />
                           <span className="font-medium">
-                            {dateDisplay.label}: {new Date(dateDisplay.date).toLocaleDateString('en-US', { 
-                              year: 'numeric', 
-                              month: 'short', 
-                              day: 'numeric' 
+                            {dateDisplay.label}: {new Date(dateDisplay.date).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric'
                             })}
                           </span>
                         </div>
@@ -474,8 +479,8 @@ export default function ServicesSelectionPage() {
                         {isExpanded && (
                           <div className="space-y-3 pl-2">
                             {booking.packages!.map((pkg, index) => (
-                              <div 
-                                key={pkg.id} 
+                              <div
+                                key={pkg.id}
                                 className={`p-4 bg-gradient-to-br ${getPackageGradient(index)} rounded-xl border-2 shadow-md transform transition-all hover:scale-102 hover:shadow-lg`}
                               >
                                 <div className="flex items-start justify-between mb-2">
@@ -511,10 +516,10 @@ export default function ServicesSelectionPage() {
                       {booking.website && (
                         <div className="flex items-center gap-3">
                           <Globe size={18} className="text-purple-600 flex-shrink-0" />
-                          <a 
-                            href={booking.website} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
+                          <a
+                            href={booking.website}
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="text-purple-600 hover:text-purple-800 font-semibold hover:underline"
                           >
                             Visit Website
@@ -537,16 +542,16 @@ export default function ServicesSelectionPage() {
                         View Details
                       </Link>
                       {canChangeStatus && (
-                        <button 
-                          onClick={() => toggleStatus(booking.id)} 
+                        <button
+                          onClick={() => toggleStatus(booking.id)}
                           className="px-3 py-3 rounded-xl bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 text-green-700 hover:from-green-100 hover:to-emerald-100 text-sm font-bold transition-all shadow-md hover:shadow-lg"
                         >
                           Book Now
                         </button>
                       )}
                       {canDelete && (
-                        <button 
-                          onClick={() => removeItem(booking.id)} 
+                        <button
+                          onClick={() => removeItem(booking.id)}
                           className="px-3 py-3 rounded-xl bg-gradient-to-r from-red-50 to-rose-50 border-2 border-red-300 text-red-700 hover:from-red-100 hover:to-rose-100 text-sm font-bold transition-all shadow-md hover:shadow-lg"
                         >
                           <Trash2 size={16} />

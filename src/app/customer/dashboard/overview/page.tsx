@@ -43,12 +43,12 @@ interface BudgetSummary {
 }
 
 interface DashboardData {
-  eventDetails: EventDetails;
+  eventDetails: EventDetails | null;
   totalGuests: number;
   guestResponseCounts: GuestResponseCounts;
   taskCompletedPercentage: string;
   bookedServicesSummary: BookedServicesSummary;
-  budgetSummary: BudgetSummary;
+  budgetSummary: BudgetSummary | null;
   timelineTaskCount: number;
   completedChecklistTasks: number;
 }
@@ -115,14 +115,14 @@ export default function DashboardOverviewPage() {
     fetchDashboardData();
   }, []);
 
-  const formatDate = (dateStr: string) => {
+  const formatDate = (dateStr: string | undefined) => {
     if (!dateStr) return "Coming Soon";
     try {
       const date = new Date(dateStr);
-      return date.toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric' 
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
       });
     } catch {
       return "Coming Soon";
@@ -176,9 +176,9 @@ export default function DashboardOverviewPage() {
   }
 
   const daysLeft = getDaysUntilWedding();
-  const checklistPct = parseFloat(dashboardData.taskCompletedPercentage);
-  const budgetUtilPct = dashboardData.budgetSummary.totalBudget 
-    ? Math.round((dashboardData.budgetSummary.spentBudget / dashboardData.budgetSummary.totalBudget) * 100) 
+  const checklistPct = parseFloat(dashboardData.taskCompletedPercentage || "0");
+  const budgetUtilPct = dashboardData.budgetSummary?.totalBudget
+    ? Math.round((dashboardData.budgetSummary.spentBudget / dashboardData.budgetSummary.totalBudget) * 100)
     : 0;
 
   return (
@@ -201,20 +201,34 @@ export default function DashboardOverviewPage() {
               </h1>
               <Heart className="w-8 h-8 text-rose-500 animate-pulse" />
             </div>
-            
-            <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 border border-pink-200 shadow-xl">
-              <h2 className="text-3xl font-bold text-gray-800 mb-2">{dashboardData.eventDetails.title}</h2>
-              <p className="text-lg text-gray-600 mb-2">
-                {dashboardData.eventDetails.groomName} & {dashboardData.eventDetails.brideName}
-              </p>
-              <p className="text-xl text-gray-600 mb-4">{formatDate(dashboardData.eventDetails.date)}</p>
-              {daysLeft !== null && (
-                <div className="inline-flex items-center gap-2 bg-gradient-to-r from-rose-400 to-pink-500 text-white px-6 py-3 rounded-full font-semibold shadow-lg">
-                  <Sparkles className="w-5 h-5" />
-                  {daysLeft > 0 ? `${daysLeft} days until your special day!` : "Your wedding day is here! 🎉"}
-                </div>
-              )}
-            </div>
+
+            {dashboardData.eventDetails ? (
+              <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 border border-pink-200 shadow-xl">
+                <h2 className="text-3xl font-bold text-gray-800 mb-2">{dashboardData.eventDetails.title || "Your Wedding"}</h2>
+                <p className="text-lg text-gray-600 mb-2">
+                  {dashboardData.eventDetails.groomName || "Groom"} & {dashboardData.eventDetails.brideName || "Bride"}
+                </p>
+                <p className="text-xl text-gray-600 mb-4">{formatDate(dashboardData.eventDetails.date)}</p>
+                {daysLeft !== null && (
+                  <div className="inline-flex items-center gap-2 bg-gradient-to-r from-rose-400 to-pink-500 text-white px-6 py-3 rounded-full font-semibold shadow-lg">
+                    <Sparkles className="w-5 h-5" />
+                    {daysLeft > 0 ? `${daysLeft} days until your special day!` : "Your wedding day is here! 🎉"}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 border border-pink-200 shadow-xl">
+                <h2 className="text-2xl font-bold text-gray-800 mb-2">Welcome to Your Wedding Dashboard</h2>
+                <p className="text-gray-600 mb-4">Create your wedding event to get started</p>
+                <Link 
+                  href="/customer/dashboard/wedding-event/create"
+                  className="inline-flex items-center gap-2 bg-gradient-to-r from-rose-500 to-pink-600 text-white px-6 py-3 rounded-full font-semibold hover:from-rose-600 hover:to-pink-700 transition-all duration-300 shadow-lg"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  Create Event
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* Quick Stats Cards */}
@@ -223,7 +237,7 @@ export default function DashboardOverviewPage() {
               <div className="flex items-center gap-4">
                 <Users className="w-8 h-8" />
                 <div>
-                  <div className="text-2xl font-bold">{dashboardData.totalGuests}</div>
+                  <div className="text-2xl font-bold">{dashboardData.totalGuests || 0}</div>
                   <div className="text-rose-100">Total Guests</div>
                 </div>
               </div>
@@ -233,7 +247,7 @@ export default function DashboardOverviewPage() {
               <div className="flex items-center gap-4">
                 <CheckSquare className="w-8 h-8" />
                 <div>
-                  <div className="text-2xl font-bold">{checklistPct}%</div>
+                  <div className="text-2xl font-bold">{checklistPct.toFixed(0)}%</div>
                   <div className="text-purple-100">Tasks Complete</div>
                 </div>
               </div>
@@ -243,7 +257,7 @@ export default function DashboardOverviewPage() {
               <div className="flex items-center gap-4">
                 <Briefcase className="w-8 h-8" />
                 <div>
-                  <div className="text-2xl font-bold">{dashboardData.bookedServicesSummary.totalBookings}</div>
+                  <div className="text-2xl font-bold">{dashboardData.bookedServicesSummary?.totalBookings || 0}</div>
                   <div className="text-emerald-100">Services Booked</div>
                 </div>
               </div>
@@ -260,27 +274,31 @@ export default function DashboardOverviewPage() {
                 </div>
                 <div>
                   <h3 className="text-2xl font-bold text-gray-800 mb-2">Event Details</h3>
-                  <div className="space-y-2">
-                    <div className="font-semibold text-gray-700">{dashboardData.eventDetails.title}</div>
-                    <div className="text-gray-600 flex items-center gap-2">
-                      <Gift className="w-4 h-4" />
-                      {formatDate(dashboardData.eventDetails.date)}
+                  {dashboardData.eventDetails ? (
+                    <div className="space-y-2">
+                      <div className="font-semibold text-gray-700">{dashboardData.eventDetails.title || "Your Wedding"}</div>
+                      <div className="text-gray-600 flex items-center gap-2">
+                        <Gift className="w-4 h-4" />
+                        {formatDate(dashboardData.eventDetails.date)}
+                      </div>
+                      <div className="text-gray-600 text-sm">
+                        📍 {dashboardData.eventDetails.location || "Location TBD"}
+                      </div>
+                      <div className="text-gray-600 text-sm">
+                        👥 {dashboardData.eventDetails.guestCount || 0} guests expected
+                      </div>
                     </div>
-                    <div className="text-gray-600 text-sm">
-                      📍 {dashboardData.eventDetails.location}
-                    </div>
-                    <div className="text-gray-600 text-sm">
-                      👥 {dashboardData.eventDetails.guestCount} guests expected
-                    </div>
-                  </div>
+                  ) : (
+                    <p className="text-gray-600">No event details yet</p>
+                  )}
                 </div>
               </div>
-              <Link 
-                href="/customer/dashboard/wedding-event/view" 
+              <Link
+                href={dashboardData.eventDetails ? "/customer/dashboard/wedding-event/view" : "/customer/dashboard/wedding-event/create"}
                 className="inline-flex items-center gap-2 bg-gradient-to-r from-rose-500 to-pink-600 text-white px-6 py-3 rounded-full font-semibold hover:from-rose-600 hover:to-pink-700 transition-all duration-300 shadow-lg hover:shadow-xl"
               >
                 <Sparkles className="w-4 h-4" />
-                Manage Event
+                {dashboardData.eventDetails ? 'Manage Event' : 'Create Event'}
               </Link>
             </div>
 
@@ -292,50 +310,56 @@ export default function DashboardOverviewPage() {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-2xl font-bold text-gray-800 mb-3">Budget Tracker</h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-600">Total Budget</span>
-                      <span className="font-bold text-emerald-600">LKR {dashboardData.budgetSummary.totalBudget.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-600">Allocated</span>
-                      <span className="font-semibold text-gray-700">LKR {dashboardData.budgetSummary.allocatedBudget.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-600">Spent</span>
-                      <span className="font-semibold text-gray-700">LKR {dashboardData.budgetSummary.spentBudget.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between items-center pt-2 border-t border-gray-200">
-                      <span className="text-gray-600">Remaining</span>
-                      <span className="font-bold text-green-600">LKR {dashboardData.budgetSummary.remainingBudget.toLocaleString()}</span>
-                    </div>
-                    
-                    {/* Budget Progress Bar */}
-                    <div className="mt-4">
-                      <div className="flex justify-between text-sm text-gray-600 mb-2">
-                        <span>Budget Utilization</span>
-                        <span>{budgetUtilPct}%</span>
+                  {dashboardData.budgetSummary?.totalBudget ? (
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600">Total Budget</span>
+                        <span className="font-bold text-emerald-600">LKR {dashboardData.budgetSummary.totalBudget.toLocaleString()}</span>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-3">
-                        <div 
-                          className={`h-3 rounded-full transition-all duration-1000 ${
-                            budgetUtilPct <= 70 ? 'bg-gradient-to-r from-emerald-400 to-green-500' :
-                            budgetUtilPct <= 90 ? 'bg-gradient-to-r from-yellow-400 to-orange-500' :
-                            'bg-gradient-to-r from-red-400 to-red-600'
-                          }`}
-                          style={{ width: `${Math.min(budgetUtilPct, 100)}%` }}
-                        ></div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600">Allocated</span>
+                        <span className="font-semibold text-gray-700">LKR {dashboardData.budgetSummary.allocatedBudget.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600">Spent</span>
+                        <span className="font-semibold text-gray-700">LKR {dashboardData.budgetSummary.spentBudget.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between items-center pt-2 border-t border-gray-200">
+                        <span className="text-gray-600">Remaining</span>
+                        <span className="font-bold text-green-600">LKR {dashboardData.budgetSummary.remainingBudget.toLocaleString()}</span>
+                      </div>
+
+                      {/* Budget Progress Bar */}
+                      <div className="mt-4">
+                        <div className="flex justify-between text-sm text-gray-600 mb-2">
+                          <span>Budget Utilization</span>
+                          <span>{budgetUtilPct}%</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-3">
+                          <div
+                            className={`h-3 rounded-full transition-all duration-1000 ${budgetUtilPct <= 70 ? 'bg-gradient-to-r from-emerald-400 to-green-500' :
+                                budgetUtilPct <= 90 ? 'bg-gradient-to-r from-yellow-400 to-orange-500' :
+                                  'bg-gradient-to-r from-red-400 to-red-600'
+                              }`}
+                            style={{ width: `${Math.min(budgetUtilPct, 100)}%` }}
+                          ></div>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="text-center py-6">
+                      <p className="text-gray-600 mb-4">No budget set yet</p>
+                      <p className="text-sm text-gray-400">Create your budget to start tracking expenses</p>
+                    </div>
+                  )}
                 </div>
               </div>
-              <Link 
-                href="/customer/dashboard/budget/allocation" 
+              <Link
+                href="/customer/dashboard/budget/allocation"
                 className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-6 py-3 rounded-full font-semibold hover:from-emerald-600 hover:to-teal-700 transition-all duration-300 shadow-lg hover:shadow-xl"
               >
                 <CircleDollarSign className="w-4 h-4" />
-                Manage Budget
+                {dashboardData.budgetSummary?.totalBudget ? 'Manage Budget' : 'Create Budget'}
               </Link>
             </div>
 
@@ -347,30 +371,30 @@ export default function DashboardOverviewPage() {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-2xl font-bold text-gray-800 mb-3">Guest Responses</h3>
-                  <div className="text-3xl font-bold text-purple-600 mb-2">{dashboardData.totalGuests} Guests</div>
-                  
+                  <div className="text-3xl font-bold text-purple-600 mb-2">{dashboardData.totalGuests || 0} Guests</div>
+
                   <div className="grid grid-cols-2 gap-2 text-center">
                     <div className="bg-green-50 rounded-xl p-2 border border-green-200">
-                      <div className="text-lg font-bold text-green-600">{dashboardData.guestResponseCounts.confirmed}</div>
+                      <div className="text-lg font-bold text-green-600">{dashboardData.guestResponseCounts?.confirmed || 0}</div>
                       <div className="text-xs text-green-700">Confirmed</div>
                     </div>
                     <div className="bg-yellow-50 rounded-xl p-2 border border-yellow-200">
-                      <div className="text-lg font-bold text-yellow-600">{dashboardData.guestResponseCounts.pending}</div>
+                      <div className="text-lg font-bold text-yellow-600">{dashboardData.guestResponseCounts?.pending || 0}</div>
                       <div className="text-xs text-yellow-700">Pending</div>
                     </div>
                     <div className="bg-red-50 rounded-xl p-2 border border-red-200">
-                      <div className="text-lg font-bold text-red-600">{dashboardData.guestResponseCounts.declined}</div>
+                      <div className="text-lg font-bold text-red-600">{dashboardData.guestResponseCounts?.declined || 0}</div>
                       <div className="text-xs text-red-700">Declined</div>
                     </div>
                     <div className="bg-blue-50 rounded-xl p-2 border border-blue-200">
-                      <div className="text-lg font-bold text-blue-600">{dashboardData.guestResponseCounts.invited}</div>
+                      <div className="text-lg font-bold text-blue-600">{dashboardData.guestResponseCounts?.invited || 0}</div>
                       <div className="text-xs text-blue-700">Invited</div>
                     </div>
                   </div>
                 </div>
               </div>
-              <Link 
-                href="/customer/dashboard/rsvp/responses" 
+              <Link
+                href="/customer/dashboard/rsvp/responses"
                 className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-6 py-3 rounded-full font-semibold hover:from-purple-600 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl"
               >
                 <Users className="w-4 h-4" />
@@ -386,12 +410,12 @@ export default function DashboardOverviewPage() {
                 </div>
                 <div>
                   <h3 className="text-2xl font-bold text-gray-800 mb-2">Wedding Timeline</h3>
-                  <div className="text-3xl font-bold text-amber-600 mb-2">{dashboardData.timelineTaskCount} Agenda Items</div>
+                  <div className="text-3xl font-bold text-amber-600 mb-2">{dashboardData.timelineTaskCount || 0} Agenda Items</div>
                   <p className="text-gray-600">Perfect day scheduling</p>
                 </div>
               </div>
-              <Link 
-                href="/customer/dashboard/agenda/create" 
+              <Link
+                href="/customer/dashboard/agenda/create"
                 className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white px-6 py-3 rounded-full font-semibold hover:from-amber-600 hover:to-orange-700 transition-all duration-300 shadow-lg hover:shadow-xl"
               >
                 <FileText className="w-4 h-4" />
@@ -408,10 +432,10 @@ export default function DashboardOverviewPage() {
                 <div className="flex-1">
                   <h3 className="text-2xl font-bold text-gray-800 mb-3">Wedding Checklist</h3>
                   <div className="flex items-center gap-3 mb-4">
-                    <span className="text-2xl font-bold text-blue-600">{dashboardData.completedChecklistTasks}</span>
+                    <span className="text-2xl font-bold text-blue-600">{dashboardData.completedChecklistTasks || 0}</span>
                     <span className="text-gray-600">tasks completed</span>
                   </div>
-                  
+
                   {/* Progress Circle */}
                   <div className="relative w-20 h-20 mx-auto mb-4">
                     <svg className="w-20 h-20 transform -rotate-90">
@@ -443,8 +467,8 @@ export default function DashboardOverviewPage() {
                   </div>
                 </div>
               </div>
-              <Link 
-                href="/customer/dashboard/checklist/create" 
+              <Link
+                href="/customer/dashboard/checklist/create"
                 className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-full font-semibold hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl"
               >
                 <CheckSquare className="w-4 h-4" />
@@ -460,25 +484,25 @@ export default function DashboardOverviewPage() {
                 </div>
                 <div>
                   <h3 className="text-2xl font-bold text-gray-800 mb-2">Wedding Services</h3>
-                  <div className="text-3xl font-bold text-violet-600 mb-2">{dashboardData.bookedServicesSummary.totalBookings}</div>
+                  <div className="text-3xl font-bold text-violet-600 mb-2">{dashboardData.bookedServicesSummary?.totalBookings || 0}</div>
                   <div className="space-y-1 text-sm text-gray-600">
                     <div className="flex items-center justify-between">
                       <span>✓ Accepted:</span>
-                      <span className="font-semibold text-green-600">{dashboardData.bookedServicesSummary.accepted}</span>
+                      <span className="font-semibold text-green-600">{dashboardData.bookedServicesSummary?.accepted || 0}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span>⏳ Pending:</span>
-                      <span className="font-semibold text-yellow-600">{dashboardData.bookedServicesSummary.pending}</span>
+                      <span className="font-semibold text-yellow-600">{dashboardData.bookedServicesSummary?.pending || 0}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span>✔ Completed:</span>
-                      <span className="font-semibold text-purple-600">{dashboardData.bookedServicesSummary.completed}</span>
+                      <span className="font-semibold text-purple-600">{dashboardData.bookedServicesSummary?.completed || 0}</span>
                     </div>
                   </div>
                 </div>
               </div>
-              <Link 
-                href="/customer/dashboard/services/selection" 
+              <Link
+                href="/customer/dashboard/services/selection"
                 className="inline-flex items-center gap-2 bg-gradient-to-r from-violet-500 to-purple-600 text-white px-6 py-3 rounded-full font-semibold hover:from-violet-600 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl"
               >
                 <Briefcase className="w-4 h-4" />
@@ -498,7 +522,7 @@ export default function DashboardOverviewPage() {
               Your Perfect Day Awaits!
             </h3>
             <p className="text-gray-700 max-w-2xl mx-auto leading-relaxed">
-              Every detail you plan today brings you closer to the magical moment you&apos;ve dreamed of. 
+              Every detail you plan today brings you closer to the magical moment you&apos;ve dreamed of.
               Take your time, enjoy the process, and remember that love is what makes everything perfect.
             </p>
           </div>

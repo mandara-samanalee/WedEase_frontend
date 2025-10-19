@@ -33,6 +33,7 @@ export default function ServiceDetails() {
     // Photographs state
     const [photos, setPhotos] = useState<{ file: File; url: string }[]>([]);
     const photoInputId = "photos-input";
+    const [isSaving, setIsSaving] = useState(false);
 
     const addPhotos = (files: FileList | File[]) => {
         const incoming = Array.from(files).filter(f => f.type.startsWith("image/"));
@@ -199,6 +200,8 @@ export default function ServiceDetails() {
                 console.error(err);
                 toast.error("Error creating service");
             }
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -450,9 +453,10 @@ export default function ServiceDetails() {
 
                 <div className="flex gap-4 pb-60 pt-6">
                     <DefaultButton
-                        btnLabel="Save Service"
+                        btnLabel={isSaving ? "Saving changes..." : "Save Service"}
                         className="mt-2"
                         handleClick={handleSaveService}
+                        disabled={isSaving}
                     />
                 </div>
             </div>

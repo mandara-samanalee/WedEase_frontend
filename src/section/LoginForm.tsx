@@ -57,7 +57,7 @@ try {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
-      <div className="w-[440] bg-white p-8 rounded-lg shadow-lg border-2 border-purple-300">
+      <div className="w-[500] bg-white p-8 rounded-lg shadow-lg border-2 border-purple-300">
         <h1 className="text-3xl font-bold text-purple-700 text-center mb-8">Welcome</h1>
 
         <form className="space-y-5" onSubmit={handleSubmit}>
